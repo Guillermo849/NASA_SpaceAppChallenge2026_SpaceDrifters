@@ -542,4 +542,56 @@
     <string name="login_demo_medico">Flight surgeon (on Earth or on board)</string>
     <string name="login_demo_astronauta">Astronaut</string>
     <string name="login_demo_credenciales">Username: %1$s · Password: %2$s</string>
+
+    <!-- Real NASA blood count (OSDR, study LSDS-7) -->
+    <string name="hemo_titulo">Real blood count · NASA OSDR (LSDS-7)</string>
+    <string name="hemo_explicacion">Real blood samples from crew member %1$s, before flight (L) and after return (R). Choose one: values outside their range are flagged.</string>
+    <plurals name="hemo_antes">
+        <item quantity="one">Before flight · %d day before launch</item>
+        <item quantity="other">Before flight · %d days before launch</item>
+    </plurals>
+    <plurals name="hemo_despues">
+        <item quantity="one">After return · %d day later</item>
+        <item quantity="other">After return · %d days later</item>
+    </plurals>
+    <string name="hemo_resumen_normal">All values within their range → Normal</string>
+    <plurals name="hemo_resumen_alterado">
+        <item quantity="one">%d value outside its range → Abnormal</item>
+        <item quantity="other">%d values outside their range → Abnormal</item>
+    </plurals>
+    <string name="hemo_bajo">low</string>
+    <string name="hemo_alto">high</string>
+    <string name="hemo_rango">Range %1$s–%2$s</string>
+    <string name="hemo_usar">Use this blood count</string>
+    <string name="hemo_sin_dato">No data: %1$s</string>
+    <string name="hemo_o_a_mano">Or choose the result by hand</string>
+    <string name="hemo_resultado_muestra">NASA sample %1$s %2$s</string>
+    <string name="hemo_resultado_fuera">out of range: %1$s</string>
+    <string name="hemo_p_basofilos_abs">Basophils (absolute)</string>
+    <string name="hemo_p_eosinofilos_abs">Eosinophils (absolute)</string>
+    <string name="hemo_p_linfocitos_abs">Lymphocytes (absolute)</string>
+    <string name="hemo_p_monocitos_abs">Monocytes (absolute)</string>
+    <string name="hemo_p_neutrofilos_abs">Neutrophils (absolute)</string>
+    <string name="hemo_p_basofilos">Basophils</string>
+    <string name="hemo_p_eosinofilos">Eosinophils</string>
+    <string name="hemo_p_hematocrito">Haematocrit</string>
+    <string name="hemo_p_hemoglobina">Haemoglobin</string>
+    <string name="hemo_p_linfocitos">Lymphocytes</string>
+    <string name="hemo_p_hcm">MCH</string>
+    <string name="hemo_p_chcm">MCHC</string>
+    <string name="hemo_p_vcm">MCV</string>
+    <string name="hemo_p_monocitos">Monocytes</string>
+    <string name="hemo_p_vpm">MPV</string>
+    <string name="hemo_p_neutrofilos">Neutrophils</string>
+    <string name="hemo_p_plaquetas">Platelets</string>
+    <string name="hemo_p_ade">RDW</string>
+    <string name="hemo_p_hematies">Red blood cells</string>
+    <string name="hemo_p_leucocitos">White blood cells</string>
+    <string name="hemo_u_por_ul">/µl</string>
+    <string name="hemo_u_porcentaje">%</string>
+    <string name="hemo_u_pg">pg</string>
+    <string name="hemo_u_g_dl">g/dl</string>
+    <string name="hemo_u_fl">fl</string>
+    <string name="hemo_u_miles_ul">×10³/µl</string>
+    <string name="hemo_u_millones_ul">×10⁶/µl</string>
 </resources>
