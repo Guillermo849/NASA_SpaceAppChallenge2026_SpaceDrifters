@@ -68,8 +68,11 @@ import java.util.concurrent.Executors
         LineaBaseCognitiva::class,
         // Registro diario
         RegistroDiario::class,
+        // Médico: pruebas extra y notas
+        PruebaProgramada::class,
+        NotaMedica::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -89,6 +92,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun cognitivoDao(): CognitivoDao
     abstract fun tripulacionDao(): TripulacionDao
     abstract fun alertasDao(): AlertasDao
+    abstract fun medicoDao(): MedicoDao
 
     companion object {
         /** Hilos para escribir en la base de datos fuera del hilo principal (código Java del equipo). */

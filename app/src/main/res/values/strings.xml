@@ -117,6 +117,9 @@
     <string name="empezar">Empezar</string>
     <string name="repetir">Repetir</string>
     <string name="prueba_hecha_hoy">Hecha hoy</string>
+    <string name="prueba_extra_pedida">Tu médico ha pedido una prueba extra</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="guardar">Guardar</string>
 
     <!-- Pruebas cognitivas (comunes) -->
     <string name="empezar_prueba">Empezar la prueba</string>
@@ -179,4 +182,101 @@
 
     <!-- Médico -->
     <string name="medico_tripulacion_titulo">Tripulación</string>
+    <string name="medico_tripulacion_subtitulo">Datos recibidos en la Tierra, con el retraso de la misión.</string>
+    <string name="medico_sin_tripulacion">No hay tripulación.</string>
+    <string name="medico_sin_alertas">Sin alertas activas</string>
+    <plurals name="medico_alertas_activas">
+        <item quantity="one">%1$d alerta activa</item>
+        <item quantity="other">%1$d alertas activas</item>
+    </plurals>
+    <string name="medico_perfil_titulo">Perfil</string>
+    <string name="medico_pestana_cognitivas">Pruebas cognitivas</string>
+
+    <!-- Médico: pestaña Pruebas cognitivas -->
+    <plurals name="medico_en_camino">
+        <item quantity="one">%1$d sesión de camino, llega en %2$d min</item>
+        <item quantity="other">%1$d sesiones de camino, la primera llega en %2$d min</item>
+    </plurals>
+    <string name="medico_ultima_sesion">Última sesión</string>
+    <string name="medico_metrica_stroop">Efecto Stroop</string>
+    <string name="medico_metrica_nback">d′ (sensibilidad)</string>
+    <string name="medico_tendencia">Tendencia (3 últimas)</string>
+    <string name="medico_linea_base">Línea base</string>
+    <string name="tendencia_mejorando">Mejorando</string>
+    <string name="tendencia_estable">Estable</string>
+    <string name="tendencia_empeorando">Empeorando</string>
+    <plurals name="medico_cd_grafica">
+        <item quantity="one">Gráfica de %1$s de 30 días: %2$d sesión</item>
+        <item quantity="other">Gráfica de %1$s de 30 días: %2$d sesiones</item>
+    </plurals>
+    <string name="medico_escala">Escala: %1$s – %2$s</string>
+    <string name="medico_leyenda_mision">Sesión de misión (color = estado)</string>
+    <string name="medico_leyenda_linea_base">Sesión de línea base</string>
+    <string name="medico_leyenda_rango">Rango habitual (media ± 1 desviación)</string>
+    <string name="medico_alertas_titulo">Alertas activas</string>
+    <string name="medico_sin_alertas_activas">No hay alertas activas recibidas.</string>
+    <string name="medico_generada">Generada a bordo: %1$s</string>
+    <string name="medico_confirmar">Confirmar</string>
+    <string name="medico_pedir_otra_prueba">Pedir otra prueba</string>
+    <string name="medico_por_que">Por qué ha saltado</string>
+    <string name="medico_por_que_regla">Regla</string>
+    <string name="medico_por_que_umbral">Umbral</string>
+    <string name="medico_por_que_dato">Dato</string>
+    <string name="medico_por_que_fuente">Fuente</string>
+    <string name="medico_o">" o "</string>
+    <plurals name="medico_umbral_seguidas">
+        <item quantity="one">%1$d sesión en %2$s</item>
+        <item quantity="other">%1$d sesiones seguidas en %2$s</item>
+    </plurals>
+    <string name="medico_umbral_estado">Prueba en %1$s</string>
+    <plurals name="medico_umbral_noches">
+        <item quantity="one">%1$d noche durmiendo menos de lo habitual</item>
+        <item quantity="other">%1$d noches seguidas durmiendo menos de lo habitual</item>
+    </plurals>
+    <string name="medico_umbral_sintomas">síntomas: %1$s</string>
+    <string name="medico_sueno_habitual">(habitual: %1$s h)</string>
+    <string name="medico_fuente_registro">Registro diario</string>
+    <string name="medico_regla_stroop_tendencia">Tendencia en el Stroop</string>
+    <string name="medico_regla_nback_tendencia">Tendencia en el N-Back</string>
+    <string name="medico_regla_fatiga">Fatiga cognitiva combinada</string>
+    <string name="medico_regla_concentracion">Concentración y síntomas</string>
+    <string name="medico_acciones_titulo">Acciones</string>
+    <string name="medico_prueba_pendiente">Prueba extra pendiente: %1$s</string>
+    <string name="medico_programar_prueba">Programar prueba extra</string>
+    <string name="medico_programar_texto">Aparecerá en "Pruebas de hoy" del astronauta hasta que la haga.</string>
+    <string name="medico_recalcular_linea_base">Recalcular línea base</string>
+    <string name="medico_anadir_nota">Añadir nota</string>
+    <string name="medico_nota_etiqueta">Nota</string>
+    <string name="medico_notas_titulo">Notas</string>
+    <string name="medico_sesiones_titulo">Sesiones</string>
+    <string name="medico_sin_sesiones">Aún no ha llegado ninguna sesión.</string>
+    <string name="medico_no_valida">No válida</string>
+    <string name="medico_aciertos">Aciertos %1$s %%</string>
+    <string name="medico_valida_si">Válida: sí</string>
+    <string name="medico_valida_no">Válida: no</string>
+    <string name="medico_sueno_kss">Sueño %1$s h · KSS %2$s</string>
+    <string name="medico_msg_alerta_confirmada">Alerta confirmada.</string>
+    <string name="medico_msg_prueba_pedida">Prueba extra programada.</string>
+    <string name="medico_msg_linea_base">Línea base recalculada.</string>
+    <string name="medico_msg_nota">Nota guardada.</string>
+    <string name="medico_msg_error">No se ha podido hacer. Inténtalo de nuevo.</string>
+
+    <!-- Médico: detalle de una sesión -->
+    <string name="medico_detalle_titulo">Sesión</string>
+    <string name="medico_no_valida_detalle">Sesión no válida (interrumpida): no cuenta.</string>
+    <string name="medico_ensayos_titulo">Ensayos (%1$d)</string>
+    <string name="metrica_tiempo_medio">Tiempo medio de los aciertos</string>
+    <string name="metrica_porcentaje_aciertos">Aciertos</string>
+    <string name="metrica_errores_no_coincidentes">Errores en no coincidentes</string>
+    <string name="metrica_aciertos_coincidencias">Coincidencias detectadas</string>
+    <string name="metrica_falsas_alarmas">Falsas alarmas</string>
+    <string name="metrica_tiempo_aciertos">Tiempo medio de los aciertos</string>
+    <string name="medico_estimulo_stroop">%1$s en tinta %2$s</string>
+    <string name="medico_coincidente">Coincidente</string>
+    <string name="medico_no_coincidente">No coincidente</string>
+    <string name="medico_era_coincidencia">Era coincidencia</string>
+    <string name="medico_no_era_coincidencia">No era coincidencia</string>
+    <string name="medico_respuesta">Respuesta: %1$s</string>
+    <string name="medico_pulso">Pulsó</string>
+    <string name="medico_no_pulso">No pulsó</string>
 </resources>

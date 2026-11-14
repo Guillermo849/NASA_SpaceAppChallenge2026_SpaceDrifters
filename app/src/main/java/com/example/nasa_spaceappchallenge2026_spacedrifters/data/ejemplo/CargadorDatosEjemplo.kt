@@ -97,16 +97,19 @@ class CargadorDatosEjemplo(
                     startDate = lanzamiento.atStartOfDay(zona).toInstant().toEpochMilli()
                 },
             )
-            datos.tripulacion.forEachIndexed { orden, t ->
-                cargar(t, orden, datos.diasMision, misionId, ahora, zona)
+            val ultimaSesion = datos.tripulacion.mapIndexed { orden, t ->
+                t.id to cargar(t, orden, datos.diasMision, misionId, ahora, zona)
             }
             // Con todo cargado, las reglas ven el estado de hoy (no se evalúan sesión a sesión).
-            alertas?.let { a -> datos.tripulacion.forEach { a.evaluar(it.id, ahora, zona) } }
+            // Cada alerta se genera cuando terminó su última sesión, como habría pasado a bordo:
+            // así llega a la Tierra con esos datos (la de Maya, aún de camino; la de Leo, ya recibida).
+            alertas?.let { a -> ultimaSesion.forEach { (id, instante) -> a.evaluar(id, instante, zona) } }
         }
         return true
     }
 
-    private suspend fun cargar(t: TripulanteEjemplo, orden: Int, dias: Int, misionId: Long, ahora: Long, zona: ZoneId) {
+    /** Carga un tripulante y devuelve el inicio de su última sesión de misión. */
+    private suspend fun cargar(t: TripulanteEjemplo, orden: Int, dias: Int, misionId: Long, ahora: Long, zona: ZoneId): Long {
         listOf(t.stroopZ, t.nbackZ, t.horasSueno, t.somnolencia).forEach {
             require(it.size == dias) { "${t.nombre}: se esperaban $dias días y hay ${it.size}" }
         }
@@ -132,6 +135,7 @@ class CargadorDatosEjemplo(
 
         // Misión: una sesión diaria de cada prueba. Las de hoy, en el pasado reciente.
         val inicioHoy = hoy.atStartOfDay(zona).toInstant().toEpochMilli()
+        var ultimaSesion = inicioHoy
         for (dia in 1..dias) {
             val fecha = lanzamiento.plusDays(dia - 1L)
             val (inicioStroop, inicioNBack) = if (fecha == hoy) {
@@ -142,6 +146,7 @@ class CargadorDatosEjemplo(
             }
             stroop(t, inicioStroop, esPractica = false, esLineaBase = false, z = t.stroopZ[dia - 1], random = random)
             nback(t, inicioNBack, esLineaBase = false, z = t.nbackZ[dia - 1], random = random)
+            ultimaSesion = inicioNBack
         }
 
         db.tripulacionDao().insertarRegistros(
@@ -155,6 +160,7 @@ class CargadorDatosEjemplo(
                 )
             },
         )
+        return ultimaSesion
     }
 
     /** Stroop a [z] desviaciones de su media (positivo = más efecto, más lento y más errores). */

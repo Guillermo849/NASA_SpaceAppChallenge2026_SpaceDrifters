@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AlertaConNombre
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.LineaBaseCognitiva
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.MedicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.ResumenSesion
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
@@ -28,6 +29,8 @@ class InicioAstronautaViewModel(
     cognitivo: CognitivoRepository,
     tripulacion: TripulacionRepository,
     alertas: AlertasRepository,
+    /** Pruebas extra que ha pedido el médico. */
+    medico: MedicoRepository,
     astronautaId: Long,
     private val retrasoMin: Long,
     private val zona: ZoneId = ZoneId.systemDefault(),
@@ -43,9 +46,11 @@ class InicioAstronautaViewModel(
         cognitivo.tiposHechosDesde(astronautaId, inicioDeHoy),
         tripulacion.registroDelDia(astronautaId, hoy),
         alertas.activasPara(astronautaId),
-    ) { astronauta, hechas, registro, activas ->
+        medico.pruebasPendientes(astronautaId),
+    ) { astronauta, hechas, registro, activas, extra ->
         PanelAstronautaUi(
             avisos = activas.map { aAviso(it, astronautaId) },
+            pruebasExtra = extra.map { it.tipo }.toSet(),
             nombre = astronauta?.nombre,
             cargo = astronauta?.cargo,
             // El día 1 es el de inicio de su misión (tabla mission).

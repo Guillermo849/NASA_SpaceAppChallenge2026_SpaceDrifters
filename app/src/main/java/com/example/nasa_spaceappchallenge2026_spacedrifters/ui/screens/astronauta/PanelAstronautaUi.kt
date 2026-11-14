@@ -20,6 +20,8 @@ data class PanelAstronautaUi(
     /** Alertas activas sobre este astronauta o asignadas a él, de la más reciente a la más antigua. */
     val avisos: List<AvisoUi> = emptyList(),
     val hechasHoy: Set<TipoPrueba> = emptySet(),
+    /** Pruebas extra que ha pedido el médico y aún no ha hecho. */
+    val pruebasExtra: Set<TipoPrueba> = emptySet(),
     /** Registro diario de hoy, o null si aún no lo ha hecho. */
     val registroHoy: RegistroHoyUi? = null,
     /** Una entrada por prueba, con las sesiones de los últimos 30 días. */
