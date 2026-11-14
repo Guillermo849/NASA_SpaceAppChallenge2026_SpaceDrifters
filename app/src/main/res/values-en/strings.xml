@@ -535,4 +535,11 @@
     <string name="hecho_confirmado_por_medico">level confirmed</string>
     <string name="hecho_bajado_por_medico">level lowered</string>
     <string name="hecho_emergencia_atendida">emergency handled</string>
+
+    <!-- Sign in: demo accounts -->
+    <string name="login_demo_titulo">Demo accounts</string>
+    <string name="login_demo_explicacion">Simulated data for the presentation. Tap an account to fill in the form.</string>
+    <string name="login_demo_medico">Flight surgeon (on Earth or on board)</string>
+    <string name="login_demo_astronauta">Astronaut</string>
+    <string name="login_demo_credenciales">Username: %1$s · Password: %2$s</string>
 </resources>

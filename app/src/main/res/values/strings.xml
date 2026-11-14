@@ -537,4 +537,11 @@
     <string name="hecho_confirmado_por_medico">nivel confirmado</string>
     <string name="hecho_bajado_por_medico">nivel bajado</string>
     <string name="hecho_emergencia_atendida">emergencia atendida</string>
+
+    <!-- Inicio de sesión: cuentas de demostración -->
+    <string name="login_demo_titulo">Cuentas de demostración</string>
+    <string name="login_demo_explicacion">Datos simulados para la presentación. Pulsa una cuenta para rellenar el formulario.</string>
+    <string name="login_demo_medico">Médico (en la Tierra o a bordo)</string>
+    <string name="login_demo_astronauta">Astronauta</string>
+    <string name="login_demo_credenciales">Usuario: %1$s · Contraseña: %2$s</string>
 </resources>
