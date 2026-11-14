@@ -1,5 +1,5 @@
 {
-  "_comentario": "Datos simulados. Se cargan al primer arranque (base de datos vacía). Día 14 = hoy. stroopZ / nbackZ = desviaciones respecto a su media, positivo = peor (Stroop más lento, d' más baja). Los ensayos se generan a partir de esto.",
+  "_comentario": "Datos simulados. constantes: FC (lpm), PAS/PAD (mmHg), SPO2 (%), FR (rpm); base = su valor habitual y dias = día de misión con otro valor (4 medidas al día con algo de ruido). Se cargan al primer arranque (base de datos vacía). Día 14 = hoy. stroopZ / nbackZ = desviaciones respecto a su media, positivo = peor (Stroop más lento, d' más baja). Los ensayos se generan a partir de esto.",
   "diasMision": 14,
   "tripulacion": [
     {
@@ -15,7 +15,11 @@
       "nbackZ": [-0.2, 0.3, -0.4, 0.0, 0.5, -0.3, -0.1, 0.2, -0.4, 0.0, 1.5, 2.0, 2.3, 2.6],
       "horasSueno": [7.6, 7.3, 7.8, 7.2, 7.5, 7.4, 7.7, 7.1, 7.3, 7.0, 6.4, 5.2, 4.8, 5.0],
       "somnolencia": [3, 3, 2, 4, 3, 3, 2, 4, 3, 4, 5, 7, 7, 8],
-      "sintomas": { "13": ["FATIGA"], "14": ["FATIGA"] }
+      "sintomas": { "13": ["FATIGA"], "14": ["FATIGA"] },
+      "constantes": {
+        "base": { "FC": 62, "PAS": 118, "PAD": 76, "SPO2": 98, "FR": 14 },
+        "dias": { "13": { "FC": 88, "PAS": 102, "PAD": 68 }, "14": { "FC": 96, "PAS": 94, "PAD": 62 } }
+      }
     },
     {
       "id": 2,
@@ -29,7 +33,8 @@
       "nbackZ": [0.0, -0.3, 0.2, -0.1, -0.4, 0.3, -0.2, 0.0, 0.1, -0.3, -0.1, 0.2, 0.0, 0.4],
       "horasSueno": [7.1, 6.9, 7.2, 7.0, 6.8, 7.3, 7.0, 6.9, 7.1, 7.2, 6.8, 7.0, 6.9, 6.6],
       "somnolencia": [3, 3, 3, 2, 3, 3, 3, 3, 2, 3, 3, 3, 4, 5],
-      "sintomas": { "14": ["DOLOR_CABEZA"] }
+      "sintomas": { "14": ["DOLOR_CABEZA"] },
+      "constantes": { "base": { "FC": 66, "PAS": 122, "PAD": 80, "SPO2": 98, "FR": 15 } }
     },
     {
       "id": 3,
@@ -43,7 +48,8 @@
       "nbackZ": [0.1, -0.2, 0.4, 0.0, -0.3, 0.2, 0.5, -0.1, 0.0, 0.3, -0.4, 0.1, 0.2, -0.2],
       "horasSueno": [7.4, 7.6, 7.5, 7.8, 7.3, 7.5, 7.7, 7.4, 7.6, 7.5, 7.2, 7.6, 7.5, 7.4],
       "somnolencia": [2, 3, 2, 2, 3, 2, 3, 2, 2, 3, 3, 2, 2, 3],
-      "sintomas": {}
+      "sintomas": {},
+      "constantes": { "base": { "FC": 58, "PAS": 112, "PAD": 72, "SPO2": 99, "FR": 13 } }
     },
     {
       "id": 4,
@@ -57,7 +63,8 @@
       "nbackZ": [-0.1, 0.2, 0.0, 0.4, -0.2, 0.1, -0.4, 0.3, 0.0, -0.1, 0.2, 0.5, -0.3, 0.1],
       "horasSueno": [6.9, 7.1, 7.0, 6.8, 7.2, 7.0, 6.9, 7.1, 7.3, 7.0, 6.8, 7.1, 7.0, 6.9],
       "somnolencia": [3, 3, 2, 3, 3, 2, 3, 3, 2, 3, 3, 3, 2, 3],
-      "sintomas": { "6": ["NAUSEAS"] }
+      "sintomas": { "6": ["NAUSEAS"] },
+      "constantes": { "base": { "FC": 64, "PAS": 120, "PAD": 78, "SPO2": 98, "FR": 14 } }
     }
   ]
 }

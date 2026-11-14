@@ -191,3 +191,68 @@ fun nombreAccion(codigo: String): Int? = when (codigo) {
 /** Texto de un código, o el propio código si aún no tiene traducción. */
 @Composable
 fun textoDe(@StringRes id: Int?, codigo: String): String = id?.let { stringResource(it) } ?: codigo
+
+/** Dato (hecho) que hace avanzar o subir un protocolo, o motivo de un cambio hecho a mano. */
+@StringRes
+fun nombreHecho(codigo: String): Int? = when (codigo) {
+    "EDEMA_FACIAL_CERVICAL" -> R.string.hecho_edema_facial_cervical
+    "CEFALEA" -> R.string.hecho_cefalea
+    "FC_ALTA" -> R.string.hecho_fc_alta
+    "PAS_BAJA" -> R.string.hecho_pas_baja
+    "PAS_ALTA" -> R.string.hecho_pas_alta
+    "SPO2_BAJA" -> R.string.hecho_spo2_baja
+    "TAQUIPNEA" -> R.string.hecho_taquipnea
+    "DISNEA" -> R.string.signo_disnea
+    "MAREO" -> R.string.hecho_mareo
+    "FATIGA" -> R.string.hecho_fatiga
+    "PRESINCOPE" -> R.string.hecho_presincope
+    "ANALITICA_ALTERADA" -> R.string.hecho_analitica_alterada
+    "ECO_DOPPLER_PEOR_QUE_ANTERIOR" -> R.string.hecho_eco_doppler_peor
+    "REPETICION_ALTERADA" -> R.string.hecho_repeticion_alterada
+    "VS_BAJO" -> R.string.hecho_vs_bajo
+    "GC_BAJO" -> R.string.hecho_gc_bajo
+    "ECG_ALTERADO" -> R.string.hecho_ecg_alterado
+    "SUENO_BAJO" -> R.string.hecho_sueno_bajo
+    "NBACK_BAJO" -> R.string.hecho_nback_bajo
+    "TIEMPO_REACCION_ALTO" -> R.string.hecho_tiempo_reaccion_alto
+    "COGNITIVO_ALERTA" -> R.string.hecho_cognitivo_alerta
+    "ESTRES_ALTO" -> R.string.hecho_estres_alto
+    "EJERCICIO_ULTIMA_HORA" -> R.string.hecho_ejercicio_ultima_hora
+    "ESTRES_ULTIMA_HORA" -> R.string.hecho_estres_ultima_hora
+    "MAREO_INTENSO" -> R.string.signo_mareo_intenso
+    "DETERIORO_COGNITIVO_BRUSCO" -> R.string.signo_deterioro_cognitivo_brusco
+    "DOLOR_TORACICO" -> R.string.signo_dolor_toracico
+    "SINCOPE" -> R.string.signo_sincope
+    "DISNEA_GRAVE" -> R.string.signo_disnea_grave
+    "ALTERACION_LENGUAJE" -> R.string.signo_alteracion_lenguaje
+    "CONFIRMADO_POR_MEDICO" -> R.string.hecho_confirmado_por_medico
+    "BAJADO_POR_MEDICO" -> R.string.hecho_bajado_por_medico
+    "EMERGENCIA_ATENDIDA" -> R.string.hecho_emergencia_atendida
+    else -> null
+}
+
+/**
+ * "Dato que lo provocó" de un evento, en texto: "FC_ALTA+PAS_BAJA" → "FC alta, PA sistólica baja";
+ * "ECO_DOPPLER_YUGULAR=RETROGRADO" → "Eco doppler yugular: flujo retrógrado"; "NO:CEFALEA" → "Sin: cefalea".
+ */
+@Composable
+fun textoMotivo(motivo: String): String {
+    // "NO:" va delante de toda la lista de hechos que no se cumplen.
+    if (motivo.startsWith("NO:")) return stringResource(R.string.motivo_no, textoHechos(motivo.removePrefix("NO:").split('+')))
+    val partes = motivo.split('+').filter { it.isNotBlank() }.map { parte ->
+        when {
+            '=' in parte -> {
+                val (hecho, valor) = parte.split('=', limit = 2)
+                val nombre = TipoPruebaClinica.entries.firstOrNull { it.name == hecho }?.let { stringResource(nombrePruebaClinica(it)) }
+                    ?: textoDe(nombreHecho(hecho), hecho)
+                "$nombre: " + textoDe(nombreOpcionResultado(valor), valor)
+            }
+            else -> TipoPruebaClinica.entries.firstOrNull { it.name == parte }?.let { stringResource(nombrePruebaClinica(it)) }
+                ?: textoDe(nombreHecho(parte), parte)
+        }
+    }
+    return partes.joinToString(", ")
+}
+
+@Composable
+private fun textoHechos(codigos: List<String>): String = codigos.map { textoDe(nombreHecho(it), it) }.joinToString(", ")

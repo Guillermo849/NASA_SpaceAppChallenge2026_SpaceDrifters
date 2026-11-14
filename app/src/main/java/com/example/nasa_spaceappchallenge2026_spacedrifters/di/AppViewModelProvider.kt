@@ -14,6 +14,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.oficial.O
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.oficial.ResultadoPruebaViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.DetalleSesionViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.PerfilAstronautaViewModel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.FisiologicoMedicoViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.TripulacionViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.InicioAstronautaViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.emergencia.EmergenciaViewModel
@@ -71,6 +72,15 @@ object AppViewModelProvider {
         initializer {
             PerfilAstronautaViewModel(
                 app().container.medicoRepository,
+                createSavedStateHandle().toRoute<RutaPerfilAstronauta>().astronautaId,
+            )
+        }
+        initializer {
+            val c = app().container
+            FisiologicoMedicoViewModel(
+                c.fisiologicoMedicoRepository,
+                c.medicoRepository,
+                c.umbrales,
                 createSavedStateHandle().toRoute<RutaPerfilAstronauta>().astronautaId,
             )
         }

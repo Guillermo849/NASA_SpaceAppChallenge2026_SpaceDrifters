@@ -6,6 +6,10 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.CargoTrip
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.AppUserEntity
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.AstronautEntity
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.MissionEntity
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.BloodPressureEntity
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.ContinuousMeasurementEntity
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.model.BloodPressureStatus
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.model.MeasurementType
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.model.Role
 import java.text.Normalizer
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.RegistroDiario
@@ -66,6 +70,15 @@ data class TripulanteEjemplo(
     val somnolencia: List<Int?>,
     /** Día de misión ("1".."14") → síntomas de ese día. */
     val sintomas: Map<String, List<Sintoma>> = emptyMap(),
+    /** Constantes vitales simuladas (FC, PAS, PAD, SPO2, FR); null = sin constantes. */
+    val constantes: ConstantesEjemplo? = null,
+)
+
+/** Constantes de un tripulante: su valor habitual y, por día de misión ("13"), los que cambian. */
+@Serializable
+data class ConstantesEjemplo(
+    val base: Map<String, Double>,
+    val dias: Map<String, Map<String, Double>> = emptyMap(),
 )
 
 /**
@@ -154,12 +167,62 @@ class CargadorDatosEjemplo(
         db.fisiologicoDao().guardarBalance(BalanceHidrico(MAYA, hoy.minusDays(1).toString(), ingeridoMl = 1800, eliminadoMl = 2250))
     }
 
+    /**
+     * Constantes de los [dias] de misión: 4 medidas al día (7, 12, 17 y 22 h; hoy, solo las que ya
+     * han pasado) con algo de ruido. FC, SpO2 y FR van a continuous_measurement (HR, SPO2, RR) y la
+     * tensión a blood_pressure. Con su propio generador para no cambiar los ensayos cognitivos.
+     */
+    private suspend fun constantes(id: Long, c: ConstantesEjemplo, semilla: Long, dias: Int, ahora: Long, zona: ZoneId) {
+        val random = Random(semilla + 1_000)
+        val hoy = Instant.ofEpochMilli(ahora).atZone(zona).toLocalDate()
+        val lanzamiento = hoy.minusDays(dias - 1L)
+        val medidas = mutableListOf<ContinuousMeasurementEntity>()
+        val tensiones = mutableListOf<BloodPressureEntity>()
+        for (dia in 1..dias) {
+            val delDia = c.base + c.dias[dia.toString()].orEmpty()
+            fun valor(metrica: String, ruido: Double) = delDia[metrica]?.let { it + random.nextGaussian() * ruido }
+            for (hora in HORAS_CONSTANTES) {
+                val instante = lanzamiento.plusDays(dia - 1L).atTime(hora, 0).atZone(zona).toInstant().toEpochMilli()
+                if (instante > ahora) continue
+                val fc = valor("FC", 2.5)
+                fun medida(tipo: MeasurementType, v: Double?) = v?.let {
+                    medidas += ContinuousMeasurementEntity().apply {
+                        astronautId = id
+                        type = tipo.name
+                        value = Math.round(it * 10) / 10.0
+                        timestamp = instante
+                        source = FUENTE_SIMULADA
+                    }
+                }
+                medida(MeasurementType.HR, fc)
+                medida(MeasurementType.SPO2, valor("SPO2", 0.5)?.coerceAtMost(100.0))
+                medida(MeasurementType.RR, valor("FR", 0.8))
+                val pas = valor("PAS", 3.0)
+                val pad = valor("PAD", 2.0)
+                if (pas != null && pad != null) {
+                    tensiones += BloodPressureEntity().apply {
+                        astronautId = id
+                        scheduledFor = instante
+                        takenAt = instante
+                        systolic = pas.roundToInt()
+                        diastolic = pad.roundToInt()
+                        pulse = fc?.roundToInt()
+                        status = BloodPressureStatus.DONE.name
+                    }
+                }
+            }
+        }
+        db.fisiologicoDao().insertarMedidas(medidas)
+        db.fisiologicoDao().insertarTensiones(tensiones)
+    }
+
     /** Carga un tripulante y devuelve el inicio de su última sesión de misión. */
     private suspend fun cargar(t: TripulanteEjemplo, orden: Int, dias: Int, misionId: Long, ahora: Long, zona: ZoneId): Long {
         listOf(t.stroopZ, t.nbackZ, t.horasSueno, t.somnolencia).forEach {
             require(it.size == dias) { "${t.nombre}: se esperaban $dias días y hay ${it.size}" }
         }
         insertarTripulante(t, misionId, ahora)
+        t.constantes?.let { constantes(t.id, it, t.semilla, dias, ahora, zona) }
 
         val random = Random(t.semilla)
         val hoy = Instant.ofEpochMilli(ahora).atZone(zona).toLocalDate()
@@ -305,6 +368,8 @@ class CargadorDatosEjemplo(
         const val ARCHIVO = "datos_ejemplo.json"
         const val NOMBRE_MISION = "SpaceDrifters"
         // ids de assets/datos_ejemplo.json
+        private val HORAS_CONSTANTES = listOf(7, 12, 17, 22)
+        const val FUENTE_SIMULADA = "SIMULADO"
         private const val MAYA = 1L
         private const val LEO = 2L
         private const val ANE = 3L

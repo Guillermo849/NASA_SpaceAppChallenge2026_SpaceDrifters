@@ -138,6 +138,24 @@ public class InterpretePruebasTest {
         for (String a : ProtocolosJson.desdeTexto(Assets.leer("protocolos.json")).detectorAmbiental().getConfig().getAcciones()) {
             assertNotNull("acción " + a, TextosFisiologicoKt.nombreAccion(a));
         }
+        // Cada hecho que miran las condiciones tiene texto (para el "por qué" del historial),
+        // salvo los resultados de pruebas, que se muestran con el nombre de la prueba.
+        for (Protocolo p : motor.getProtocolos()) {
+            List<com.example.nasa_spaceappchallenge2026_spacedrifters.domain.protocolos.Condicion> condiciones = new java.util.ArrayList<>();
+            condiciones.add(p.getActivacion());
+            if (p.getEmergencia() != null) condiciones.add(p.getEmergencia());
+            for (Nodo n : p.getNodos().values()) {
+                if (n.getCondicion() != null) condiciones.add(n.getCondicion());
+                for (Nodo.Rama r : n.getRamas()) condiciones.add(r.getCondicion());
+            }
+            for (com.example.nasa_spaceappchallenge2026_spacedrifters.domain.protocolos.Condicion c : condiciones) {
+                for (String h : c.hechosUsados()) {
+                    boolean esPrueba = false;
+                    for (TipoPruebaClinica t : TipoPruebaClinica.values()) if (t.name().equals(h)) esPrueba = true;
+                    assertTrue("hecho sin texto: " + h, esPrueba || TextosFisiologicoKt.nombreHecho(h) != null);
+                }
+            }
+        }
         for (String s : motor.getSignosAlarma()) {
             assertNotNull(s, com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.emergencia.EmergenciaUiKt.nombreSignoAlarma(s));
         }

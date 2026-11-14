@@ -8,6 +8,8 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.BloodPressureEntity
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.ContinuousMeasurementEntity
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.protocolos.EstadoProtocolo
 import kotlinx.coroutines.flow.Flow
 
@@ -103,6 +105,12 @@ data class BalanceHidrico(
     val balanceMl: Int get() = ingeridoMl - eliminadoMl
 }
 
+/** Una medida continua (continuous_measurement): metrica = HR, SPO2 o RR. */
+data class MedidaFila(val metrica: String, val valor: Double, val instante: Long)
+
+/** Una toma de tensión (blood_pressure). */
+data class TensionFila(val sistolica: Int?, val diastolica: Int?, val instante: Long)
+
 /** Un protocolo en emergencia, para la pantalla de emergencia (ver [FisiologicoDao.emergencias]). */
 data class EmergenciaFila(
     val protocoloActivoId: Long,
@@ -190,6 +198,43 @@ interface FisiologicoDao {
     /** Resultados de un tipo de prueba, el más reciente primero (para comparar con el anterior). */
     @Query("SELECT * FROM prueba_clinica WHERE astronautaId = :astronautaId AND tipo = :tipo AND realizadaEn IS NOT NULL ORDER BY realizadaEn DESC")
     fun realizadas(astronautaId: Long, tipo: TipoPruebaClinica): Flow<List<PruebaClinica>>
+
+    // ---- Pestaña "Fisiológico" del médico ----
+
+    /** Todos los protocolos de un astronauta (abiertos y cerrados), el más reciente primero. */
+    @Query("SELECT * FROM protocolo_activo WHERE astronautaId = :astronautaId ORDER BY (estado = 'CERRADO'), actualizadoEn DESC")
+    fun protocolosDe(astronautaId: Long): Flow<List<ProtocoloActivo>>
+
+    @Query(
+        "SELECT e.* FROM evento_protocolo e JOIN protocolo_activo p ON p.id = e.protocoloActivoId " +
+            "WHERE p.astronautaId = :astronautaId ORDER BY e.fechaHora, e.id",
+    )
+    fun eventosDeAstronauta(astronautaId: Long): Flow<List<EventoProtocolo>>
+
+    @Query("SELECT * FROM prueba_clinica WHERE astronautaId = :astronautaId ORDER BY pedidaEn, id")
+    fun pruebasDeAstronauta(astronautaId: Long): Flow<List<PruebaClinica>>
+
+    // ---- Constantes (tablas del equipo: continuous_measurement y blood_pressure) ----
+
+    @Insert
+    suspend fun insertarMedidas(medidas: List<ContinuousMeasurementEntity>)
+
+    @Insert
+    suspend fun insertarTensiones(tensiones: List<BloodPressureEntity>)
+
+    /** FC (HR), SpO2 (SPO2) y FR (RR) desde una fecha, en orden. */
+    @Query(
+        "SELECT type AS metrica, value AS valor, timestamp AS instante FROM continuous_measurement " +
+            "WHERE astronaut_id = :astronautaId AND timestamp >= :desde ORDER BY timestamp",
+    )
+    fun medidasDesde(astronautaId: Long, desde: Long): Flow<List<MedidaFila>>
+
+    /** Tensiones tomadas (status DONE) desde una fecha, en orden. */
+    @Query(
+        "SELECT systolic AS sistolica, diastolic AS diastolica, taken_at AS instante FROM blood_pressure " +
+            "WHERE astronaut_id = :astronautaId AND status = 'DONE' AND taken_at >= :desde ORDER BY taken_at",
+    )
+    fun tensionesDesde(astronautaId: Long, desde: Long): Flow<List<TensionFila>>
 
     // ---- Balance hídrico ----
 

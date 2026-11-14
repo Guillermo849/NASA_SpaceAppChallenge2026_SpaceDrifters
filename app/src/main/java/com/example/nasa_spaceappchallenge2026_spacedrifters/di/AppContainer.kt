@@ -13,6 +13,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.Medi
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigUmbrales
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ProtocolosJson
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoMedicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.UmbralesFisiologicos
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.TripulacionRepository
@@ -79,6 +80,15 @@ class AppContainer(context: Context) {
 
     /** assets/config_umbrales.json: cuándo FC, PA, SpO2, FR, VS y GC se consideran alterados. */
     val umbrales: UmbralesFisiologicos by lazy { ConfigUmbrales.leer(appContext) }
+
+    /** Pestaña "Fisiológico" del médico: protocolos, historial, pruebas y constantes recibidas. */
+    val fisiologicoMedicoRepository: FisiologicoMedicoRepository by lazy {
+        FisiologicoMedicoRepository(
+            database,
+            retrasoMisionMs = configMision.aConfigCognitiva().retrasoMisionMs,
+            esperarDatos = { datosEjemplo.await() },
+        )
+    }
 
     val fisiologicoRepository: FisiologicoRepository by lazy {
         FisiologicoRepository(

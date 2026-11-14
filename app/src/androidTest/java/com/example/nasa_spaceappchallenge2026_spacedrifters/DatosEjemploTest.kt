@@ -151,6 +151,23 @@ class DatosEjemploTest {
     }
 
     @Test
+    fun constantes_cuatroAlDiaYMayaFueraDeSuFranjaHoy() = runBlocking {
+        // 13 días × 4 medidas + la de las 7:00 de hoy (son las 11:00).
+        val medidas = db.fisiologicoDao().medidasDesde(maya, 0).first()
+        assertEquals(53, medidas.count { it.metrica == "HR" })
+        assertEquals(53, medidas.count { it.metrica == "SPO2" })
+        assertEquals(53, medidas.count { it.metrica == "RR" })
+        assertEquals(53, db.fisiologicoDao().tensionesDesde(maya, 0).first().size)
+        // Maya: FC alta y PA baja hoy (día 14), como su protocolo hemodinámico.
+        val fcHoy = medidas.last { it.metrica == "HR" }.valor
+        val pasHoy = db.fisiologicoDao().tensionesDesde(maya, 0).first().last().sistolica!!
+        assertTrue("FC de hoy $fcHoy", fcHoy > 85)
+        assertTrue("PAS de hoy $pasHoy", pasHoy < 105)
+        // Los demás, con constantes y dentro de lo habitual.
+        assertEquals(53, db.fisiologicoDao().medidasDesde(ane, 0).first().count { it.metrica == "HR" })
+    }
+
+    @Test
     fun fisiologico_alIntroducirLaAnaliticaElProtocoloSigue() = runBlocking {
         val p = db.fisiologicoDao().abiertosAhora(leo).single()
         val pendientes = db.fisiologicoDao().pruebasDeProtocolo(p.id).filter { it.realizadaEn == null }

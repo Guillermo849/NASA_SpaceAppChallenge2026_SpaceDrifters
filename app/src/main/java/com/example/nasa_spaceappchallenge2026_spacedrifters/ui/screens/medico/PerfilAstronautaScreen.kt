@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -93,14 +94,32 @@ fun PerfilAstronautaScreen(
     onAtras: () -> Unit,
     onSesion: (Long) -> Unit,
     viewModel: PerfilAstronautaViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    fisiologicoVm: FisiologicoMedicoViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val perfil by viewModel.perfil.collectAsStateWithLifecycle()
     val mensaje by viewModel.mensaje.collectAsStateWithLifecycle()
+    val fisiologico by fisiologicoVm.fisiologico.collectAsStateWithLifecycle()
+    val notas by fisiologicoVm.notas.collectAsStateWithLifecycle()
+    val mensajeFisio by fisiologicoVm.mensaje.collectAsStateWithLifecycle()
     PerfilContenido(
         perfil = perfil,
         mensaje = mensaje,
         onAtras = onAtras,
         onSesion = onSesion,
+        pestanaFisiologica = {
+            PestanaFisiologica(
+                datos = fisiologico,
+                notas = notas,
+                mensaje = mensajeFisio,
+                acciones = AccionesFisiologico(
+                    confirmarNivel = fisiologicoVm::confirmarNivel,
+                    bajarNivel = fisiologicoVm::bajarNivel,
+                    pedirPrueba = fisiologicoVm::pedirPrueba,
+                    anadirIndicacion = fisiologicoVm::anadirIndicacion,
+                    mensajeVisto = fisiologicoVm::mensajeVisto,
+                ),
+            )
+        },
         acciones = AccionesPerfil(
             confirmarAlerta = viewModel::confirmarAlerta,
             pedirOtraPrueba = viewModel::pedirOtraPrueba,
@@ -120,7 +139,9 @@ private fun PerfilContenido(
     onSesion: (Long) -> Unit,
     acciones: AccionesPerfil,
     ahora: Long = remember { System.currentTimeMillis() },
+    pestanaFisiologica: @Composable () -> Unit = {},
 ) {
+    var pestana by rememberSaveable { mutableIntStateOf(0) }
     PantallaBase(titulo = perfil.nombre ?: stringResource(R.string.medico_perfil_titulo), onAtras = onAtras) { padding ->
         Column(
             modifier = Modifier
@@ -136,16 +157,23 @@ private fun PerfilContenido(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
-            // Pestañas del perfil: el resto del equipo puede añadir las suyas (ECG, tensión...).
-            PrimaryTabRow(selectedTabIndex = 0, containerColor = MaterialTheme.colorScheme.background) {
+            // Pestañas del perfil: el resto del equipo puede añadir las suyas.
+            PrimaryTabRow(selectedTabIndex = pestana, containerColor = MaterialTheme.colorScheme.background) {
                 Tab(
-                    selected = true,
-                    onClick = {},
+                    selected = pestana == 0,
+                    onClick = { pestana = 0 },
                     text = { Text(stringResource(R.string.medico_pestana_cognitivas)) },
                     modifier = Modifier.heightIn(min = 48.dp),
                 )
+                Tab(
+                    selected = pestana == 1,
+                    onClick = { pestana = 1 },
+                    text = { Text(stringResource(R.string.medico_pestana_fisiologico)) },
+                    modifier = Modifier.heightIn(min = 48.dp),
+                )
             }
-            PestanaPruebasCognitivas(perfil, mensaje, onSesion, acciones, ahora)
+            if (pestana == 0) PestanaPruebasCognitivas(perfil, mensaje, onSesion, acciones, ahora)
+            else pestanaFisiologica()
         }
     }
 }
