@@ -1,6 +1,7 @@
 package com.example.nasa_spaceappchallenge2026_spacedrifters.di
 
 import android.content.Context
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 
 /**
  * Inyección de dependencias manual (sin Hilt).
@@ -10,11 +11,11 @@ import android.content.Context
  *
  * Ejemplo de cómo añadir algo nuevo:
  * ```
- * val database: AppDatabase by lazy { AppDatabase.crear(appContext) }
  * val tripulacionRepository by lazy { TripulacionRepository(database.astronautaDao()) }
  * ```
  */
 class AppContainer(context: Context) {
-    @Suppress("unused")
     private val appContext: Context = context.applicationContext
+
+    val database: AppDatabase by lazy { AppDatabase.crear(appContext) }
 }

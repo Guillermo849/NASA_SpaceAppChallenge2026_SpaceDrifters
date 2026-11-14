@@ -19,6 +19,36 @@
 
     <!-- Astronaut -->
     <string name="astronauta_inicio_titulo">Home</string>
+    <string name="pruebas_hoy_titulo">Today\'s tests</string>
+    <string name="empezar">Start</string>
+
+    <!-- Cognitive tests (common) -->
+    <string name="empezar_prueba">Start the test</string>
+    <string name="prueba_progreso">%1$d / %2$d</string>
+    <string name="prueba_progreso_practica">Practice · %1$d / %2$d</string>
+    <string name="feedback_correcto">Correct</string>
+    <string name="feedback_incorrecto">Wrong</string>
+    <string name="feedback_sin_respuesta">No answer</string>
+    <string name="prueba_terminada_titulo">Test complete</string>
+    <string name="prueba_terminada_texto">You have finished the test. Thank you.</string>
+    <string name="prueba_interrumpida_titulo">Test interrupted</string>
+    <string name="prueba_interrumpida_texto">This session doesn\'t count. You can retake it from your dashboard.</string>
+    <string name="volver_panel">Back to dashboard</string>
+
+    <!-- Stroop -->
+    <string name="stroop_nombre">Stroop</string>
+    <string name="stroop_descripcion_corta">Attention and control · about 2 min</string>
+    <string name="stroop_instrucciones">Tap the colour of the INK, not what the word says.</string>
+    <string name="stroop_ejemplo_etiqueta">Example</string>
+    <string name="stroop_ejemplo_respuesta">The word says RED, but the ink is blue: tap %1$s.</string>
+    <string name="stroop_practica_aviso">First you\'ll do a few practice trials where you\'ll see if you got it right.</string>
+    <string name="stroop_duracion">It takes about 2 minutes. Answer as fast as you can without making mistakes.</string>
+    <string name="stroop_fin_practica_titulo">Practice complete</string>
+    <string name="stroop_fin_practica_texto">Now the test begins. You won\'t see whether you got it right.</string>
+    <string name="color_rojo">RED</string>
+    <string name="color_azul">BLUE</string>
+    <string name="color_verde">GREEN</string>
+    <string name="color_amarillo">YELLOW</string>
 
     <!-- Doctor -->
     <string name="medico_tripulacion_titulo">Crew</string>

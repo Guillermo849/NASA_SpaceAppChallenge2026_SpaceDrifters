@@ -2,8 +2,10 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.di
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nasa_spaceappchallenge2026_spacedrifters.SpaceDriftersApp
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop.StroopViewModel
 
 /**
  * Fábrica única de ViewModels. Cada ViewModel nuevo se registra con un `initializer`:
@@ -15,7 +17,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.SpaceDriftersApp
  */
 object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
-        // Todavía no hay ViewModels.
+        initializer { StroopViewModel() }
     }
 }
 

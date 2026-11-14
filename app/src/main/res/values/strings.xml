@@ -19,6 +19,36 @@
 
     <!-- Astronauta -->
     <string name="astronauta_inicio_titulo">Inicio</string>
+    <string name="pruebas_hoy_titulo">Pruebas de hoy</string>
+    <string name="empezar">Empezar</string>
+
+    <!-- Pruebas cognitivas (comunes) -->
+    <string name="empezar_prueba">Empezar la prueba</string>
+    <string name="prueba_progreso">%1$d / %2$d</string>
+    <string name="prueba_progreso_practica">Práctica · %1$d / %2$d</string>
+    <string name="feedback_correcto">Correcto</string>
+    <string name="feedback_incorrecto">Incorrecto</string>
+    <string name="feedback_sin_respuesta">Sin respuesta</string>
+    <string name="prueba_terminada_titulo">Prueba completada</string>
+    <string name="prueba_terminada_texto">Has terminado la prueba. Gracias.</string>
+    <string name="prueba_interrumpida_titulo">Prueba interrumpida</string>
+    <string name="prueba_interrumpida_texto">Esta sesión no cuenta. Puedes repetirla desde tu panel.</string>
+    <string name="volver_panel">Volver al panel</string>
+
+    <!-- Stroop -->
+    <string name="stroop_nombre">Stroop</string>
+    <string name="stroop_descripcion_corta">Atención y control · unos 2 min</string>
+    <string name="stroop_instrucciones">Toca el color de la TINTA, no lo que dice la palabra.</string>
+    <string name="stroop_ejemplo_etiqueta">Ejemplo</string>
+    <string name="stroop_ejemplo_respuesta">La palabra dice ROJO, pero la tinta es azul: toca %1$s.</string>
+    <string name="stroop_practica_aviso">Primero harás unos ensayos de práctica en los que verás si aciertas o fallas.</string>
+    <string name="stroop_duracion">Dura unos 2 minutos. Responde lo más rápido que puedas sin equivocarte.</string>
+    <string name="stroop_fin_practica_titulo">Práctica terminada</string>
+    <string name="stroop_fin_practica_texto">Ahora empieza la prueba. Ya no verás si aciertas o fallas.</string>
+    <string name="color_rojo">ROJO</string>
+    <string name="color_azul">AZUL</string>
+    <string name="color_verde">VERDE</string>
+    <string name="color_amarillo">AMARILLO</string>
 
     <!-- Médico -->
     <string name="medico_tripulacion_titulo">Tripulación</string>

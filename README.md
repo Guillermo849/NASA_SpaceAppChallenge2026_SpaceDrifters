@@ -37,6 +37,7 @@ Antes de subir cambios, comprueba al menos `./gradlew assembleDebug testDebugUni
 ## Tecnologías
 
 - **Kotlin** + **Jetpack Compose** (Material 3), una sola Activity.
+- La lógica pura de las pruebas cognitivas (`domain/cognitivo/`) está en **Java**, con sus tests JUnit en Java. Las pantallas siguen en Kotlin porque Compose solo funciona con Kotlin.
 - **Navigation Compose** con rutas tipadas (`@Serializable`).
 - **MVVM**: `ViewModel` + `StateFlow`. Inyección de dependencias **manual**, sin Hilt.
 - **Room** (con KSP) para guardar datos en local. Sin backend ni red: la app funciona sin conexión.
