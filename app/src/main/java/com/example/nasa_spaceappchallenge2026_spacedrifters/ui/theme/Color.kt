@@ -13,3 +13,11 @@ val Acento = Color(0xFF4CC3FF)
 val Aviso = Color(0xFFFFB547)
 val Alerta = Color(0xFFFF6B6B)
 val Normal = Color(0xFF3DDC97)
+
+// Tintas del Stroop: tonos muy separados entre sí también en luminosidad (de más clara a más
+// oscura: amarillo, verde, rojo, azul) y todos legibles sobre Fondo. Solo para el estímulo;
+// los botones de respuesta van en color neutro.
+val StroopRojo = Color(0xFFFF6B6B)
+val StroopAzul = Color(0xFF3D7BFF)
+val StroopVerde = Color(0xFF33D17A)
+val StroopAmarillo = Color(0xFFFFE14D)

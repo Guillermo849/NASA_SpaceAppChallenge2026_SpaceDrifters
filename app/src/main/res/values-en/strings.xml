@@ -19,6 +19,69 @@
 
     <!-- Astronaut -->
     <string name="astronauta_inicio_titulo">Home</string>
+    <string name="pruebas_hoy_titulo">Today\'s tests</string>
+    <string name="empezar">Start</string>
+    <string name="repetir">Retake</string>
+    <string name="prueba_hecha_hoy">Done today</string>
+
+    <!-- Cognitive tests (common) -->
+    <string name="empezar_prueba">Start the test</string>
+    <string name="prueba_progreso">%1$d / %2$d</string>
+    <string name="prueba_progreso_practica">Practice · %1$d / %2$d</string>
+    <string name="feedback_correcto">Correct</string>
+    <string name="feedback_incorrecto">Wrong</string>
+    <string name="feedback_sin_respuesta">No answer</string>
+    <string name="prueba_terminada_titulo">Test complete</string>
+    <string name="resultado_normal">Today you are within your usual range.</string>
+    <string name="resultado_sin_linea_base">You don\'t have a usual range to compare this test with yet.</string>
+    <string name="resultado_sin_datos">This session doesn\'t have enough data to compare it with your usual range.</string>
+    <string name="resultado_error_guardado">This session couldn\'t be saved. Please try again later.</string>
+    <string name="stroop_resultado_vigilar">Today you took a bit longer than usual.</string>
+    <string name="stroop_resultado_alerta">Today you took quite a bit longer than usual.</string>
+    <string name="nback_resultado_vigilar">Today remembering the shapes was a bit harder than usual.</string>
+    <string name="nback_resultado_alerta">Today remembering the shapes was quite a bit harder than usual.</string>
+    <string name="prueba_interrumpida_titulo">Test interrupted</string>
+    <string name="prueba_interrumpida_texto">This session doesn\'t count. You can retake it from your dashboard.</string>
+    <string name="volver_panel">Back to dashboard</string>
+
+    <!-- Stroop -->
+    <string name="stroop_nombre">Stroop</string>
+    <string name="stroop_descripcion_corta">Attention and control · about 2 min</string>
+    <string name="stroop_instrucciones">Tap the colour of the INK, not what the word says.</string>
+    <string name="ejemplo_etiqueta">Example</string>
+    <string name="stroop_ejemplo_respuesta">The word says RED, but the ink is blue: tap %1$s.</string>
+    <string name="stroop_practica_aviso">First you\'ll do a few practice trials where you\'ll see if you got it right.</string>
+    <string name="stroop_duracion">It takes about 2 minutes. Answer as fast as you can without making mistakes.</string>
+    <string name="fin_practica_titulo">Practice complete</string>
+    <string name="fin_practica_texto">Now the test begins. You won\'t see whether you got it right.</string>
+    <string name="color_rojo">RED</string>
+    <string name="color_azul">BLUE</string>
+    <string name="color_verde">GREEN</string>
+    <string name="color_amarillo">YELLOW</string>
+
+    <!-- N-Back -->
+    <string name="nback_nombre">N-Back</string>
+    <string name="nback_descripcion_corta">Working memory · about 2 min</string>
+    <string name="nback_instrucciones">Tap “Match” if the shape is the same as the one you saw two shapes before. Otherwise, don\'t tap anything.</string>
+    <string name="nback_ejemplo_respuesta">The third shape is the same as the first: tap “Match”.</string>
+    <string name="nback_practica_aviso">First you\'ll practise comparing only with the previous shape (1-back), then with the one two before (2-back). You\'ll see if you got it right.</string>
+    <string name="nback_duracion">It takes about 2 minutes. Each shape is shown for one second.</string>
+    <string name="nback_coincide">Match</string>
+    <string name="nback_recordatorio_1">Tap if it\'s the same as the previous one</string>
+    <string name="nback_recordatorio_2">Tap if it\'s the same as the one two before</string>
+    <string name="nback_intermedia_titulo">Now, 2-back</string>
+    <string name="nback_intermedia_texto">Now compare with the shape two positions back, not the previous one.</string>
+    <string name="nback_seguir_practica">Continue practice</string>
+    <string name="nback_feedback_falsa_alarma">It didn\'t match</string>
+    <string name="nback_feedback_omision">It was a match</string>
+    <string name="forma_triangulo">Triangle</string>
+    <string name="forma_circulo">Circle</string>
+    <string name="forma_cuadrado">Square</string>
+    <string name="forma_estrella">Star</string>
+    <string name="forma_rombo">Diamond</string>
+    <string name="forma_hexagono">Hexagon</string>
+    <string name="forma_cruz">Cross</string>
+    <string name="forma_media_luna">Crescent</string>
 
     <!-- Doctor -->
     <string name="medico_tripulacion_titulo">Crew</string>

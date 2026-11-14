@@ -1,11 +1,15 @@
 package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.InicioAstronautaScreen
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackScreen
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop.StroopScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.TripulacionScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.rol.SelectorRolScreen
 
@@ -23,7 +27,28 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             )
         }
         composable<RutaInicioAstronauta> {
-            InicioAstronautaScreen(onAtras = { navController.popBackStack() })
+            InicioAstronautaScreen(
+                onAtras = { navController.popBackStack() },
+                onEmpezarStroop = { navController.navigate(RutaPruebaStroop) },
+                onEmpezarNBack = { navController.navigate(RutaPruebaNBack) },
+            )
+        }
+        // Las pruebas cognitivas van sin animaciones de transición.
+        composable<RutaPruebaStroop>(
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None },
+        ) {
+            StroopScreen(onVolver = { navController.popBackStack() })
+        }
+        composable<RutaPruebaNBack>(
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None },
+        ) {
+            NBackScreen(onVolver = { navController.popBackStack() })
         }
         composable<RutaTripulacion> {
             TripulacionScreen(onAtras = { navController.popBackStack() })

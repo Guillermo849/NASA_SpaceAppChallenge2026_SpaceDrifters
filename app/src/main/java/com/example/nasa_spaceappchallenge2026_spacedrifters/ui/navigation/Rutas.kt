@@ -15,3 +15,9 @@ data object RutaInicioAstronauta
 
 @Serializable
 data object RutaTripulacion
+
+@Serializable
+data object RutaPruebaStroop
+
+@Serializable
+data object RutaPruebaNBack

@@ -19,6 +19,69 @@
 
     <!-- Astronauta -->
     <string name="astronauta_inicio_titulo">Inicio</string>
+    <string name="pruebas_hoy_titulo">Pruebas de hoy</string>
+    <string name="empezar">Empezar</string>
+    <string name="repetir">Repetir</string>
+    <string name="prueba_hecha_hoy">Hecha hoy</string>
+
+    <!-- Pruebas cognitivas (comunes) -->
+    <string name="empezar_prueba">Empezar la prueba</string>
+    <string name="prueba_progreso">%1$d / %2$d</string>
+    <string name="prueba_progreso_practica">Práctica · %1$d / %2$d</string>
+    <string name="feedback_correcto">Correcto</string>
+    <string name="feedback_incorrecto">Incorrecto</string>
+    <string name="feedback_sin_respuesta">Sin respuesta</string>
+    <string name="prueba_terminada_titulo">Prueba completada</string>
+    <string name="resultado_normal">Hoy estás dentro de tu rango habitual.</string>
+    <string name="resultado_sin_linea_base">Todavía no tienes un rango habitual con el que comparar esta prueba.</string>
+    <string name="resultado_sin_datos">Esta sesión no tiene datos suficientes para compararla con tu rango habitual.</string>
+    <string name="resultado_error_guardado">No se ha podido guardar esta sesión. Inténtalo de nuevo más tarde.</string>
+    <string name="stroop_resultado_vigilar">Hoy has tardado algo más de lo normal.</string>
+    <string name="stroop_resultado_alerta">Hoy has tardado bastante más de lo normal.</string>
+    <string name="nback_resultado_vigilar">Hoy te ha costado algo más de lo normal recordar las formas.</string>
+    <string name="nback_resultado_alerta">Hoy te ha costado bastante más de lo normal recordar las formas.</string>
+    <string name="prueba_interrumpida_titulo">Prueba interrumpida</string>
+    <string name="prueba_interrumpida_texto">Esta sesión no cuenta. Puedes repetirla desde tu panel.</string>
+    <string name="volver_panel">Volver al panel</string>
+
+    <!-- Stroop -->
+    <string name="stroop_nombre">Stroop</string>
+    <string name="stroop_descripcion_corta">Atención y control · unos 2 min</string>
+    <string name="stroop_instrucciones">Toca el color de la TINTA, no lo que dice la palabra.</string>
+    <string name="ejemplo_etiqueta">Ejemplo</string>
+    <string name="stroop_ejemplo_respuesta">La palabra dice ROJO, pero la tinta es azul: toca %1$s.</string>
+    <string name="stroop_practica_aviso">Primero harás unos ensayos de práctica en los que verás si aciertas o fallas.</string>
+    <string name="stroop_duracion">Dura unos 2 minutos. Responde lo más rápido que puedas sin equivocarte.</string>
+    <string name="fin_practica_titulo">Práctica terminada</string>
+    <string name="fin_practica_texto">Ahora empieza la prueba. Ya no verás si aciertas o fallas.</string>
+    <string name="color_rojo">ROJO</string>
+    <string name="color_azul">AZUL</string>
+    <string name="color_verde">VERDE</string>
+    <string name="color_amarillo">AMARILLO</string>
+
+    <!-- N-Back -->
+    <string name="nback_nombre">N-Back</string>
+    <string name="nback_descripcion_corta">Memoria de trabajo · unos 2 min</string>
+    <string name="nback_instrucciones">Toca «Coincide» si la forma es igual a la que viste dos formas antes. Si no, no toques nada.</string>
+    <string name="nback_ejemplo_respuesta">La tercera forma es igual que la primera: toca «Coincide».</string>
+    <string name="nback_practica_aviso">Primero practicarás comparando solo con la forma anterior (1-back) y después con la de dos antes (2-back). Verás si aciertas o fallas.</string>
+    <string name="nback_duracion">Dura unos 2 minutos. Cada forma se ve un segundo.</string>
+    <string name="nback_coincide">Coincide</string>
+    <string name="nback_recordatorio_1">Toca si es igual a la anterior</string>
+    <string name="nback_recordatorio_2">Toca si es igual a la de dos antes</string>
+    <string name="nback_intermedia_titulo">Ahora, 2-back</string>
+    <string name="nback_intermedia_texto">Ahora compara con la forma de dos posiciones atrás, no con la anterior.</string>
+    <string name="nback_seguir_practica">Seguir con la práctica</string>
+    <string name="nback_feedback_falsa_alarma">No coincidía</string>
+    <string name="nback_feedback_omision">Sí coincidía</string>
+    <string name="forma_triangulo">Triángulo</string>
+    <string name="forma_circulo">Círculo</string>
+    <string name="forma_cuadrado">Cuadrado</string>
+    <string name="forma_estrella">Estrella</string>
+    <string name="forma_rombo">Rombo</string>
+    <string name="forma_hexagono">Hexágono</string>
+    <string name="forma_cruz">Cruz</string>
+    <string name="forma_media_luna">Media luna</string>
 
     <!-- Médico -->
     <string name="medico_tripulacion_titulo">Tripulación</string>
