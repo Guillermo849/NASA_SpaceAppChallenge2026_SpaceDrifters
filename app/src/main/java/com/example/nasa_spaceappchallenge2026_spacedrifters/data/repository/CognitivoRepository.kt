@@ -96,6 +96,8 @@ class CognitivoRepository(
                 },
             )
             if (!sesion.cuenta) return@withTransaction null
+            // Cumple las pruebas extra de Stroop que el médico hubiera pedido antes.
+            db.medicoDao().marcarHechas(sesion.astronautaId, TipoPrueba.STROOP, sesion.inicioEn)
 
             val m = MetricasStroop.calcular(resultados)
             val estado = estadoFrenteALineaBase(sesion.astronautaId, TipoPrueba.STROOP, m.efectoStroopMs)
@@ -137,6 +139,8 @@ class CognitivoRepository(
             },
         )
         if (!sesion.cuenta) return@withTransaction null
+        // Cumple las pruebas extra de N-Back que el médico hubiera pedido antes.
+        db.medicoDao().marcarHechas(sesion.astronautaId, TipoPrueba.NBACK, sesion.inicioEn)
 
         val m = MetricasNBack.calcular(resultados, nivel)
         val estado = estadoFrenteALineaBase(sesion.astronautaId, TipoPrueba.NBACK, m.dPrima)

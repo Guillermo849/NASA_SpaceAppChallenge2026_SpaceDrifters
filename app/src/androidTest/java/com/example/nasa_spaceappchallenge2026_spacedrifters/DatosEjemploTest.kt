@@ -68,7 +68,8 @@ class DatosEjemploTest {
         assertEquals("HOY", fatiga.priority)
         assertEquals("NEURO", fatiga.source)
         assertEquals("REDUCIR_CARGA_TRABAJO,DORMIR_8_HORAS,REPETIR_PRUEBAS_MANANA", fatiga.steps)
-        assertEquals(ahora + 18 * 60_000L, fatiga.arrivesEarthAt)
+        // Generada al terminar su última sesión (hace 5 min): llega con ella, dentro de 13 min.
+        assertEquals(ahora - 5 * 60_000L + 18 * 60_000L, fatiga.arrivesEarthAt)
         // "Por qué ha saltado": la sesión de N-Back, las 3 noches y su base de sueño.
         val porQue = AlertasRepository.leerExplicacion(fatiga.explanation)!!
         assertEquals("NBACK", porQue.sesiones.single().prueba)
@@ -84,6 +85,7 @@ class DatosEjemploTest {
         assertEquals("AHORA", alerta.priority)
         assertEquals("CRITICAL", alerta.severity)
         assertEquals(ane, alerta.assignedAstronautId) // Ane es la oficial médico de a bordo
+        assertTrue("la de Leo ya ha llegado a la Tierra", alerta.arrivesEarthAt!! <= ahora)
         val porQue = AlertasRepository.leerExplicacion(alerta.explanation)!!
         assertEquals(listOf("DOLOR_CABEZA"), porQue.sintomas)
         assertEquals("ALERTA", porQue.sesiones.single().estado)

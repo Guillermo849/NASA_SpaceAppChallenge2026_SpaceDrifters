@@ -1,10 +1,17 @@
 package com.example.nasa_spaceappchallenge2026_spacedrifters.di
 
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.toRoute
 import com.example.nasa_spaceappchallenge2026_spacedrifters.SpaceDriftersApp
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.navigation.RutaDetalleSesion
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.navigation.RutaPerfilAstronauta
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.DetalleSesionViewModel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.PerfilAstronautaViewModel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.TripulacionViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.InicioAstronautaViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.RegistroDiarioViewModel
@@ -26,8 +33,23 @@ object AppViewModelProvider {
                 cognitivo = c.cognitivoRepository,
                 tripulacion = c.tripulacionRepository,
                 alertas = c.alertasRepository,
+                medico = c.medicoRepository,
                 astronautaId = c.astronautaActualId,
                 retrasoMin = c.configMision.retrasoMisionMin,
+            )
+        }
+        // Médico
+        initializer { TripulacionViewModel(app().container.medicoRepository) }
+        initializer {
+            PerfilAstronautaViewModel(
+                app().container.medicoRepository,
+                createSavedStateHandle().toRoute<RutaPerfilAstronauta>().astronautaId,
+            )
+        }
+        initializer {
+            DetalleSesionViewModel(
+                app().container.medicoRepository,
+                createSavedStateHandle().toRoute<RutaDetalleSesion>().sesionId,
             )
         }
         initializer {

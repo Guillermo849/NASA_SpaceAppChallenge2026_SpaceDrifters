@@ -115,6 +115,9 @@
     <string name="empezar">Start</string>
     <string name="repetir">Retake</string>
     <string name="prueba_hecha_hoy">Done today</string>
+    <string name="prueba_extra_pedida">Your flight surgeon has asked for an extra test</string>
+    <string name="cancelar">Cancel</string>
+    <string name="guardar">Save</string>
 
     <!-- Cognitive tests (common) -->
     <string name="empezar_prueba">Start the test</string>
@@ -177,4 +180,101 @@
 
     <!-- Doctor -->
     <string name="medico_tripulacion_titulo">Crew</string>
+    <string name="medico_tripulacion_subtitulo">Data received on Earth, with the mission\'s communication delay.</string>
+    <string name="medico_sin_tripulacion">There is no crew.</string>
+    <string name="medico_sin_alertas">No active alerts</string>
+    <plurals name="medico_alertas_activas">
+        <item quantity="one">%1$d active alert</item>
+        <item quantity="other">%1$d active alerts</item>
+    </plurals>
+    <string name="medico_perfil_titulo">Profile</string>
+    <string name="medico_pestana_cognitivas">Cognitive tests</string>
+
+    <!-- Doctor: Cognitive tests tab -->
+    <plurals name="medico_en_camino">
+        <item quantity="one">%1$d session on its way, arrives in %2$d min</item>
+        <item quantity="other">%1$d sessions on their way, the first arrives in %2$d min</item>
+    </plurals>
+    <string name="medico_ultima_sesion">Latest session</string>
+    <string name="medico_metrica_stroop">Stroop effect</string>
+    <string name="medico_metrica_nback">d′ (sensitivity)</string>
+    <string name="medico_tendencia">Trend (last 3)</string>
+    <string name="medico_linea_base">Baseline</string>
+    <string name="tendencia_mejorando">Improving</string>
+    <string name="tendencia_estable">Stable</string>
+    <string name="tendencia_empeorando">Worsening</string>
+    <plurals name="medico_cd_grafica">
+        <item quantity="one">%1$s 30-day chart: %2$d session</item>
+        <item quantity="other">%1$s 30-day chart: %2$d sessions</item>
+    </plurals>
+    <string name="medico_escala">Scale: %1$s – %2$s</string>
+    <string name="medico_leyenda_mision">Mission session (colour = state)</string>
+    <string name="medico_leyenda_linea_base">Baseline session</string>
+    <string name="medico_leyenda_rango">Usual range (mean ± 1 SD)</string>
+    <string name="medico_alertas_titulo">Active alerts</string>
+    <string name="medico_sin_alertas_activas">No active alerts received.</string>
+    <string name="medico_generada">Generated on board: %1$s</string>
+    <string name="medico_confirmar">Acknowledge</string>
+    <string name="medico_pedir_otra_prueba">Request another test</string>
+    <string name="medico_por_que">Why it fired</string>
+    <string name="medico_por_que_regla">Rule</string>
+    <string name="medico_por_que_umbral">Threshold</string>
+    <string name="medico_por_que_dato">Data</string>
+    <string name="medico_por_que_fuente">Source</string>
+    <string name="medico_o">" or "</string>
+    <plurals name="medico_umbral_seguidas">
+        <item quantity="one">%1$d session in %2$s</item>
+        <item quantity="other">%1$d consecutive sessions in %2$s</item>
+    </plurals>
+    <string name="medico_umbral_estado">Test in %1$s</string>
+    <plurals name="medico_umbral_noches">
+        <item quantity="one">%1$d night sleeping less than usual</item>
+        <item quantity="other">%1$d consecutive nights sleeping less than usual</item>
+    </plurals>
+    <string name="medico_umbral_sintomas">symptoms: %1$s</string>
+    <string name="medico_sueno_habitual">(usual: %1$s h)</string>
+    <string name="medico_fuente_registro">Daily log</string>
+    <string name="medico_regla_stroop_tendencia">Stroop trend</string>
+    <string name="medico_regla_nback_tendencia">N-Back trend</string>
+    <string name="medico_regla_fatiga">Combined cognitive fatigue</string>
+    <string name="medico_regla_concentracion">Concentration and symptoms</string>
+    <string name="medico_acciones_titulo">Actions</string>
+    <string name="medico_prueba_pendiente">Extra test pending: %1$s</string>
+    <string name="medico_programar_prueba">Schedule extra test</string>
+    <string name="medico_programar_texto">It will appear in the astronaut\'s "Today\'s tests" until it is done.</string>
+    <string name="medico_recalcular_linea_base">Recalculate baseline</string>
+    <string name="medico_anadir_nota">Add note</string>
+    <string name="medico_nota_etiqueta">Note</string>
+    <string name="medico_notas_titulo">Notes</string>
+    <string name="medico_sesiones_titulo">Sessions</string>
+    <string name="medico_sin_sesiones">No session has arrived yet.</string>
+    <string name="medico_no_valida">Not valid</string>
+    <string name="medico_aciertos">Correct %1$s %%</string>
+    <string name="medico_valida_si">Valid: yes</string>
+    <string name="medico_valida_no">Valid: no</string>
+    <string name="medico_sueno_kss">Sleep %1$s h · KSS %2$s</string>
+    <string name="medico_msg_alerta_confirmada">Alert acknowledged.</string>
+    <string name="medico_msg_prueba_pedida">Extra test scheduled.</string>
+    <string name="medico_msg_linea_base">Baseline recalculated.</string>
+    <string name="medico_msg_nota">Note saved.</string>
+    <string name="medico_msg_error">That couldn\'t be done. Please try again.</string>
+
+    <!-- Doctor: session detail -->
+    <string name="medico_detalle_titulo">Session</string>
+    <string name="medico_no_valida_detalle">Not a valid session (interrupted): it doesn\'t count.</string>
+    <string name="medico_ensayos_titulo">Trials (%1$d)</string>
+    <string name="metrica_tiempo_medio">Mean time of correct answers</string>
+    <string name="metrica_porcentaje_aciertos">Correct</string>
+    <string name="metrica_errores_no_coincidentes">Errors on incongruent trials</string>
+    <string name="metrica_aciertos_coincidencias">Matches detected</string>
+    <string name="metrica_falsas_alarmas">False alarms</string>
+    <string name="metrica_tiempo_aciertos">Mean time of hits</string>
+    <string name="medico_estimulo_stroop">%1$s in %2$s ink</string>
+    <string name="medico_coincidente">Congruent</string>
+    <string name="medico_no_coincidente">Incongruent</string>
+    <string name="medico_era_coincidencia">Was a match</string>
+    <string name="medico_no_era_coincidencia">Not a match</string>
+    <string name="medico_respuesta">Answer: %1$s</string>
+    <string name="medico_pulso">Tapped</string>
+    <string name="medico_no_pulso">Didn\'t tap</string>
 </resources>

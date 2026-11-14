@@ -11,6 +11,8 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronaut
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.RegistroDiarioScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop.StroopScreen
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.DetalleSesionScreen
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.PerfilAstronautaScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.TripulacionScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.rol.SelectorRolScreen
 
@@ -59,7 +61,20 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             NBackScreen(onVolver = { navController.popBackStack() })
         }
         composable<RutaTripulacion> {
-            TripulacionScreen(onAtras = { navController.popBackStack() })
+            TripulacionScreen(
+                onAtras = { navController.popBackStack() },
+                onAstronauta = { id -> navController.navigate(RutaPerfilAstronauta(id)) },
+            )
+        }
+        // El ViewModel lee el id de la ruta (ver AppViewModelProvider).
+        composable<RutaPerfilAstronauta> {
+            PerfilAstronautaScreen(
+                onAtras = { navController.popBackStack() },
+                onSesion = { id -> navController.navigate(RutaDetalleSesion(id)) },
+            )
+        }
+        composable<RutaDetalleSesion> {
+            DetalleSesionScreen(onAtras = { navController.popBackStack() })
         }
     }
 }

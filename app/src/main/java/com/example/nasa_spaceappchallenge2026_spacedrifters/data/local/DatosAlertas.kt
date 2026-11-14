@@ -38,4 +38,25 @@ interface AlertasDao {
     // Todas las alertas por reglas de un astronauta (activas o no), de la más reciente a la más antigua
     @Query("SELECT * FROM alert WHERE astronaut_id = :astronautaId AND rule_id IS NOT NULL ORDER BY generated_at DESC")
     suspend fun deAstronauta(astronautaId: Long): List<AlertEntity>
+
+    // Médico (en la Tierra): activas que ya han llegado, de la más reciente a la más antigua
+    @Query(
+        "SELECT * FROM alert WHERE astronaut_id = :astronautaId AND rule_id IS NOT NULL AND status = 'ACTIVE' " +
+            "AND (arrives_earth_at IS NULL OR arrives_earth_at <= :ahora) ORDER BY generated_at DESC"
+    )
+    fun recibidasActivas(astronautaId: Long, ahora: Long): Flow<List<AlertEntity>>
+
+    // Médico: cuántas alertas activas han llegado de cada astronauta (para la lista de tripulación)
+    @Query(
+        "SELECT COUNT(*) FROM alert WHERE astronaut_id = :astronautaId AND rule_id IS NOT NULL AND status = 'ACTIVE' " +
+            "AND (arrives_earth_at IS NULL OR arrives_earth_at <= :ahora)"
+    )
+    fun contarRecibidasActivas(astronautaId: Long, ahora: Long): Flow<Int>
+
+    // "Confirmar": el médico la da por vista
+    @Query("UPDATE alert SET status = 'ACKNOWLEDGED', acknowledged_at = :ahora WHERE id = :alertaId")
+    suspend fun confirmar(alertaId: Long, ahora: Long)
+
+    @Query("SELECT * FROM alert WHERE id = :alertaId")
+    suspend fun porId(alertaId: Long): AlertEntity?
 }

@@ -45,6 +45,8 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueb
 import com.example.nasa_spaceappchallenge2026_spacedrifters.di.AppViewModelProvider
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.EstadoCognitivo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.MarcaEstado
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.MarcaPrioridad
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreCargo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.PantallaBase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.etiquetaEstado
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.LocalEstadoColores
@@ -105,6 +107,7 @@ private fun PanelAstronautaContenido(
             TarjetaRegistroHoy(panel.registroHoy, onRegistro)
             TarjetaPruebasDeHoy(
                 hechasHoy = panel.hechasHoy,
+                pruebasExtra = panel.pruebasExtra,
                 onEmpezarStroop = onEmpezarStroop,
                 onEmpezarNBack = onEmpezarNBack,
             )
@@ -159,14 +162,6 @@ private fun CabeceraPanel(panel: PanelAstronautaUi) {
 private fun iniciales(nombre: String): String =
     nombre.split(' ').filter { it.isNotBlank() }.take(2).joinToString("") { it.first().uppercase() }
 
-@StringRes
-private fun nombreCargo(cargo: CargoTripulante): Int = when (cargo) {
-    CargoTripulante.COMANDANTE -> R.string.cargo_comandante
-    CargoTripulante.INGENIERIA_VUELO -> R.string.cargo_ingenieria_vuelo
-    CargoTripulante.OFICIAL_MEDICO -> R.string.cargo_oficial_medico
-    CargoTripulante.ESPECIALISTA_MISION -> R.string.cargo_especialista_mision
-}
-
 // ---- Avisos (alertas por reglas) ----
 
 @Composable
@@ -214,20 +209,6 @@ private fun Aviso(aviso: AvisoUi) {
     }
 }
 
-/** Prioridad con su texto y su color (nunca solo el color). */
-@Composable
-private fun MarcaPrioridad(prioridad: Regla.Prioridad) {
-    val estados = LocalEstadoColores.current
-    val (texto, color) = when (prioridad) {
-        Regla.Prioridad.AHORA -> R.string.prioridad_ahora to estados.alerta
-        Regla.Prioridad.HOY -> R.string.prioridad_hoy to estados.vigilar
-        Regla.Prioridad.PUEDE_ESPERAR -> R.string.prioridad_puede_esperar to estados.sinDatos
-    }
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(10.dp).background(color, CircleShape))
-        Text(text = stringResource(texto), style = MaterialTheme.typography.labelLarge, color = color)
-    }
-}
 
 @StringRes
 private fun tituloRegla(reglaId: String): Int = when (reglaId) {
@@ -315,7 +296,12 @@ private fun DatoRegistro(etiqueta: String, valor: String) {
 // ---- Pruebas de hoy ----
 
 @Composable
-private fun TarjetaPruebasDeHoy(hechasHoy: Set<TipoPrueba>, onEmpezarStroop: () -> Unit, onEmpezarNBack: () -> Unit) {
+private fun TarjetaPruebasDeHoy(
+    hechasHoy: Set<TipoPrueba>,
+    pruebasExtra: Set<TipoPrueba>,
+    onEmpezarStroop: () -> Unit,
+    onEmpezarNBack: () -> Unit,
+) {
     Card(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth(),
@@ -329,6 +315,7 @@ private fun TarjetaPruebasDeHoy(hechasHoy: Set<TipoPrueba>, onEmpezarStroop: () 
                 nombre = stringResource(R.string.stroop_nombre),
                 descripcion = stringResource(R.string.stroop_descripcion_corta),
                 hecha = TipoPrueba.STROOP in hechasHoy,
+                extra = TipoPrueba.STROOP in pruebasExtra,
                 onEmpezar = onEmpezarStroop,
             )
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
@@ -336,6 +323,7 @@ private fun TarjetaPruebasDeHoy(hechasHoy: Set<TipoPrueba>, onEmpezarStroop: () 
                 nombre = stringResource(R.string.nback_nombre),
                 descripcion = stringResource(R.string.nback_descripcion_corta),
                 hecha = TipoPrueba.NBACK in hechasHoy,
+                extra = TipoPrueba.NBACK in pruebasExtra,
                 onEmpezar = onEmpezarNBack,
             )
         }
@@ -343,7 +331,7 @@ private fun TarjetaPruebasDeHoy(hechasHoy: Set<TipoPrueba>, onEmpezarStroop: () 
 }
 
 @Composable
-private fun FilaPrueba(nombre: String, descripcion: String, hecha: Boolean, onEmpezar: () -> Unit) {
+private fun FilaPrueba(nombre: String, descripcion: String, hecha: Boolean, extra: Boolean, onEmpezar: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -355,7 +343,14 @@ private fun FilaPrueba(nombre: String, descripcion: String, hecha: Boolean, onEm
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            if (hecha) {
+            if (extra) {
+                // Pedida por el médico: cuenta como pendiente aunque ya la haya hecho hoy.
+                Text(
+                    text = stringResource(R.string.prueba_extra_pedida),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = LocalEstadoColores.current.vigilar,
+                )
+            } else if (hecha) {
                 Text(
                     text = stringResource(R.string.prueba_hecha_hoy),
                     style = MaterialTheme.typography.labelLarge,
@@ -363,7 +358,7 @@ private fun FilaPrueba(nombre: String, descripcion: String, hecha: Boolean, onEm
                 )
             }
         }
-        if (hecha) {
+        if (hecha && !extra) {
             OutlinedButton(onClick = onEmpezar, modifier = Modifier.heightIn(min = 48.dp)) {
                 Text(stringResource(R.string.repetir))
             }

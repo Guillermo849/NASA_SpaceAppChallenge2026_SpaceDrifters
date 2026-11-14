@@ -9,6 +9,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo.CargadorDatosEjemplo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.MedicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.TripulacionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -60,6 +61,10 @@ class AppContainer(context: Context) {
             retrasoMisionMs = configMision.aConfigCognitiva().retrasoMisionMs,
             esperarDatos = { datosEjemplo.await() },
         )
+    }
+
+    val medicoRepository: MedicoRepository by lazy {
+        MedicoRepository(database, cognitivoRepository, esperarDatos = { datosEjemplo.await() })
     }
 
     /**

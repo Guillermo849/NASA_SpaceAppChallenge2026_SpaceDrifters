@@ -24,3 +24,10 @@ data object RutaPruebaNBack
 
 @Serializable
 data object RutaRegistroDiario
+
+// Médico: perfil de un astronauta y detalle de una sesión
+@Serializable
+data class RutaPerfilAstronauta(val astronautaId: Long)
+
+@Serializable
+data class RutaDetalleSesion(val sesionId: Long)
