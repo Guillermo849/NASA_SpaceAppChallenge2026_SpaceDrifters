@@ -42,11 +42,13 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDrifte
 fun TripulacionScreen(
     onAtras: () -> Unit,
     onAstronauta: (Long) -> Unit,
+    /** Protocolos a bordo: pruebas pendientes, resultados y pasos de cada protocolo. */
+    onProtocolos: () -> Unit = {},
     onCerrarSesion: () -> Unit = {},
     viewModel: TripulacionViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val tripulacion by viewModel.tripulacion.collectAsStateWithLifecycle()
-    TripulacionContenido(tripulacion, onAtras, onAstronauta, onCerrarSesion)
+    TripulacionContenido(tripulacion, onAtras, onAstronauta, onProtocolos, onCerrarSesion)
 }
 
 @Composable
@@ -54,6 +56,7 @@ private fun TripulacionContenido(
     tripulacion: List<FilaTripulanteUi>?,
     onAtras: () -> Unit,
     onAstronauta: (Long) -> Unit,
+    onProtocolos: () -> Unit = {},
     onCerrarSesion: () -> Unit = {},
 ) {
     PantallaBase(
@@ -75,12 +78,45 @@ private fun TripulacionContenido(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+            item { TarjetaProtocolosABordo(onProtocolos) }
             if (tripulacion != null && tripulacion.isEmpty()) {
                 item { Text(stringResource(R.string.medico_sin_tripulacion), style = MaterialTheme.typography.bodyLarge) }
             }
             items(tripulacion.orEmpty(), key = { it.id }) { fila ->
                 TarjetaTripulante(fila, onClick = { onAstronauta(fila.id) })
             }
+        }
+    }
+}
+
+/** Acceso a los protocolos fisiológicos de toda la tripulación (pruebas pendientes y resultados). */
+@Composable
+private fun TarjetaProtocolosABordo(onAbrir: () -> Unit) {
+    Card(
+        onClick = onAbrir,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = stringResource(R.string.oficial_titulo), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = stringResource(R.string.medico_protocolos_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Icon(
+                painter = painterResource(R.drawable.ic_siguiente),
+                contentDescription = stringResource(R.string.cd_entrar),
+                tint = MaterialTheme.colorScheme.primary,
+            )
         }
     }
 }

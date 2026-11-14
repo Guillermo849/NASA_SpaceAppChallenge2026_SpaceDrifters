@@ -419,10 +419,8 @@
     <string name="accion_revisar_temperatura_cabina">Check cabin temperature</string>
     <string name="accion_revisar_soporte_vital">Check the life support system</string>
 
-    <!-- On-board medical officer -->
-    <string name="rol_oficial">On-board medical officer</string>
-    <string name="rol_oficial_desc">Pending tests and crew protocols</string>
-    <string name="cd_oficial">Medical officer</string>
+    <!-- On-board protocols (flight surgeon profile) -->
+    <string name="medico_protocolos_desc">Pending tests, results and steps of the crew protocols</string>
     <string name="oficial_titulo">On-board protocols</string>
     <string name="oficial_vacio">There are no open protocols.</string>
     <string name="oficial_pendientes">Pending tests</string>

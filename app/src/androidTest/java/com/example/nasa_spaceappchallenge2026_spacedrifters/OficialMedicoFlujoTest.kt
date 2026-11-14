@@ -14,7 +14,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * La oficial médico ve los protocolos de la demo y mete resultados: Maya repite constantes
+ * El perfil del médico ve los protocolos de la demo y mete resultados: Maya repite constantes
  * ("igual o peor") → se pide un ecocardiograma → VS bajo → nivel 4.
  */
 @RunWith(AndroidJUnit4::class)
@@ -36,14 +36,14 @@ class OficialMedicoFlujoTest {
         assertTrue(hay(texto(R.string.nivel_con_numero, 3, texto(R.string.nivel_3))))
         assertTrue(hay(texto(R.string.astronauta_protocolo_que_hacer)))
         assertTrue(hay(texto(R.string.accion_revisar_balance_hidrico_24h)))
-        // El acceso a los protocolos de toda la tripulación es solo para la oficial médico.
-        assertFalse(hay(texto(R.string.rol_oficial)))
+        // La gestión de los protocolos de toda la tripulación es solo del perfil del médico.
+        assertFalse(hay(texto(R.string.oficial_titulo)))
     }
 
     @Test
     fun repeticionYEcocardio_subeANivel4() {
-        // Ane es la oficial médico: entra como astronauta y abre "Protocolos a bordo" desde su panel.
-        compose.entrarComoOficialMedico()
+        // El médico (en la Tierra o a bordo) abre "Protocolos a bordo" desde la tripulación.
+        compose.entrarComoMedico()
         compose.waitUntil(5_000) { hay(texto(R.string.oficial_titulo)) }
         compose.onNodeWithText(texto(R.string.oficial_titulo)).performClick()
         compose.waitUntil(5_000) { hay("Maya Okafor") }

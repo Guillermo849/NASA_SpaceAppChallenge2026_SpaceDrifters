@@ -421,10 +421,8 @@
     <string name="accion_revisar_temperatura_cabina">Revisar la temperatura de la cabina</string>
     <string name="accion_revisar_soporte_vital">Revisar el sistema de soporte vital</string>
 
-    <!-- Oficial médico de a bordo -->
-    <string name="rol_oficial">Oficial médico de a bordo</string>
-    <string name="rol_oficial_desc">Pruebas pendientes y protocolos de la tripulación</string>
-    <string name="cd_oficial">Oficial médico</string>
+    <!-- Protocolos a bordo (perfil del médico) -->
+    <string name="medico_protocolos_desc">Pruebas pendientes, resultados y pasos de los protocolos de la tripulación</string>
     <string name="oficial_titulo">Protocolos a bordo</string>
     <string name="oficial_vacio">No hay ningún protocolo abierto.</string>
     <string name="oficial_pendientes">Pruebas pendientes</string>

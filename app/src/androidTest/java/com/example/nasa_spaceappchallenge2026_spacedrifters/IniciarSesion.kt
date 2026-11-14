@@ -18,9 +18,6 @@ fun AndroidComposeTestRule<*, *>.entrarComoMedico() = entrar("admin", Role.ADMIN
 /** Entra en la app como astronauta (Maya Okafor). */
 fun AndroidComposeTestRule<*, *>.entrarComoAstronauta() = entrar("maya.okafor", Role.ASTRONAUT)
 
-/** Entra como Ane Etxeberria, la oficial médico de a bordo (necesita los datos de ejemplo). */
-fun AndroidComposeTestRule<*, *>.entrarComoOficialMedico() = entrar("ane.etxeberria", Role.ASTRONAUT)
-
 /**
  * Rellena el login y pulsa "Entrar". Si la base de datos está vacía (BaseDeDatosLimpia) crea antes
  * el usuario, con su nombre como contraseña; si ya existe, usa la contraseña guardada.

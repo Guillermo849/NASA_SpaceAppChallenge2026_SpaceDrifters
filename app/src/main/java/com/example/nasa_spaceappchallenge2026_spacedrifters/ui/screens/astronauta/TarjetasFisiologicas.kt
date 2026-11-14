@@ -76,23 +76,6 @@ fun TarjetaProtocoloAstronauta(p: ProtocoloEnCurso, modifier: Modifier = Modifie
     }
 }
 
-/** Solo para la oficial médico de a bordo: acceso a los protocolos de toda la tripulación. */
-@Composable
-fun TarjetaOficialMedico(onAbrir: () -> Unit, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(stringResource(R.string.rol_oficial), style = MaterialTheme.typography.titleMedium)
-            Text(
-                stringResource(R.string.rol_oficial_desc),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            OutlinedButton(onClick = onAbrir, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                Text(stringResource(R.string.oficial_titulo))
-            }
-        }
-    }
-}
 
 @Preview
 @Composable

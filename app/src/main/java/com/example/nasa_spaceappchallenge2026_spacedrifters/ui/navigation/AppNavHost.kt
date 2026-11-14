@@ -24,8 +24,9 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.oficial.R
  * Las pantallas no conocen el NavController: reciben lambdas (onAtras, onMedico...).
  *
  * El punto de entrada es [RutaLogin]. Según el rol del usuario autenticado se navega a
- * [RutaInicioAstronauta] (astronauta) o [RutaTripulacion] (admin/médico). La oficial médico de a
- * bordo entra como astronauta y desde su panel abre [RutaOficialMedico].
+ * [RutaInicioAstronauta] (astronauta) o [RutaTripulacion] (admin/médico). Solo hay esos dos
+ * perfiles: el del médico (en la Tierra o a bordo) tiene toda la gestión, también los protocolos
+ * a bordo ([RutaOficialMedico]).
  */
 @Composable
 fun AppNavHost(navController: NavHostController = rememberNavController()) {
@@ -53,10 +54,9 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             SelectorRolScreen(
                 onAstronauta = { navController.navigate(RutaInicioAstronauta) },
                 onMedico = { navController.navigate(RutaTripulacion) },
-                onOficial = { navController.navigate(RutaOficialMedico) },
             )
         }
-        // Oficial médico de a bordo
+        // Perfil del médico: protocolos a bordo (pruebas pendientes y resultados).
         composable<RutaOficialMedico> {
             OficialMedicoScreen(
                 onAtras = { navController.popBackStack() },
@@ -78,8 +78,6 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onEmpezarStroop = { navController.navigate(RutaPruebaStroop) },
                 onEmpezarNBack = { navController.navigate(RutaPruebaNBack) },
                 onRegistro = { navController.navigate(RutaRegistroDiario) },
-                // Solo lo ve la oficial médico de a bordo.
-                onOficial = { navController.navigate(RutaOficialMedico) },
                 onCerrarSesion = {
                     navController.navigate(RutaLogin) {
                         popUpTo(0) { inclusive = true }
@@ -117,6 +115,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             TripulacionScreen(
                 onAtras = { navController.popBackStack() },
                 onAstronauta = { id -> navController.navigate(RutaPerfilAstronauta(id)) },
+                onProtocolos = { navController.navigate(RutaOficialMedico) },
                 onCerrarSesion = {
                     navController.navigate(RutaLogin) {
                         popUpTo(0) { inclusive = true }

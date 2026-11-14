@@ -72,8 +72,6 @@ fun InicioAstronautaScreen(
     onEmpezarNBack: () -> Unit,
     onRegistro: () -> Unit,
     onCerrarSesion: () -> Unit = {},
-    /** "Protocolos a bordo": solo se muestra a la oficial médico. */
-    onOficial: () -> Unit = {},
     viewModel: InicioAstronautaViewModel = viewModel(factory = AppViewModelProvider.Factory),
     emergencia: EmergenciaViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
@@ -89,7 +87,6 @@ fun InicioAstronautaScreen(
         signosAlarma = emergencia.signosAlarma,
         onAlarma = emergencia::activar,
         onCerrarSesion = onCerrarSesion,
-        onOficial = onOficial,
     )
 }
 
@@ -104,7 +101,6 @@ private fun PanelAstronautaContenido(
     signosAlarma: List<String> = emptyList(),
     onAlarma: (Set<String>) -> Unit = {},
     onCerrarSesion: () -> Unit = {},
-    onOficial: () -> Unit = {},
     ahora: Long = remember { System.currentTimeMillis() },
 ) {
     var periodo by rememberSaveable { mutableStateOf(Periodo.SEMANA) }
@@ -128,7 +124,6 @@ private fun PanelAstronautaContenido(
                 CabeceraPanel(panel)
                 // Protocolos fisiológicos abiertos: arriba, el más grave primero.
                 protocolos.forEach { TarjetaProtocoloAstronauta(it) }
-                if (panel.cargo == CargoTripulante.OFICIAL_MEDICO) TarjetaOficialMedico(onOficial)
                 if (panel.avisos.isNotEmpty()) TarjetaAvisos(panel.avisos)
                 TarjetaRegistroHoy(panel.registroHoy, onRegistro)
                 TarjetaPruebasDeHoy(
