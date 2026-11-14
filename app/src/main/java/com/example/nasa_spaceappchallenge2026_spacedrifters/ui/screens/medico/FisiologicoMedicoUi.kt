@@ -74,7 +74,7 @@ data class FisiologicoMedicoUi(
 )
 
 /** Días que forman la línea base de las constantes (los primeros de la serie). */
-const val DIAS_LINEA_BASE_CONSTANTES = 7
+const val DIAS_LINEA_BASE_CONSTANTES = UmbralesFisiologicos.DIAS_LINEA_BASE
 
 /**
  * Construye la pestaña "Fisiológico" con lo que ya ha llegado a la Tierra en [ahora]: eventos con

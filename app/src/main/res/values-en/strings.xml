@@ -668,6 +668,51 @@
     <string name="hemo_u_miles_ul">×10³/µl</string>
     <string name="hemo_u_millones_ul">×10⁶/µl</string>
 
+    <!-- Vital signs entered by hand -->
+    <string name="constantes_titulo">Take vital signs</string>
+    <string name="constantes_mis">My vital signs</string>
+    <string name="constantes_tomar">Take vital signs</string>
+    <string name="constantes_anadir">Add vital signs</string>
+    <string name="constantes_ninguna_aun">No vital signs recorded yet.</string>
+    <string name="constantes_ultima_toma">Last reading: %1$s</string>
+    <string name="constantes_ayuda">Measure at rest, seated, after 5 minutes without moving. Only fill in what you measured.</string>
+    <string name="constante_fc">Heart rate</string>
+    <string name="constante_pa">Blood pressure</string>
+    <string name="constante_pas">Systolic (top)</string>
+    <string name="constante_pad">Diastolic (bottom)</string>
+    <string name="constante_spo2">Oxygen saturation</string>
+    <string name="constante_fr">Respiratory rate</string>
+    <string name="unidad_lpm">bpm</string>
+    <string name="unidad_mmhg">mmHg</string>
+    <string name="unidad_porcentaje">%</string>
+    <string name="unidad_rpm">breaths/min</string>
+    <string name="constantes_sintomas_pregunta">Do you notice anything right now?</string>
+    <string name="constantes_contexto_pregunta">In the last hour…</string>
+    <string name="constantes_contexto_ejercicio">I exercised</string>
+    <string name="constantes_contexto_estres">I had a stressful moment</string>
+    <string name="sintoma_c_mareo">Dizziness</string>
+    <string name="sintoma_c_fatiga">Tiredness</string>
+    <string name="sintoma_c_presincope">Feeling faint</string>
+    <string name="sintoma_c_cefalea">Headache</string>
+    <string name="sintoma_c_disnea">Shortness of breath</string>
+    <string name="sintoma_c_edema">Swelling of face or neck</string>
+    <string name="constantes_guardar">Save vital signs</string>
+    <string name="constantes_rango_posible">Must be between %1$d and %2$d</string>
+    <string name="constantes_error_ninguna">Enter at least one vital sign.</string>
+    <string name="constantes_error_imposible">A value is not possible: check the marked ones.</string>
+    <string name="constantes_error_tension">Diastolic (bottom) must be lower than systolic (top).</string>
+    <string name="constantes_guardadas">Vital signs saved</string>
+    <string name="constantes_estado_dentro">Within your range</string>
+    <string name="constantes_estado_alto">High for you</string>
+    <string name="constantes_estado_bajo">Low for you</string>
+    <string name="constantes_estado_sin_referencia">Saved (no reference)</string>
+    <string name="constantes_protocolos">Protocols</string>
+    <string name="constantes_protocolo_nuevo">Opened: %1$s</string>
+    <string name="constantes_protocolo_sigue">Still in progress: %1$s</string>
+    <string name="constantes_mira_panel">See what to do on the astronaut panel.</string>
+    <string name="constantes_fuera_sin_protocolo">A value is outside its range. If you feel fine, repeat the measurement in a while.</string>
+    <string name="constantes_llega_medico">The doctor on Earth will receive it in about %1$d min.</string>
+
     <!-- Psychological wellbeing -->
     <string name="bienestar_titulo">Wellbeing</string>
     <string name="bienestar_pendiente">You haven\'t told us how you feel today yet.</string>

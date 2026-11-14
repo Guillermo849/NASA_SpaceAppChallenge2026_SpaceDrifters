@@ -3,6 +3,7 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronau
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.CargoTripulante
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoEjercicio
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.UltimasConstantes
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.EstadoCognitivo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
@@ -27,6 +28,8 @@ data class PanelAstronautaUi(
     val registroHoy: RegistroHoyUi? = null,
     /** Check-in de bienestar de hoy, o null si aún no lo ha hecho. */
     val bienestarHoy: BienestarHoyUi? = null,
+    /** Últimas constantes registradas, o null si no hay ninguna. */
+    val constantes: UltimasConstantes? = null,
     /** Una entrada por prueba, con las sesiones de los últimos 30 días. */
     val rendimiento: List<RendimientoUi> = emptyList(),
 )

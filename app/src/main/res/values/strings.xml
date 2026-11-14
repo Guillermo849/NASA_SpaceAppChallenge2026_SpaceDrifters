@@ -671,6 +671,51 @@
     <string name="hemo_u_millones_ul">×10⁶/µl</string>
     <string name="hemo_u_vacia" translatable="false"></string>
 
+    <!-- Constantes introducidas a mano -->
+    <string name="constantes_titulo">Tomar constantes</string>
+    <string name="constantes_mis">Mis constantes</string>
+    <string name="constantes_tomar">Tomar constantes</string>
+    <string name="constantes_anadir">Añadir constantes</string>
+    <string name="constantes_ninguna_aun">Aún no hay constantes registradas.</string>
+    <string name="constantes_ultima_toma">Última toma: %1$s</string>
+    <string name="constantes_ayuda">Mide en reposo, sentado, tras 5 minutos sin moverte. Rellena solo lo que hayas medido.</string>
+    <string name="constante_fc">Frecuencia cardiaca</string>
+    <string name="constante_pa">Tensión</string>
+    <string name="constante_pas">Sistólica (alta)</string>
+    <string name="constante_pad">Diastólica (baja)</string>
+    <string name="constante_spo2">Saturación de oxígeno</string>
+    <string name="constante_fr">Frecuencia respiratoria</string>
+    <string name="unidad_lpm">lpm</string>
+    <string name="unidad_mmhg">mmHg</string>
+    <string name="unidad_porcentaje">%</string>
+    <string name="unidad_rpm">rpm</string>
+    <string name="constantes_sintomas_pregunta">¿Notas algo ahora?</string>
+    <string name="constantes_contexto_pregunta">En la última hora…</string>
+    <string name="constantes_contexto_ejercicio">He hecho ejercicio</string>
+    <string name="constantes_contexto_estres">He tenido un momento de estrés</string>
+    <string name="sintoma_c_mareo">Mareo</string>
+    <string name="sintoma_c_fatiga">Cansancio</string>
+    <string name="sintoma_c_presincope">Sensación de desmayo</string>
+    <string name="sintoma_c_cefalea">Dolor de cabeza</string>
+    <string name="sintoma_c_disnea">Falta de aire</string>
+    <string name="sintoma_c_edema">Hinchazón de cara o cuello</string>
+    <string name="constantes_guardar">Guardar constantes</string>
+    <string name="constantes_rango_posible">Tiene que estar entre %1$d y %2$d</string>
+    <string name="constantes_error_ninguna">Escribe al menos una constante.</string>
+    <string name="constantes_error_imposible">Hay un valor que no es posible: revisa los marcados.</string>
+    <string name="constantes_error_tension">La diastólica (baja) tiene que ser menor que la sistólica (alta).</string>
+    <string name="constantes_guardadas">Constantes guardadas</string>
+    <string name="constantes_estado_dentro">Dentro de tu rango</string>
+    <string name="constantes_estado_alto">Alta para ti</string>
+    <string name="constantes_estado_bajo">Baja para ti</string>
+    <string name="constantes_estado_sin_referencia">Guardada (sin referencia)</string>
+    <string name="constantes_protocolos">Protocolos</string>
+    <string name="constantes_protocolo_nuevo">Se ha abierto: %1$s</string>
+    <string name="constantes_protocolo_sigue">Sigue en curso: %1$s</string>
+    <string name="constantes_mira_panel">Mira qué hacer en el panel del astronauta.</string>
+    <string name="constantes_fuera_sin_protocolo">Algún valor está fuera de su rango. Si no notas nada, repite la medida en un rato.</string>
+    <string name="constantes_llega_medico">El médico en la Tierra lo recibirá dentro de unos %1$d min.</string>
+
     <!-- Bienestar psicológico -->
     <string name="bienestar_titulo">Bienestar</string>
     <string name="bienestar_pendiente">Aún no has contado cómo te sientes hoy.</string>

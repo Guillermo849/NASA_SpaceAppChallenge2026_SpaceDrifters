@@ -62,6 +62,8 @@ data class AccionesFisiologico(
     val pedirPrueba: (Long, TipoPruebaClinica) -> Unit = { _, _ -> },
     val anadirIndicacion: (String) -> Unit = {},
     val mensajeVisto: () -> Unit = {},
+    /** Abre "Tomar constantes" para este astronauta. */
+    val anadirConstantes: () -> Unit = {},
 )
 
 /**
@@ -109,6 +111,11 @@ fun PestanaFisiologica(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        // Toma a bordo (p. ej. la oficial médico): se ve aquí cuando llega a la Tierra.
+        OutlinedButton(
+            onClick = acciones.anadirConstantes,
+            modifier = Modifier.heightIn(min = 48.dp),
+        ) { Text(stringResource(R.string.constantes_anadir)) }
         datos.series.forEach { TarjetaConstante(it) }
 
         Text(stringResource(R.string.fisio_comparacion), style = MaterialTheme.typography.titleLarge)

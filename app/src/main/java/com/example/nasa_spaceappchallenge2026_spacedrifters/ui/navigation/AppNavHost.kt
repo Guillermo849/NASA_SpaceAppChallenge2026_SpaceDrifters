@@ -7,6 +7,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.constantes.ConstantesScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.InicioAstronautaScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.RegistroDiarioScreen
@@ -82,6 +84,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onEmpezarNBack = { navController.navigate(RutaPruebaNBack) },
                 onRegistro = { navController.navigate(RutaRegistroDiario) },
                 onBienestar = { navController.navigate(RutaBienestar) },
+                onConstantes = { navController.navigate(RutaConstantes()) },
                 onCerrarSesion = {
                     navController.navigate(RutaLogin) {
                         popUpTo(0) { inclusive = true }
@@ -94,6 +97,11 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onAtras = { navController.popBackStack() },
                 onGuardado = { navController.popBackStack() },
             )
+        }
+
+        // ── Constantes (astronauta o médico) ───────────────────────────────────
+        composable<RutaConstantes> {
+            ConstantesScreen(onAtras = { navController.popBackStack() })
         }
 
         // ── Bienestar psicológico ─────────────────────────────────────────────
@@ -143,10 +151,12 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             )
         }
         // El ViewModel lee el id de la ruta (ver AppViewModelProvider).
-        composable<RutaPerfilAstronauta> {
+        composable<RutaPerfilAstronauta> { entrada ->
+            val astronautaId = entrada.toRoute<RutaPerfilAstronauta>().astronautaId
             PerfilAstronautaScreen(
                 onAtras = { navController.popBackStack() },
                 onSesion = { id -> navController.navigate(RutaDetalleSesion(id)) },
+                onConstantes = { navController.navigate(RutaConstantes(astronautaId)) },
             )
         }
         composable<RutaDetalleSesion> {

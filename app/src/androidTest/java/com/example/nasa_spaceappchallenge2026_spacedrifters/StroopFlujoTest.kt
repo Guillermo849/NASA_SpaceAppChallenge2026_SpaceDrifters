@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
@@ -28,7 +29,7 @@ class StroopFlujoTest {
     fun practica_tocarUnColorMuestraElAviso() {
         compose.entrarComoAstronauta()
         // En "Pruebas de hoy" el primer "Empezar" es el del Stroop.
-        compose.onAllNodesWithText(texto(R.string.empezar))[0].performClick()
+        compose.onAllNodesWithText(texto(R.string.empezar))[0].performScrollTo().performClick()
         // Primero consulta en Room si ya hizo la práctica (en segundo plano).
         compose.waitUntil(timeoutMillis = 3_000) {
             compose.onAllNodes(hasText(texto(R.string.stroop_instrucciones))).fetchSemanticsNodes().isNotEmpty()

@@ -116,6 +116,7 @@ Hay **una sola base de datos**: `data/local/AppDatabase.kt` (archivo `astronaut_
 - Usuarios, misión y tripulación (`app_user`, `mission`, `astronaut`, con el cargo y las horas de sueño habituales), mediciones, ECG, tensión, pruebas clínicas y alertas (`entity/` y `dao/`).
 - Pruebas cognitivas Stroop y N-Back (`DatosCognitivos.kt`): sesiones, cada ensayo, resúmenes con el retraso con la Tierra y línea base.
 - Registro diario: sueño, somnolencia y síntomas, y (opcional, del día anterior) líquido bebido, parte del menú comida y minutos/tipo de ejercicio (`DatosTripulacion.kt`). Objetivos diarios de líquido y ejercicio en `assets/config_mision.json` (`objetivosDiarios`).
+- Constantes (FC, tensión, SpO2, FR) en las tablas del equipo `continuous_measurement` y `blood_pressure`. Se pueden meter a mano desde «Mis constantes» del panel del astronauta o desde «Añadir constantes» en la pestaña Fisiológico del médico (`ui/screens/constantes`, `ConstantesRepository`): se comparan con la línea base de cada persona y los umbrales de `config_umbrales.json`, y pueden abrir protocolos.
 - Bienestar psicológico (`DatosBienestar.kt`): check-in diario de ánimo, estrés y aislamiento (escalas 1–5) y las herramientas usadas (respiración guiada, juego «Parejas orbitales»). La pantalla está en `ui/screens/astronauta/bienestar`; la lógica (sugerencias, fases de la respiración, juego) en Java en `domain/bienestar`. La regla `bienestar-bajo` de `assets/reglas.json` avisa al médico, y el botón «Hablar con apoyo psicológico» crea una alerta `solicitud-apoyo`.
 
 Para añadir algo:
