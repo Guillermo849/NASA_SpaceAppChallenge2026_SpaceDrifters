@@ -4,7 +4,7 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo.CargadorDatosEjemplo
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabaseAntiguo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.ResumenSesion
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
@@ -26,7 +26,7 @@ import java.time.ZoneId
 @RunWith(AndroidJUnit4::class)
 class DatosEjemploTest {
 
-    private lateinit var db: AppDatabase
+    private lateinit var db: AppDatabaseAntiguo
     private lateinit var repo: CognitivoRepository
     private val dao get() = db.cognitivoDao()
 
@@ -43,7 +43,7 @@ class DatosEjemploTest {
     @Before
     fun cargar() = runBlocking {
         val contexto = InstrumentationRegistry.getInstrumentation().targetContext
-        db = Room.inMemoryDatabaseBuilder(contexto, AppDatabase::class.java).build()
+        db = Room.inMemoryDatabaseBuilder(contexto, AppDatabaseAntiguo::class.java).build()
         repo = CognitivoRepository(db, ConfigCognitiva())
         val json = contexto.assets.open(CargadorDatosEjemplo.ARCHIVO).bufferedReader().use { it.readText() }
         assertTrue(CargadorDatosEjemplo(db, repo).cargarSiVacia(json, ahora, zona))

@@ -1,7 +1,7 @@
 package com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo
 
 import androidx.room.withTransaction
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabaseAntiguo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Astronauta
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.CargoTripulante
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.RegistroDiario
@@ -66,7 +66,7 @@ data class TripulanteEjemplo(
  * líneas base y los estados salen de los ensayos.
  */
 class CargadorDatosEjemplo(
-    private val db: AppDatabase,
+    private val db: AppDatabaseAntiguo,
     private val repositorio: CognitivoRepository,
 ) {
     private val configStroop = ConfigStroop()

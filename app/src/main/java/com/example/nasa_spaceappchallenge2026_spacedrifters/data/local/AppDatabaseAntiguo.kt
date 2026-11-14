@@ -24,13 +24,13 @@ import androidx.room.RoomDatabase
     version = 2,
     exportSchema = false,
 )
-abstract class AppDatabase : RoomDatabase() {
+abstract class AppDatabaseAntiguo : RoomDatabase() {
     abstract fun cognitivoDao(): CognitivoDao
     abstract fun tripulacionDao(): TripulacionDao
 
     companion object {
-        fun crear(context: Context): AppDatabase =
-            Room.databaseBuilder(context, AppDatabase::class.java, "spacedrifters.db")
+        fun crear(context: Context): AppDatabaseAntiguo =
+            Room.databaseBuilder(context, AppDatabaseAntiguo::class.java, "spacedrifters.db")
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
     }

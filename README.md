@@ -110,7 +110,7 @@ Las carpetas vacías tienen un `.gitkeep` para que existan en git; bórralo cuan
 
 ### Datos (Room)
 
-1. Entidades y DAOs en `data/local/`, y la clase `AppDatabase` también ahí.
+1. Entidades y DAOs en `data/local/`, y la clase `AppDatabaseAntiguo` también ahí.
 2. Un repositorio en `data/repository/` que use los DAOs.
 3. Crea la base de datos y el repositorio en `di/AppContainer.kt` con `by lazy`.
 

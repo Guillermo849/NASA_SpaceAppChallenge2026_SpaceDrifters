@@ -1,7 +1,7 @@
 package com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository
 
 import androidx.room.withTransaction
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabaseAntiguo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EnsayoNBack
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EnsayoStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.LineaBaseCognitiva
@@ -40,7 +40,7 @@ data class SesionNueva(
  * Las métricas y el estado se calculan en domain/cognitivo (Java).
  */
 class CognitivoRepository(
-    private val db: AppDatabase,
+    private val db: AppDatabaseAntiguo,
     private val config: ConfigCognitiva,
     /**
      * Las lecturas esperan a esto antes de consultar (la carga de los datos de ejemplo al primer

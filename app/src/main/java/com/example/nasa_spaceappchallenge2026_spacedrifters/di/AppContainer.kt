@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigMision
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo.CargadorDatosEjemplo
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabaseAntiguo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.TripulacionRepository
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +34,7 @@ class AppContainer(context: Context) {
      */
     val ambitoAplicacion: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    val database: AppDatabase by lazy { AppDatabase.crear(appContext) }
+    val database: AppDatabaseAntiguo by lazy { AppDatabaseAntiguo.crear(appContext) }
 
     /** assets/config_mision.json: retraso con la Tierra, umbrales de estado... */
     val configMision: ConfigMision by lazy { ConfigMision.leer(appContext) }

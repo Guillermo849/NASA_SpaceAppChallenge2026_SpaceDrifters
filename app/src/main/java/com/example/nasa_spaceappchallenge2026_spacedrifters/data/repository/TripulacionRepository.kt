@@ -1,6 +1,6 @@
 package com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository
 
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabaseAntiguo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Astronauta
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.RegistroDiario
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +13,7 @@ import java.time.LocalDate
  * equipo, este es el sitio a adaptar (las pantallas no dependen de las tablas).
  */
 class TripulacionRepository(
-    private val db: AppDatabase,
+    private val db: AppDatabaseAntiguo,
     /** Espera a que termine la carga de los datos de ejemplo del primer arranque. */
     private val esperarDatos: suspend () -> Unit = {},
 ) {
