@@ -132,7 +132,7 @@ private fun LoginContent(
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = "Acceso a la misión",
+                text = "Access to the mision",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -145,7 +145,7 @@ private fun LoginContent(
                 value = usuario,
                 onValueChange = onUsuarioCambiado,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Usuario") },
+                label = { Text("User") },
                 singleLine = true,
                 isError = error != null,
                 keyboardOptions = KeyboardOptions(
@@ -162,7 +162,7 @@ private fun LoginContent(
                 value = contrasena,
                 onValueChange = onContrasenaCambiada,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Contraseña") },
+                label = { Text("Password") },
                 singleLine = true,
                 isError = error != null,
                 visualTransformation = if (mostrarContrasena) VisualTransformation.None
@@ -214,7 +214,7 @@ private fun LoginContent(
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
-                    Text("Entrar", style = MaterialTheme.typography.labelLarge)
+                    Text("Enter", style = MaterialTheme.typography.labelLarge)
                 }
             }
         }
@@ -245,7 +245,7 @@ private fun LoginErrorPreview() {
             usuario = "maya.okafor",
             contrasena = "wrong",
             cargando = false,
-            error = "Usuario o contraseña incorrectos. Inténtalo de nuevo.",
+            error = "Invalid username or password. Try again.",
             onUsuarioCambiado = {},
             onContrasenaCambiada = {},
             onIniciarSesion = {},
