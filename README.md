@@ -72,7 +72,7 @@ Todo el código está en `app/src/main/java/com/example/nasa_spaceappchallenge20
 
 Otros sitios importantes:
 
-- `app/src/main/assets/`: JSON con datos de ejemplo y reglas (vacío por ahora).
+- `app/src/main/assets/`: JSON de configuración y datos. `config_mision.json` tiene el retraso con la Tierra y los umbrales de Vigilar/Alerta (en desviaciones típicas): cámbialos ahí, no en el código. Los datos de ejemplo y las reglas irán también aquí.
 - `app/src/main/res/values/strings.xml`: textos en **castellano** (idioma por defecto).
 - `app/src/main/res/values-en/strings.xml`: los mismos textos en **inglés**, para la entrega a la NASA.
 - `app/src/test/`: tests unitarios (JVM). `app/src/androidTest/`: tests en dispositivo.

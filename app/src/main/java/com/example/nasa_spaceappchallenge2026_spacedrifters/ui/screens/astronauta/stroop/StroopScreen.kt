@@ -48,6 +48,9 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.Interr
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.MensajePrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.ModoPrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.PantallaBase
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.PantallaEspera
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.fraseResultado
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.ZonaRespuesta
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.LocalEstadoColores
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDriftersTheme
@@ -71,6 +74,8 @@ fun StroopScreen(
 
     val titulo = stringResource(R.string.stroop_nombre)
     when (val actual = etapa) {
+        StroopViewModel.Etapa.Cargando -> PantallaEspera(titulo, onAtras = onVolver)
+        StroopViewModel.Etapa.Guardando -> PantallaEspera(titulo, onAtras = null)
         is StroopViewModel.Etapa.Instrucciones -> InstruccionesStroop(
             conPractica = actual.conPractica,
             onEmpezar = viewModel::empezar,
@@ -91,7 +96,7 @@ fun StroopScreen(
         is StroopViewModel.Etapa.Terminada -> MensajePrueba(
             tituloPantalla = titulo,
             titulo = stringResource(R.string.prueba_terminada_titulo),
-            texto = stringResource(R.string.prueba_terminada_texto),
+            texto = stringResource(fraseResultado(TipoPrueba.STROOP, actual.estado)),
             boton = stringResource(R.string.volver_panel),
             onBoton = onVolver,
             onAtras = onVolver,

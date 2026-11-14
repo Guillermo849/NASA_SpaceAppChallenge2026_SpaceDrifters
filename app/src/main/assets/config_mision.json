@@ -1,0 +1,6 @@
+{
+  "retrasoMisionMin": 18,
+  "umbralVigilarDesviaciones": 1.0,
+  "umbralAlertaDesviaciones": 2.0,
+  "minSesionesLineaBase": 3
+}

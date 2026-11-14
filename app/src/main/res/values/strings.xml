@@ -21,6 +21,8 @@
     <string name="astronauta_inicio_titulo">Inicio</string>
     <string name="pruebas_hoy_titulo">Pruebas de hoy</string>
     <string name="empezar">Empezar</string>
+    <string name="repetir">Repetir</string>
+    <string name="prueba_hecha_hoy">Hecha hoy</string>
 
     <!-- Pruebas cognitivas (comunes) -->
     <string name="empezar_prueba">Empezar la prueba</string>
@@ -30,7 +32,14 @@
     <string name="feedback_incorrecto">Incorrecto</string>
     <string name="feedback_sin_respuesta">Sin respuesta</string>
     <string name="prueba_terminada_titulo">Prueba completada</string>
-    <string name="prueba_terminada_texto">Has terminado la prueba. Gracias.</string>
+    <string name="resultado_normal">Hoy estás dentro de tu rango habitual.</string>
+    <string name="resultado_sin_linea_base">Todavía no tienes un rango habitual con el que comparar esta prueba.</string>
+    <string name="resultado_sin_datos">Esta sesión no tiene datos suficientes para compararla con tu rango habitual.</string>
+    <string name="resultado_error_guardado">No se ha podido guardar esta sesión. Inténtalo de nuevo más tarde.</string>
+    <string name="stroop_resultado_vigilar">Hoy has tardado algo más de lo normal.</string>
+    <string name="stroop_resultado_alerta">Hoy has tardado bastante más de lo normal.</string>
+    <string name="nback_resultado_vigilar">Hoy te ha costado algo más de lo normal recordar las formas.</string>
+    <string name="nback_resultado_alerta">Hoy te ha costado bastante más de lo normal recordar las formas.</string>
     <string name="prueba_interrumpida_titulo">Prueba interrumpida</string>
     <string name="prueba_interrumpida_texto">Esta sesión no cuenta. Puedes repetirla desde tu panel.</string>
     <string name="volver_panel">Volver al panel</string>

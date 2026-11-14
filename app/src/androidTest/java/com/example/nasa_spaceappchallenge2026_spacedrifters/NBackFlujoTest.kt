@@ -18,7 +18,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NBackFlujoTest {
 
-    @get:Rule
+    @get:Rule(order = 0)
+    val limpia = BaseDeDatosLimpia()
+
+    @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
 
     private fun texto(id: Int, vararg args: Any) = compose.activity.getString(id, *args)
@@ -28,7 +31,10 @@ class NBackFlujoTest {
         compose.onNodeWithText(texto(R.string.rol_astronauta)).performClick()
         // En "Pruebas de hoy" el segundo "Empezar" es el del N-Back.
         compose.onAllNodesWithText(texto(R.string.empezar))[1].performClick()
-        compose.onNodeWithText(texto(R.string.nback_instrucciones)).assertExists()
+        // Primero consulta en Room si ya hizo la práctica (en segundo plano).
+        compose.waitUntil(timeoutMillis = 3_000) {
+            compose.onAllNodes(hasText(texto(R.string.nback_instrucciones))).fetchSemanticsNodes().isNotEmpty()
+        }
         compose.onNodeWithText(texto(R.string.empezar)).performClick()
         compose.onNodeWithText(texto(R.string.nback_recordatorio_1)).assertExists()
 

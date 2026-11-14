@@ -21,6 +21,8 @@
     <string name="astronauta_inicio_titulo">Home</string>
     <string name="pruebas_hoy_titulo">Today\'s tests</string>
     <string name="empezar">Start</string>
+    <string name="repetir">Retake</string>
+    <string name="prueba_hecha_hoy">Done today</string>
 
     <!-- Cognitive tests (common) -->
     <string name="empezar_prueba">Start the test</string>
@@ -30,7 +32,14 @@
     <string name="feedback_incorrecto">Wrong</string>
     <string name="feedback_sin_respuesta">No answer</string>
     <string name="prueba_terminada_titulo">Test complete</string>
-    <string name="prueba_terminada_texto">You have finished the test. Thank you.</string>
+    <string name="resultado_normal">Today you are within your usual range.</string>
+    <string name="resultado_sin_linea_base">You don\'t have a usual range to compare this test with yet.</string>
+    <string name="resultado_sin_datos">This session doesn\'t have enough data to compare it with your usual range.</string>
+    <string name="resultado_error_guardado">This session couldn\'t be saved. Please try again later.</string>
+    <string name="stroop_resultado_vigilar">Today you took a bit longer than usual.</string>
+    <string name="stroop_resultado_alerta">Today you took quite a bit longer than usual.</string>
+    <string name="nback_resultado_vigilar">Today remembering the shapes was a bit harder than usual.</string>
+    <string name="nback_resultado_alerta">Today remembering the shapes was quite a bit harder than usual.</string>
     <string name="prueba_interrumpida_titulo">Test interrupted</string>
     <string name="prueba_interrumpida_texto">This session doesn\'t count. You can retake it from your dashboard.</string>
     <string name="volver_panel">Back to dashboard</string>

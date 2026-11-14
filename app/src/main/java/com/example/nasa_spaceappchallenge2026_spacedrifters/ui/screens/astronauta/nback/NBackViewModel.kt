@@ -2,42 +2,55 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronau
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.SesionNueva
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.EstadoCognitivo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.ConfigNBack
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.ControladorNBack
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.FaseNBack
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.GeneradorNBack
-import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.ResultadoEnsayoNBack
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.guardarEnSegundoPlano
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.temporizador
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.util.Random
 
 /**
  * Flujo completo del N-Back:
  * instrucciones → (práctica 1-back → práctica 2-back, solo la primera vez) → prueba 2-back → fin.
- * Si se sale de la app o se pulsa atrás durante una sesión, queda interrumpida.
- * La lógica y los tiempos están en [ControladorNBack] (Java, en domain).
+ * Cada sesión (también cada práctica) se guarda en Room. Si se sale de la app o se pulsa atrás
+ * durante una sesión, queda interrumpida (valida = false). La lógica está en [ControladorNBack].
  */
 class NBackViewModel(
+    private val repositorio: CognitivoRepository,
+    private val astronautaId: Long,
+    /** Ámbito de la app: los guardados terminan aunque se cierre la pantalla. */
+    private val ambitoGuardado: CoroutineScope,
     private val config: ConfigNBack = ConfigNBack(),
     private val random: Random = Random(),
+    private val reloj: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
 
     enum class TipoSesion { PRACTICA_1BACK, PRACTICA_2BACK, REAL }
 
     sealed interface Etapa {
+        data object Cargando : Etapa
         data class Instrucciones(val conPractica: Boolean) : Etapa
         data class EnCurso(val controlador: ControladorNBack, val tipo: TipoSesion) : Etapa
         /** Pausa entre sesiones: antes de la práctica 2-back o antes de la prueba real. */
         data class Intermedia(val siguiente: TipoSesion) : Etapa
-        data class Terminada(val resultados: List<ResultadoEnsayoNBack>) : Etapa
+        data object Guardando : Etapa
+        /** [estado] null = no se pudo guardar. */
+        data class Terminada(val estado: EstadoCognitivo?) : Etapa
         data object Interrumpida : Etapa
     }
 
-    // De momento la práctica se hace siempre: cuando las sesiones se guarden en Room (paso 4)
-    // se consultará si este astronauta ya la hizo.
-    private val _etapa = MutableStateFlow<Etapa>(Etapa.Instrucciones(conPractica = true))
+    private val _etapa = MutableStateFlow<Etapa>(Etapa.Cargando)
     val etapa: StateFlow<Etapa> = _etapa.asStateFlow()
 
     private val _fase = MutableStateFlow<FaseNBack>(FaseNBack.Preparada.INSTANCIA)
@@ -46,6 +59,15 @@ class NBackViewModel(
 
     private val temporizador = viewModelScope.temporizador()
     private var controlador: ControladorNBack? = null
+    private var inicioEn = 0L
+
+    init {
+        viewModelScope.launch {
+            val yaPractico = runCatching { repositorio.haHechoPractica(astronautaId, TipoPrueba.NBACK) }
+                .getOrDefault(false)
+            _etapa.value = Etapa.Instrucciones(conPractica = !yaPractico)
+        }
+    }
 
     /** Botón "Empezar" / "Seguir" de las instrucciones o de las pausas entre sesiones. */
     fun empezar() {
@@ -57,11 +79,13 @@ class NBackViewModel(
         }
     }
 
-    /** Sale de la app o pulsa atrás a mitad de sesión: no cuenta. */
+    /** Sale de la app o pulsa atrás a mitad de sesión: se guarda como no válida. */
     fun interrumpir() {
         if (_etapa.value !is Etapa.EnCurso) return
-        controlador?.detener()
+        val actual = controlador ?: return
+        actual.detener()
         controlador = null
+        guardar(actual, valida = false)
         _etapa.value = Etapa.Interrumpida
     }
 
@@ -75,9 +99,9 @@ class NBackViewModel(
             TipoSesion.PRACTICA_2BACK -> GeneradorNBack.practica2Back(config, random)
             TipoSesion.REAL -> GeneradorNBack.sesion(config, random)
         }
-        val esPractica = tipo != TipoSesion.REAL
+        inicioEn = reloj()
         _fase.value = FaseNBack.Preparada.INSTANCIA
-        val nuevo = ControladorNBack(secuencia, esPractica, config, temporizador) { fase ->
+        val nuevo = ControladorNBack(secuencia, tipo != TipoSesion.REAL, config, temporizador) { fase ->
             _fase.value = fase
             if (fase is FaseNBack.Terminada) terminar(tipo)
         }
@@ -87,12 +111,29 @@ class NBackViewModel(
     }
 
     private fun terminar(tipo: TipoSesion) {
-        val resultados = controlador?.resultados.orEmpty()
+        val actual = controlador ?: return
         controlador = null
-        _etapa.value = when (tipo) {
-            TipoSesion.PRACTICA_1BACK -> Etapa.Intermedia(TipoSesion.PRACTICA_2BACK)
-            TipoSesion.PRACTICA_2BACK -> Etapa.Intermedia(TipoSesion.REAL)
-            TipoSesion.REAL -> Etapa.Terminada(resultados)
+        val guardado = guardar(actual, valida = true)
+        when (tipo) {
+            TipoSesion.PRACTICA_1BACK -> _etapa.value = Etapa.Intermedia(TipoSesion.PRACTICA_2BACK)
+            TipoSesion.PRACTICA_2BACK -> _etapa.value = Etapa.Intermedia(TipoSesion.REAL)
+            TipoSesion.REAL -> {
+                _etapa.value = Etapa.Guardando
+                viewModelScope.launch { _etapa.value = Etapa.Terminada(guardado.await()) }
+            }
         }
+    }
+
+    private fun guardar(c: ControladorNBack, valida: Boolean): Deferred<EstadoCognitivo?> {
+        val sesion = SesionNueva(
+            astronautaId = astronautaId,
+            inicioEn = inicioEn,
+            finEn = reloj(),
+            esPractica = c.esPractica(),
+            valida = valida,
+        )
+        val resultados = c.resultados
+        val nivel = c.nivel
+        return guardarEnSegundoPlano(ambitoGuardado) { repositorio.guardarNBack(sesion, resultados, nivel) }
     }
 }

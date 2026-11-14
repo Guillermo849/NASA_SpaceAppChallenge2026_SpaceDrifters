@@ -130,4 +130,22 @@ interface CognitivoDao {
 
     @Query("SELECT * FROM ensayo_nback WHERE sesionId = :sesionId ORDER BY numero")
     suspend fun ensayosNBack(sesionId: Long): List<EnsayoNBack>
+
+    // Prácticas completadas (para no repetir la práctica cada vez)
+    @Query("SELECT COUNT(*) FROM sesion_prueba WHERE astronautaId = :id AND tipo = :tipo AND esPractica = 1 AND valida = 1")
+    suspend fun contarPracticasValidas(id: Long, tipo: TipoPrueba): Int
+
+    // Pruebas reales y válidas hechas desde un instante (para marcar "Pruebas de hoy")
+    @Query("SELECT DISTINCT tipo FROM sesion_prueba WHERE astronautaId = :id AND esPractica = 0 AND valida = 1 AND inicioEn >= :desde")
+    fun tiposHechosDesde(id: Long, desde: Long): Flow<List<TipoPrueba>>
+
+    @Query("SELECT * FROM linea_base_cognitiva WHERE astronautaId = :id AND tipo = :tipo AND metrica = :metrica")
+    suspend fun lineaBaseDe(id: Long, tipo: TipoPrueba, metrica: String): LineaBaseCognitiva?
+
+    // Resúmenes de las sesiones de línea base (válidas) de una prueba, para calcularla
+    @Query(
+        "SELECT r.* FROM resumen_sesion r JOIN sesion_prueba s ON s.id = r.sesionId " +
+            "WHERE s.astronautaId = :id AND s.tipo = :tipo AND s.esLineaBase = 1 AND s.valida = 1 AND s.esPractica = 0"
+    )
+    suspend fun resumenesLineaBase(id: Long, tipo: TipoPrueba): List<ResumenSesion>
 }

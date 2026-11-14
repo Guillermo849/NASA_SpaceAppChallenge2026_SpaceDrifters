@@ -80,6 +80,12 @@ fun InterrumpirAlSalir(onInterrumpir: () -> Unit) {
     }
 }
 
+/** Mientras se carga o se guarda (es casi instantáneo): solo la barra y el aviso, sin animaciones. */
+@Composable
+fun PantallaEspera(tituloPantalla: String, onAtras: (() -> Unit)?) {
+    PantallaBase(titulo = tituloPantalla, onAtras = onAtras) { }
+}
+
 /** Pantalla entre etapas de una prueba (fin de práctica, prueba terminada, interrumpida...). */
 @Composable
 fun MensajePrueba(

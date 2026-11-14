@@ -2,39 +2,52 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronau
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.SesionNueva
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.EstadoCognitivo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.ConfigStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.ControladorStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.FaseStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.GeneradorStroop
-import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.ResultadoEnsayoStroop
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.guardarEnSegundoPlano
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.temporizador
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.util.Random
 
 /**
  * Flujo completo de la prueba Stroop:
  * instrucciones → (práctica → fin de práctica, solo la primera vez) → prueba → resultado.
- * Si se sale de la app o se pulsa atrás durante una prueba, queda interrumpida.
- * La lógica y los tiempos están en [ControladorStroop] (Java, en domain).
+ * Si se sale de la app o se pulsa atrás durante una prueba, queda interrumpida (se guarda con
+ * valida = false y no cuenta). La lógica y los tiempos están en [ControladorStroop] (Java).
  */
 class StroopViewModel(
+    private val repositorio: CognitivoRepository,
+    private val astronautaId: Long,
+    /** Ámbito de la app: los guardados terminan aunque se cierre la pantalla. */
+    private val ambitoGuardado: CoroutineScope,
     private val config: ConfigStroop = ConfigStroop(),
     private val random: Random = Random(),
+    private val reloj: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
 
     sealed interface Etapa {
+        data object Cargando : Etapa
         data class Instrucciones(val conPractica: Boolean) : Etapa
         data class EnCurso(val controlador: ControladorStroop) : Etapa
         data object FinPractica : Etapa
-        data class Terminada(val resultados: List<ResultadoEnsayoStroop>) : Etapa
+        data object Guardando : Etapa
+        /** [estado] null = no se pudo guardar. */
+        data class Terminada(val estado: EstadoCognitivo?) : Etapa
         data object Interrumpida : Etapa
     }
 
-    // De momento la práctica se hace siempre: cuando las sesiones se guarden en Room (paso 4)
-    // se consultará si este astronauta ya la hizo.
-    private val _etapa = MutableStateFlow<Etapa>(Etapa.Instrucciones(conPractica = true))
+    private val _etapa = MutableStateFlow<Etapa>(Etapa.Cargando)
     val etapa: StateFlow<Etapa> = _etapa.asStateFlow()
 
     private val _fase = MutableStateFlow<FaseStroop>(FaseStroop.Preparada.INSTANCIA)
@@ -42,8 +55,16 @@ class StroopViewModel(
     val fase: StateFlow<FaseStroop> = _fase.asStateFlow()
 
     private val temporizador = viewModelScope.temporizador()
-
     private var controlador: ControladorStroop? = null
+    private var inicioEn = 0L
+
+    init {
+        viewModelScope.launch {
+            val yaPractico = runCatching { repositorio.haHechoPractica(astronautaId, TipoPrueba.STROOP) }
+                .getOrDefault(false)
+            _etapa.value = Etapa.Instrucciones(conPractica = !yaPractico)
+        }
+    }
 
     /** Botón "Empezar" de las instrucciones o del fin de la práctica. */
     fun empezar() {
@@ -54,11 +75,13 @@ class StroopViewModel(
         }
     }
 
-    /** Sale de la app o pulsa atrás a mitad de prueba: la sesión no cuenta. */
+    /** Sale de la app o pulsa atrás a mitad de prueba: se guarda como no válida. */
     fun interrumpir() {
         if (_etapa.value !is Etapa.EnCurso) return
-        controlador?.detener()
+        val actual = controlador ?: return
+        actual.detener()
         controlador = null
+        guardar(actual, valida = false)
         _etapa.value = Etapa.Interrumpida
     }
 
@@ -72,6 +95,8 @@ class StroopViewModel(
         } else {
             GeneradorStroop.sesion(config, random)
         }
+        inicioEn = reloj()
+        _fase.value = FaseStroop.Preparada.INSTANCIA
         val nuevo = ControladorStroop(secuencia, esPractica, config, temporizador) { fase ->
             _fase.value = fase
             if (fase is FaseStroop.Terminada) terminar(esPractica)
@@ -82,8 +107,26 @@ class StroopViewModel(
     }
 
     private fun terminar(esPractica: Boolean) {
-        val resultados = controlador?.resultados.orEmpty()
+        val actual = controlador ?: return
         controlador = null
-        _etapa.value = if (esPractica) Etapa.FinPractica else Etapa.Terminada(resultados)
+        val guardado = guardar(actual, valida = true)
+        if (esPractica) {
+            _etapa.value = Etapa.FinPractica
+        } else {
+            _etapa.value = Etapa.Guardando
+            viewModelScope.launch { _etapa.value = Etapa.Terminada(guardado.await()) }
+        }
+    }
+
+    private fun guardar(c: ControladorStroop, valida: Boolean): Deferred<EstadoCognitivo?> {
+        val sesion = SesionNueva(
+            astronautaId = astronautaId,
+            inicioEn = inicioEn,
+            finEn = reloj(),
+            esPractica = c.esPractica(),
+            valida = valida,
+        )
+        val resultados = c.resultados
+        return guardarEnSegundoPlano(ambitoGuardado) { repositorio.guardarStroop(sesion, resultados) }
     }
 }

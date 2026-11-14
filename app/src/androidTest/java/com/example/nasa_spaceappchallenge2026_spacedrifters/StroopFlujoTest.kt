@@ -16,7 +16,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class StroopFlujoTest {
 
-    @get:Rule
+    @get:Rule(order = 0)
+    val limpia = BaseDeDatosLimpia()
+
+    @get:Rule(order = 1)
     val compose = createAndroidComposeRule<MainActivity>()
 
     private fun texto(id: Int, vararg args: Any) = compose.activity.getString(id, *args)
@@ -26,7 +29,10 @@ class StroopFlujoTest {
         compose.onNodeWithText(texto(R.string.rol_astronauta)).performClick()
         // En "Pruebas de hoy" el primer "Empezar" es el del Stroop.
         compose.onAllNodesWithText(texto(R.string.empezar))[0].performClick()
-        compose.onNodeWithText(texto(R.string.stroop_instrucciones)).assertExists()
+        // Primero consulta en Room si ya hizo la práctica (en segundo plano).
+        compose.waitUntil(timeoutMillis = 3_000) {
+            compose.onAllNodes(hasText(texto(R.string.stroop_instrucciones))).fetchSemanticsNodes().isNotEmpty()
+        }
         compose.onNodeWithText(texto(R.string.empezar)).performClick()
 
         compose.onNodeWithText(texto(R.string.prueba_progreso_practica, 1, 8)).assertExists()
