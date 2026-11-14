@@ -65,6 +65,7 @@ fun InicioAstronautaScreen(
     onEmpezarStroop: () -> Unit,
     onEmpezarNBack: () -> Unit,
     onRegistro: () -> Unit,
+    onCerrarSesion: () -> Unit = {},
     viewModel: InicioAstronautaViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val panel by viewModel.panel.collectAsStateWithLifecycle()
@@ -74,6 +75,7 @@ fun InicioAstronautaScreen(
         onEmpezarStroop = onEmpezarStroop,
         onEmpezarNBack = onEmpezarNBack,
         onRegistro = onRegistro,
+        onCerrarSesion = onCerrarSesion,
     )
 }
 
@@ -84,12 +86,14 @@ private fun PanelAstronautaContenido(
     onEmpezarStroop: () -> Unit,
     onEmpezarNBack: () -> Unit,
     onRegistro: () -> Unit,
+    onCerrarSesion: () -> Unit = {},
     ahora: Long = remember { System.currentTimeMillis() },
 ) {
     var periodo by rememberSaveable { mutableStateOf(Periodo.SEMANA) }
     PantallaBase(
         titulo = stringResource(R.string.astronauta_inicio_titulo),
         onAtras = onAtras,
+        onCerrarSesion = onCerrarSesion,
     ) { padding ->
         Column(
             modifier = Modifier
@@ -433,6 +437,7 @@ private fun PanelAstronautaPreview() {
     }
     SpaceDriftersTheme {
         PanelAstronautaContenido(
+            onCerrarSesion = {},
             panel = PanelAstronautaUi(
                 nombre = "Maya Okafor",
                 cargo = CargoTripulante.COMANDANTE,

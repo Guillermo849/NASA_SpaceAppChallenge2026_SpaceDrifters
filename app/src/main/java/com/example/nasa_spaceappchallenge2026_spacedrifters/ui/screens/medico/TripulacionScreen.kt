@@ -10,10 +10,14 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDrifte
 
 /** Vista de tripulación del médico de vuelo. Vacía por ahora. */
 @Composable
-fun TripulacionScreen(onAtras: () -> Unit) {
+fun TripulacionScreen(
+    onAtras: () -> Unit,
+    onCerrarSesion: () -> Unit = {},
+) {
     PantallaBase(
         titulo = stringResource(R.string.medico_tripulacion_titulo),
         onAtras = onAtras,
+        onCerrarSesion = onCerrarSesion,
     ) { padding ->
         EnConstruccion(padding)
     }

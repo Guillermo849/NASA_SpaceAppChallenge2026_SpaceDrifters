@@ -36,6 +36,8 @@ class AppContainer(context: Context) {
 
     val database: AppDatabase by lazy { AppDatabase.get(appContext) }
 
+    val userDao get() = database.appUserDao()
+
     /** assets/config_mision.json: retraso con la Tierra, umbrales de estado... */
     val configMision: ConfigMision by lazy { ConfigMision.leer(appContext) }
 

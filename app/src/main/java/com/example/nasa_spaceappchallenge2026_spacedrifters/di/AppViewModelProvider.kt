@@ -9,6 +9,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronaut
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.RegistroDiarioViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop.StroopViewModel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.login.LoginViewModel
 
 /**
  * Fábrica única de ViewModels. Cada ViewModel nuevo se registra con un `initializer`:
@@ -20,6 +21,9 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronaut
  */
 object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
+        initializer {
+            LoginViewModel(userDao = app().container.userDao)
+        }
         initializer {
             val c = app().container
             InicioAstronautaViewModel(

@@ -87,6 +87,9 @@ class CargadorDatosEjemplo(
         val hoy = Instant.ofEpochMilli(ahora).atZone(zona).toLocalDate()
         val lanzamiento = hoy.minusDays(datos.diasMision - 1L)
         db.withTransaction {
+            // Insertar el usuario administrador la primera vez (prototipo: contraseña en texto plano).
+            insertarAdmin(ahora)
+
             // Una misión para toda la tripulación: empieza el día 1 (hoy es el último día).
             val misionId = db.tripulacionDao().insertarMision(
                 MissionEntity().apply {
@@ -185,14 +188,32 @@ class CargadorDatosEjemplo(
         repositorio.guardarNBack(sesion(t, inicio, esPractica = true, esLineaBase = false), resultados, secuencia.nivel)
     }
 
+    /**
+     * Usuario de tipo ADMIN para acceso al panel médico.
+     * Prototipo: contraseña guardada en texto plano.
+     */
+    private suspend fun insertarAdmin(ahora: Long) {
+        // No insertar si ya existe (por si se llama dos veces).
+        if (db.appUserDao().findByUsername(USUARIO_ADMIN) != null) return
+        db.appUserDao().insert(
+            AppUserEntity().apply {
+                username = USUARIO_ADMIN
+                passwordHash = CONTRASENA_ADMIN
+                role = Role.ADMIN.name
+                createdAt = ahora
+            },
+        )
+    }
+
     /** Usuario (rol ASTRONAUT) + astronauta en las tablas del equipo, con el id del JSON. */
     private suspend fun insertarTripulante(t: TripulanteEjemplo, misionId: Long, ahora: Long) {
         val dao = db.tripulacionDao()
+        val usuario = nombreUsuario(t.nombre)
         val usuarioId = dao.insertarUsuario(
             AppUserEntity().apply {
-                username = nombreUsuario(t.nombre)
-                // Prototipo sin inicio de sesión: no hay contraseñas.
-                passwordHash = ""
+                username = usuario
+                // Prototipo: la contraseña es el mismo nombre de usuario.
+                passwordHash = usuario
                 role = Role.ASTRONAUT.name
                 createdAt = ahora
             },
@@ -229,6 +250,9 @@ class CargadorDatosEjemplo(
     companion object {
         const val ARCHIVO = "datos_ejemplo.json"
         const val NOMBRE_MISION = "SpaceDrifters"
+        /** Credenciales del admin por defecto (prototipo). */
+        const val USUARIO_ADMIN = "admin"
+        const val CONTRASENA_ADMIN = "admin1234"
         private const val MINUTO = 60_000L
         private val JSON = Json { ignoreUnknownKeys = true }
     }

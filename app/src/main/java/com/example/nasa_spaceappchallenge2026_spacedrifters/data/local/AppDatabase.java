@@ -69,7 +69,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.Al
         // Registro diario
         RegistroDiario.class
     },
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
