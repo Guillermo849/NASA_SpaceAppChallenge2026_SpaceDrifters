@@ -1,3 +1,25 @@
 <resources>
-    <string name="app_name">NASA_SpaceAppChallenge2026_SpaceDrifters</string>
+    <string name="app_name">SpaceDrifters · Monitor de salud</string>
+
+    <!-- Comunes -->
+    <string name="aviso_prototipo">Prototipo, no es un dispositivo médico · Datos simulados</string>
+    <string name="cd_aviso">Aviso</string>
+    <string name="cd_atras">Volver</string>
+    <string name="pantalla_en_construccion">Pantalla en construcción</string>
+
+    <!-- Selector de rol -->
+    <string name="selector_titulo">Monitor de salud de la tripulación</string>
+    <string name="selector_subtitulo">Elige cómo quieres entrar</string>
+    <string name="rol_astronauta">Astronauta</string>
+    <string name="rol_astronauta_desc">Tu registro diario, tus pruebas y tus alertas</string>
+    <string name="rol_medico">Médico de vuelo</string>
+    <string name="rol_medico_desc">Toda la tripulación, desde la Tierra</string>
+    <string name="cd_astronauta">Icono de astronauta</string>
+    <string name="cd_medico">Icono de médico</string>
+
+    <!-- Astronauta -->
+    <string name="astronauta_inicio_titulo">Inicio</string>
+
+    <!-- Médico -->
+    <string name="medico_tripulacion_titulo">Tripulación</string>
 </resources>
