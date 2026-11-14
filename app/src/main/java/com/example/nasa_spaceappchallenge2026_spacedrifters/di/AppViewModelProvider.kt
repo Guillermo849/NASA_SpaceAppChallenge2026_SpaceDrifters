@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nasa_spaceappchallenge2026_spacedrifters.SpaceDriftersApp
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop.StroopViewModel
 
 /**
@@ -18,6 +19,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronaut
 object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { StroopViewModel() }
+        initializer { NBackViewModel() }
     }
 }
 

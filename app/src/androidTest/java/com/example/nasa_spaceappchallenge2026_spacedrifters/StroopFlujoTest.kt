@@ -3,6 +3,7 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -23,7 +24,8 @@ class StroopFlujoTest {
     @Test
     fun practica_tocarUnColorMuestraElAviso() {
         compose.onNodeWithText(texto(R.string.rol_astronauta)).performClick()
-        compose.onNodeWithText(texto(R.string.empezar)).performClick()
+        // En "Pruebas de hoy" el primer "Empezar" es el del Stroop.
+        compose.onAllNodesWithText(texto(R.string.empezar))[0].performClick()
         compose.onNodeWithText(texto(R.string.stroop_instrucciones)).assertExists()
         compose.onNodeWithText(texto(R.string.empezar)).performClick()
 

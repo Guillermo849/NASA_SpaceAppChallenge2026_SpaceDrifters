@@ -2,17 +2,15 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronau
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.Temporizador
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.ConfigStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.ControladorStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.FaseStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.GeneradorStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.ResultadoEnsayoStroop
-import kotlinx.coroutines.delay
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.temporizador
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.util.Random
 
 /**
@@ -43,14 +41,7 @@ class StroopViewModel(
     /** Fase del ensayo en curso (cruz, estímulo, aviso...). */
     val fase: StateFlow<FaseStroop> = _fase.asStateFlow()
 
-    /** Los tiempos del controlador, con corrutinas en el hilo principal. */
-    private val temporizador = Temporizador { retrasoMs, accion ->
-        val trabajo = viewModelScope.launch {
-            delay(retrasoMs)
-            accion.run()
-        }
-        Temporizador.Cancelable { trabajo.cancel() }
-    }
+    private val temporizador = viewModelScope.temporizador()
 
     private var controlador: ControladorStroop? = null
 

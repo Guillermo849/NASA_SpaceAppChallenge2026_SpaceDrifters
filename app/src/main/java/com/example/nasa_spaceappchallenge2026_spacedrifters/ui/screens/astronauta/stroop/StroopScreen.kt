@@ -1,14 +1,10 @@
 package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop
 
-import android.os.SystemClock
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalActivity
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,24 +26,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.R
@@ -56,8 +44,11 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.str
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.ControladorStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.FaseStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.AvisoPrototipo
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.InterrumpirAlSalir
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.MensajePrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.ModoPrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.PantallaBase
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.ZonaRespuesta
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.LocalEstadoColores
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDriftersTheme
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.StroopAmarillo
@@ -73,14 +64,12 @@ fun StroopScreen(
 ) {
     val etapa by viewModel.etapa.collectAsStateWithLifecycle()
     val fase by viewModel.fase.collectAsStateWithLifecycle()
+    InterrumpirAlSalir(viewModel::interrumpir)
+    // Pantalla completa desde las instrucciones: así el aviso de Android "Viewing full screen"
+    // (solo sale la primera vez) aparece antes de empezar y no tapa la prueba cronometrada.
+    ModoPrueba()
 
-    // Salir de la app (o bloquear la pantalla) a mitad de prueba la interrumpe.
-    // Girar el móvil no, porque la Activity se recrea pero el ViewModel sigue.
-    val actividad = LocalActivity.current
-    LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
-        if (actividad?.isChangingConfigurations != true) viewModel.interrumpir()
-    }
-
+    val titulo = stringResource(R.string.stroop_nombre)
     when (val actual = etapa) {
         is StroopViewModel.Etapa.Instrucciones -> InstruccionesStroop(
             conPractica = actual.conPractica,
@@ -91,24 +80,27 @@ fun StroopScreen(
             BackHandler(onBack = viewModel::interrumpir)
             PruebaStroopEnCurso(actual.controlador, fase)
         }
-        StroopViewModel.Etapa.FinPractica -> MensajeEtapa(
-            titulo = R.string.stroop_fin_practica_titulo,
-            texto = R.string.stroop_fin_practica_texto,
-            boton = R.string.empezar_prueba,
+        StroopViewModel.Etapa.FinPractica -> MensajePrueba(
+            tituloPantalla = titulo,
+            titulo = stringResource(R.string.fin_practica_titulo),
+            texto = stringResource(R.string.fin_practica_texto),
+            boton = stringResource(R.string.empezar_prueba),
             onBoton = viewModel::empezar,
             onAtras = onVolver,
         )
-        is StroopViewModel.Etapa.Terminada -> MensajeEtapa(
-            titulo = R.string.prueba_terminada_titulo,
-            texto = R.string.prueba_terminada_texto,
-            boton = R.string.volver_panel,
+        is StroopViewModel.Etapa.Terminada -> MensajePrueba(
+            tituloPantalla = titulo,
+            titulo = stringResource(R.string.prueba_terminada_titulo),
+            texto = stringResource(R.string.prueba_terminada_texto),
+            boton = stringResource(R.string.volver_panel),
             onBoton = onVolver,
             onAtras = onVolver,
         )
-        StroopViewModel.Etapa.Interrumpida -> MensajeEtapa(
-            titulo = R.string.prueba_interrumpida_titulo,
-            texto = R.string.prueba_interrumpida_texto,
-            boton = R.string.volver_panel,
+        StroopViewModel.Etapa.Interrumpida -> MensajePrueba(
+            tituloPantalla = titulo,
+            titulo = stringResource(R.string.prueba_interrumpida_titulo),
+            texto = stringResource(R.string.prueba_interrumpida_texto),
+            boton = stringResource(R.string.volver_panel),
             onBoton = onVolver,
             onAtras = onVolver,
         )
@@ -142,7 +134,7 @@ private fun InstruccionesStroop(conPractica: Boolean, onEmpezar: () -> Unit, onA
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(
-                        text = stringResource(R.string.stroop_ejemplo_etiqueta),
+                        text = stringResource(R.string.ejemplo_etiqueta),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -187,7 +179,6 @@ private fun InstruccionesStroop(conPractica: Boolean, onEmpezar: () -> Unit, onA
 /** La prueba en sí: pantalla completa, sin animaciones y con la pantalla siempre encendida. */
 @Composable
 private fun PruebaStroopEnCurso(controlador: ControladorStroop, fase: FaseStroop) {
-    ModoPrueba()
 
     // Inicio del estímulo = cuando se dibuja de verdad, no cuando cambia el estado.
     // El efecto arranca cuando ya está aplicada la composición con el estímulo; el frame que
@@ -251,7 +242,7 @@ private fun ContenidoFase(fase: FaseStroop) {
         is FaseStroop.Feedback -> {
             val estados = LocalEstadoColores.current
             val (texto, color) = when {
-                fase.resultado.respuesta == null -> R.string.feedback_sin_respuesta to estados.sinDatos
+                fase.resultado.esOmision() -> R.string.feedback_sin_respuesta to estados.sinDatos
                 fase.resultado.esCorrecto() -> R.string.feedback_correcto to estados.normal
                 else -> R.string.feedback_incorrecto to estados.alerta
             }
@@ -273,90 +264,26 @@ private val ORDEN_BOTONES = listOf(
 
 @Composable
 private fun BotonesRespuesta(onToque: (ColorStroop, Long) -> Unit) {
+    val forma = RoundedCornerShape(12.dp)
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         ORDEN_BOTONES.forEach { fila ->
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 fila.forEach { color ->
-                    BotonColor(color = color, onToque = onToque, modifier = Modifier.weight(1f))
+                    ZonaRespuesta(
+                        onToque = { instante -> onToque(color, instante) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(72.dp)
+                            .background(MaterialTheme.colorScheme.surfaceContainer, forma)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, forma),
+                    ) {
+                        Text(
+                            text = stringResource(nombre(color)),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                 }
-            }
-        }
-    }
-}
-
-/**
- * Botón de respuesta. La respuesta se registra en el propio evento táctil (al apoyar el dedo),
- * con el instante del evento, no al recomponer. Sin ripple ni animaciones.
- */
-@Composable
-private fun BotonColor(color: ColorStroop, onToque: (ColorStroop, Long) -> Unit, modifier: Modifier = Modifier) {
-    val alTocar by rememberUpdatedState(onToque)
-    val forma = RoundedCornerShape(12.dp)
-    Box(
-        modifier = modifier
-            .height(72.dp)
-            .background(MaterialTheme.colorScheme.surfaceContainer, forma)
-            .border(1.dp, MaterialTheme.colorScheme.outline, forma)
-            .pointerInput(color) {
-                awaitEachGesture {
-                    val toque = awaitFirstDown()
-                    alTocar(color, toque.uptimeMillis * NANOS_POR_MS)
-                }
-            }
-            // Para lectores de pantalla y tests: misma acción, con el instante actual.
-            .semantics(mergeDescendants = true) {
-                role = Role.Button
-                onClick {
-                    alTocar(color, SystemClock.uptimeMillis() * NANOS_POR_MS)
-                    true
-                }
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = stringResource(nombre(color)),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-    }
-}
-
-@Composable
-private fun MensajeEtapa(
-    @StringRes titulo: Int,
-    @StringRes texto: Int,
-    @StringRes boton: Int,
-    onBoton: () -> Unit,
-    onAtras: () -> Unit,
-) {
-    PantallaBase(titulo = stringResource(R.string.stroop_nombre), onAtras = onAtras) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = stringResource(titulo),
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                text = stringResource(texto),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
-            Button(
-                onClick = onBoton,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 56.dp),
-            ) {
-                Text(stringResource(boton))
             }
         }
     }
@@ -383,8 +310,6 @@ private fun tinta(color: ColorStroop): Color = when (color) {
     ColorStroop.VERDE -> StroopVerde
     ColorStroop.AMARILLO -> StroopAmarillo
 }
-
-private const val NANOS_POR_MS = 1_000_000L
 
 @Preview
 @Composable

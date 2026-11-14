@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +30,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDrifte
 fun InicioAstronautaScreen(
     onAtras: () -> Unit,
     onEmpezarStroop: () -> Unit,
+    onEmpezarNBack: () -> Unit,
 ) {
     PantallaBase(
         titulo = stringResource(R.string.astronauta_inicio_titulo),
@@ -42,13 +44,13 @@ fun InicioAstronautaScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            TarjetaPruebasDeHoy(onEmpezarStroop = onEmpezarStroop)
+            TarjetaPruebasDeHoy(onEmpezarStroop = onEmpezarStroop, onEmpezarNBack = onEmpezarNBack)
         }
     }
 }
 
 @Composable
-private fun TarjetaPruebasDeHoy(onEmpezarStroop: () -> Unit) {
+private fun TarjetaPruebasDeHoy(onEmpezarStroop: () -> Unit, onEmpezarNBack: () -> Unit) {
     Card(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth(),
@@ -62,6 +64,12 @@ private fun TarjetaPruebasDeHoy(onEmpezarStroop: () -> Unit) {
                 nombre = stringResource(R.string.stroop_nombre),
                 descripcion = stringResource(R.string.stroop_descripcion_corta),
                 onEmpezar = onEmpezarStroop,
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            FilaPrueba(
+                nombre = stringResource(R.string.nback_nombre),
+                descripcion = stringResource(R.string.nback_descripcion_corta),
+                onEmpezar = onEmpezarNBack,
             )
         }
     }
@@ -90,5 +98,5 @@ private fun FilaPrueba(nombre: String, descripcion: String, onEmpezar: () -> Uni
 @Preview
 @Composable
 private fun InicioAstronautaPreview() {
-    SpaceDriftersTheme { InicioAstronautaScreen(onAtras = {}, onEmpezarStroop = {}) }
+    SpaceDriftersTheme { InicioAstronautaScreen(onAtras = {}, onEmpezarStroop = {}, onEmpezarNBack = {}) }
 }
