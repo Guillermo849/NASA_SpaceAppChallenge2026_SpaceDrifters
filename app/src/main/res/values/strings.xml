@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">SpaceDrifters · Monitor de salud</string>
+    <!-- Nombre propio: igual en todos los idiomas. -->
+    <string name="nombre_app" translatable="false">SpaceDrifters</string>
 
     <!-- Comunes -->
     <string name="aviso_prototipo">Prototipo, no es un dispositivo médico · Datos simulados</string>
@@ -16,6 +18,8 @@
     <string name="rol_medico_desc">Toda la tripulación, desde la Tierra</string>
     <string name="cd_astronauta">Icono de astronauta</string>
     <string name="cd_medico">Icono de médico</string>
+    <string name="cd_logo">Logotipo de SpaceDrifters</string>
+    <string name="cd_entrar">Entrar</string>
 
     <!-- Astronauta -->
     <string name="astronauta_inicio_titulo">Inicio</string>

@@ -46,5 +46,8 @@ Package root `com.example.nasa_spaceappchallenge2026_spacedrifters`:
 ## Conventions
 
 - Code identifiers and UI text are in Spanish. All visible text goes in `res/values/strings.xml` (Spanish, default) **and** `res/values-en/strings.xml` (English, for the NASA submission).
+- Fonts are bundled in `res/font` (works offline): Space Grotesk for display/headline/title, Inter for body/labels, JetBrains Mono for `labelMedium` (numbers). Set in `ui/theme/Type.kt` for every M3 style; use `MaterialTheme.typography`, not ad-hoc families. OFL license texts live in `assets/licencias/` and must ship with the fonts.
+- App icon = adaptive vector (`drawable/ic_launcher_background|foreground|monochrome.xml`, no PNG mipmaps since minSdk 26); `drawable/ic_logo.xml` is the same logo cropped for in-app use. The Android 12+ splash (`values-v31/themes.xml`) shows that icon on `@color/fondo`. Non-Compose colors (`res/values/colors.xml`) mirror `Color.kt`.
+- `PantallaBase(titulo = null)` hides the top bar (for screens with their own header, like the role selector); the prototype footer stays.
 - Always-dark "mission control" theme; palette only in `ui/theme/Color.kt`. Use `MaterialTheme.colorScheme` and, for health states, `LocalEstadoColores`. States (Normal / Vigilar / Alerta / Sin datos) must never be conveyed by color alone — always with text; missing data is "Sin datos", never shown as fine.
 - Touch targets ≥ 48 dp; every icon has a `contentDescription` from strings. Icons are local vector drawables in `res/drawable/ic_*.xml` (no material-icons dependency).

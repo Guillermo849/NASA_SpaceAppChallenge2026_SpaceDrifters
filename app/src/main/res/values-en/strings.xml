@@ -16,6 +16,8 @@
     <string name="rol_medico_desc">The whole crew, from Earth</string>
     <string name="cd_astronauta">Astronaut icon</string>
     <string name="cd_medico">Doctor icon</string>
+    <string name="cd_logo">SpaceDrifters logo</string>
+    <string name="cd_entrar">Enter</string>
 
     <!-- Astronaut -->
     <string name="astronauta_inicio_titulo">Home</string>
