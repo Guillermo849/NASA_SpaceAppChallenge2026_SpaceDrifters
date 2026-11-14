@@ -12,6 +12,8 @@ data class ConfigMision(
     val umbralVigilarDesviaciones: Double = 1.0,
     val umbralAlertaDesviaciones: Double = 2.0,
     val minSesionesLineaBase: Int = 3,
+    /** astronaut.id → tripulante de NASA LSDS-7 ("C002") cuyos hemogramas reales se usan en la demo. */
+    val hemogramaNasa: Map<String, String> = emptyMap(),
 ) {
     fun aConfigCognitiva() = ConfigCognitiva(
         retrasoMisionMin * 60_000L,

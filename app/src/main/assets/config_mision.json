@@ -2,5 +2,7 @@
   "retrasoMisionMin": 18,
   "umbralVigilarDesviaciones": 1.0,
   "umbralAlertaDesviaciones": 2.0,
-  "minSesionesLineaBase": 3
+  "minSesionesLineaBase": 3,
+  "_hemogramaNasa": "astronaut.id de la demo → tripulante real del estudio NASA OSDR LSDS-7 (assets/LSDS-7_Complete_Blood_Count_CBC_TRANSFORMED.csv). Sus hemogramas reales se ofrecen al introducir el resultado de un hemograma.",
+  "hemogramaNasa": { "1": "C001", "2": "C002", "3": "C003", "4": "C004" }
 }

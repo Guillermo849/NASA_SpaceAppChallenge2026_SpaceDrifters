@@ -15,6 +15,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.Protocol
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoMedicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.UmbralesFisiologicos
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.HemogramasNasa
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.TripulacionRepository
 import kotlinx.coroutines.CoroutineScope
@@ -90,6 +91,21 @@ class AppContainer(context: Context) {
         )
     }
 
+    /**
+     * Hemogramas reales de NASA (OSDR, estudio LSDS-7). Si el archivo falta o no se puede leer, la
+     * app sigue sin ellos (el hemograma se introduce a mano).
+     */
+    val hemogramasNasa: List<HemogramasNasa.Muestra> by lazy {
+        runCatching {
+            HemogramasNasa.leer(appContext.assets.open(ARCHIVO_HEMOGRAMAS_NASA).bufferedReader().use { it.readText() })
+        }.onFailure { Log.e("HemogramasNasa", "No se han podido leer los hemogramas de NASA", it) }
+            .getOrDefault(emptyList())
+    }
+
+    /** Las muestras reales del tripulante NASA que corresponde a un astronauta de la demo (config_mision.json). */
+    fun hemogramasNasaDe(astronautaId: Long): List<HemogramasNasa.Muestra> =
+        configMision.hemogramaNasa[astronautaId.toString()]?.let { HemogramasNasa.de(hemogramasNasa, it) }.orEmpty()
+
     val fisiologicoRepository: FisiologicoRepository by lazy {
         FisiologicoRepository(
             database,
@@ -97,6 +113,7 @@ class AppContainer(context: Context) {
             InterpretePruebas(umbrales),
             retrasoMisionMs = configMision.aConfigCognitiva().retrasoMisionMs,
             esperarDatos = { datosEjemplo.await() },
+            hemogramasNasa = ::hemogramasNasaDe,
         )
     }
 
@@ -145,5 +162,6 @@ class AppContainer(context: Context) {
 
     private companion object {
         const val BASE_DATOS_ANTIGUA = "spacedrifters.db"
+        const val ARCHIVO_HEMOGRAMAS_NASA = "LSDS-7_Complete_Blood_Count_CBC_TRANSFORMED.csv"
     }
 }

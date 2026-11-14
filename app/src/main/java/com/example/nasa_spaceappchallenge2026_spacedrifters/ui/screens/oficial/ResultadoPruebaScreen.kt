@@ -38,6 +38,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.PruebaCli
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPruebaClinica
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.PruebaParaResultado
 import com.example.nasa_spaceappchallenge2026_spacedrifters.di.AppViewModelProvider
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.HemogramasNasa
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.PantallaBase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreOpcionResultado
@@ -66,6 +67,7 @@ fun ResultadoPruebaScreen(
                 modifier = Modifier.padding(padding),
                 onOpcion = { opcion -> viewModel.guardarOpcion(e.datos.prueba.tipo, opcion); onGuardado() },
                 onEcocardio = { vs, gc -> viewModel.guardarEcocardio(vs, gc); onGuardado() },
+                onHemogramaNasa = { muestra -> viewModel.guardarHemogramaNasa(muestra); onGuardado() },
             )
         }
     }
@@ -77,6 +79,7 @@ private fun FormularioResultado(
     modifier: Modifier = Modifier,
     onOpcion: (String) -> Unit,
     onEcocardio: (Double, Double) -> Unit,
+    onHemogramaNasa: (HemogramasNasa.Muestra) -> Unit = {},
 ) {
     val prueba = datos.prueba
     Column(
@@ -93,6 +96,11 @@ private fun FormularioResultado(
         if (prueba.realizadaEn != null) {
             Text(stringResource(R.string.resultado_ya_hecha), style = MaterialTheme.typography.bodyLarge)
             return@Column
+        }
+        if (datos.muestrasNasa.isNotEmpty()) {
+            // Hemograma: primero los datos reales de NASA; debajo, a mano.
+            HemogramaNasa(datos.muestrasNasa, onHemogramaNasa)
+            Text(stringResource(R.string.hemo_o_a_mano), style = MaterialTheme.typography.titleSmall)
         }
         if (datos.opciones.isNotEmpty()) {
             OpcionesCerradas(datos.opciones, onOpcion)

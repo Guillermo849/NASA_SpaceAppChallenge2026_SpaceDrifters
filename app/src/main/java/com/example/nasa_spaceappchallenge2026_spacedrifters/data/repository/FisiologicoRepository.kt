@@ -7,6 +7,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EventoPro
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.ProtocoloActivo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.PruebaClinica
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPruebaClinica
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.HemogramasNasa
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.protocolos.Cambio
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.protocolos.EstadoProtocolo
@@ -62,6 +63,8 @@ data class PruebaParaResultado(
     val nombre: String?,
     /** Opciones cerradas; vacía para el ecocardio (VS y GC en números). */
     val opciones: List<String>,
+    /** Para un hemograma: las muestras reales de NASA LSDS-7 de su tripulante, en orden; si no, vacía. */
+    val muestrasNasa: List<HemogramasNasa.Muestra> = emptyList(),
 )
 
 /**
@@ -74,6 +77,8 @@ class FisiologicoRepository(
     private val interprete: InterpretePruebas,
     private val retrasoMisionMs: Long,
     private val esperarDatos: suspend () -> Unit = {},
+    /** Hemogramas reales de NASA que corresponden a un astronauta de la demo (vacío si no hay). */
+    private val hemogramasNasa: (Long) -> List<HemogramasNasa.Muestra> = { emptyList() },
 ) {
     private val dao get() = db.fisiologicoDao()
 
@@ -117,7 +122,8 @@ class FisiologicoRepository(
         esperarDatos()
         val prueba = dao.prueba(pruebaId) ?: return null
         val nombre = db.tripulacionDao().astronauta(prueba.astronautaId).first()?.nombre
-        return PruebaParaResultado(prueba, nombre, InterpretePruebas.opciones(prueba.tipo.name))
+        val muestras = if (prueba.tipo == TipoPruebaClinica.HEMOGRAMA) hemogramasNasa(prueba.astronautaId) else emptyList()
+        return PruebaParaResultado(prueba, nombre, InterpretePruebas.opciones(prueba.tipo.name), muestras)
     }
 
     /** La oficial médico de a bordo (quien introduce los resultados), o null si no hay. */

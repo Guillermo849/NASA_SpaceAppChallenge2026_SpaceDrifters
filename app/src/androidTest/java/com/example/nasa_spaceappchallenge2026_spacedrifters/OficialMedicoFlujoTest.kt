@@ -6,6 +6,12 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.hasScrollAction
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
+import androidx.test.core.app.ApplicationProvider
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPruebaClinica
+import kotlinx.coroutines.runBlocking
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -28,6 +34,36 @@ class OficialMedicoFlujoTest {
 
     private fun texto(id: Int, vararg args: Any) = compose.activity.getString(id, *args)
     private fun hay(t: String) = compose.onAllNodes(hasText(t, substring = true)).fetchSemanticsNodes().isNotEmpty()
+
+    @Test
+    fun leo_hemogramaRealDeNasa_alteradoConHemoglobinaBaja() {
+        compose.entrarComoMedico()
+        compose.waitUntil(5_000) { hay(texto(R.string.oficial_titulo)) }
+        compose.onNodeWithText(texto(R.string.oficial_titulo)).performClick()
+        compose.waitUntil(5_000) { hay("Leo Martín") }
+        val hemograma = texto(R.string.prueba_hemograma)
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText(hemograma))
+        // El botón "Introducir resultado" de la fila del hemograma (a su misma altura).
+        val fila = compose.onNodeWithText(hemograma).fetchSemanticsNode().boundsInRoot
+        val botones = compose.onAllNodesWithText(texto(R.string.oficial_introducir)).fetchSemanticsNodes()
+        val i = botones.indexOfFirst { it.boundsInRoot.center.y in (fila.top - 60f)..(fila.bottom + 60f) }
+        compose.onAllNodesWithText(texto(R.string.oficial_introducir))[i].performClick()
+
+        // Hemogramas reales del tripulante C002 (Leo); R+82 tiene hemoglobina y hematocrito bajos.
+        compose.waitUntil(5_000) { hay(texto(R.string.hemo_titulo)) }
+        compose.onNodeWithText("R+82").performClick()
+        val alterado = compose.activity.resources.getQuantityString(R.plurals.hemo_resumen_alterado, 2, 2)
+        compose.waitUntil(5_000) { hay(alterado) }
+        compose.onNodeWithText(texto(R.string.hemo_usar)).performScrollTo().performClick()
+
+        // Guardado como ALTERADO con su muestra; el protocolo sigue esperando dímero D y coagulación.
+        val dao = ApplicationProvider.getApplicationContext<SpaceDriftersApp>().container.database.fisiologicoDao()
+        compose.waitUntil(5_000) {
+            runBlocking { dao.realizadasDe(2L) }.any { it.tipo == TipoPruebaClinica.HEMOGRAMA }
+        }
+        val hecho = runBlocking { dao.realizadasDe(2L) }.single { it.tipo == TipoPruebaClinica.HEMOGRAMA }
+        assertTrue(hecho.resultado!!, hecho.resultado!!.contains("ALTERADO") && hecho.resultado!!.contains("R+82"))
+    }
 
     @Test
     fun maya_veSuProtocoloArribaDelPanel_yNoElDeLaOficial() {

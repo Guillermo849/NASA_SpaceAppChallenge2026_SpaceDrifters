@@ -256,3 +256,46 @@ fun textoMotivo(motivo: String): String {
 
 @Composable
 private fun textoHechos(codigos: List<String>): String = codigos.map { textoDe(nombreHecho(it), it) }.joinToString(", ")
+
+/** Parámetro de un hemograma de NASA LSDS-7 (nombre de columna sin "_value_…"). */
+@StringRes
+fun nombreParametroHemograma(codigo: String): Int? = when (codigo) {
+    "absolute_basophils" -> R.string.hemo_p_basofilos_abs
+    "absolute_eosinophils" -> R.string.hemo_p_eosinofilos_abs
+    "absolute_lymphocytes" -> R.string.hemo_p_linfocitos_abs
+    "absolute_monocytes" -> R.string.hemo_p_monocitos_abs
+    "absolute_neutrophils" -> R.string.hemo_p_neutrofilos_abs
+    "basophils" -> R.string.hemo_p_basofilos
+    "eosinophils" -> R.string.hemo_p_eosinofilos
+    "hematocrit" -> R.string.hemo_p_hematocrito
+    "hemoglobin" -> R.string.hemo_p_hemoglobina
+    "lymphocytes" -> R.string.hemo_p_linfocitos
+    "mch" -> R.string.hemo_p_hcm
+    "mchc" -> R.string.hemo_p_chcm
+    "mcv" -> R.string.hemo_p_vcm
+    "monocytes" -> R.string.hemo_p_monocitos
+    "mpv" -> R.string.hemo_p_vpm
+    "neutrophils" -> R.string.hemo_p_neutrofilos
+    "platelet_count" -> R.string.hemo_p_plaquetas
+    "rdw" -> R.string.hemo_p_ade
+    "red_blood_cell_count" -> R.string.hemo_p_hematies
+    "white_blood_cell_count" -> R.string.hemo_p_leucocitos
+    else -> null
+}
+
+/**
+ * Unidad de un parámetro del hemograma. La hemoglobina viene marcada como "percent" en el archivo,
+ * pero sus valores (11–17) y su rango son g/dl.
+ */
+@StringRes
+fun unidadHemograma(codigo: String, unidad: String): Int = when {
+    codigo == "hemoglobin" -> R.string.hemo_u_g_dl
+    unidad == "cells_per_microliter" -> R.string.hemo_u_por_ul
+    unidad == "percent" -> R.string.hemo_u_porcentaje
+    unidad == "picogram" -> R.string.hemo_u_pg
+    unidad == "grams_per_deciliter" -> R.string.hemo_u_g_dl
+    unidad == "femtoliter" -> R.string.hemo_u_fl
+    unidad == "thousand_per_microliter" -> R.string.hemo_u_miles_ul
+    unidad == "million_per_microliter" -> R.string.hemo_u_millones_ul
+    else -> R.string.hemo_u_vacia
+}

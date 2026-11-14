@@ -101,6 +101,23 @@ public final class InterpretePruebas {
         return r;
     }
 
+    /** Campos extra de un hemograma real de NASA: nombre de la muestra y parámetros fuera de rango. */
+    public static final String MUESTRA_NASA = "muestra";
+    public static final String FUERA_DE_RANGO = "fuera";
+
+    /**
+     * Resultado de un hemograma a partir de una muestra real de NASA LSDS-7: ALTERADO si algún
+     * parámetro queda fuera de su rango, NORMAL si no; guarda la muestra y qué parámetros salen.
+     */
+    public static Map<String, Object> resultadoHemograma(HemogramasNasa.Muestra muestra) {
+        List<String> fuera = new java.util.ArrayList<>();
+        for (HemogramasNasa.Parametro p : muestra.fueraDeRango()) fuera.add(p.getCodigo());
+        Map<String, Object> r = resultadoCerrado(HEMOGRAMA, fuera.isEmpty() ? NORMAL : "ALTERADO");
+        r.put(MUESTRA_NASA, muestra.getNombre());
+        r.put(FUERA_DE_RANGO, String.join(",", fuera));
+        return r;
+    }
+
     /** Resultado de un ecocardio: volumen sistólico (ml) y gasto cardiaco (l/min). */
     public static Map<String, Object> resultadoEcocardio(double vsMl, double gcLmin) {
         if (vsMl <= 0 || gcLmin <= 0) throw new IllegalArgumentException("VS y GC tienen que ser positivos");
