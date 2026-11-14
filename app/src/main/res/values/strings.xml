@@ -445,4 +445,22 @@
     <string name="resultado_guardar">Guardar resultado</string>
     <string name="resultado_no_existe">Esta prueba ya no existe.</string>
     <string name="resultado_ya_hecha">Esta prueba ya tiene resultado.</string>
+    <!-- Inicio de sesión -->
+    <string name="login_subtitulo">Acceso a la misión</string>
+    <string name="login_usuario">Usuario</string>
+    <string name="login_contrasena">Contraseña</string>
+    <string name="login_entrar">Entrar</string>
+    <string name="login_error_vacio">Introduce usuario y contraseña.</string>
+    <string name="login_error_credenciales">Usuario o contraseña incorrectos. Inténtalo de nuevo.</string>
+    <string name="cd_mostrar_contrasena">Mostrar contraseña</string>
+    <string name="cd_ocultar_contrasena">Ocultar contraseña</string>
+    <string name="cd_cerrar_sesion">Cerrar sesión</string>
+
+    <!-- Fisiológico: tarjeta del protocolo en el panel del astronauta -->
+    <string name="explicacion_trombosis_yugular">Tienes hinchazón en la cara o el cuello. En el espacio la sangre sube hacia la cabeza y la vena del cuello puede ir más lenta; se está comprobando con pruebas.</string>
+    <string name="explicacion_hemodinamico">Tu pulso y tu tensión se han alejado de lo habitual en ti. Sin gravedad el cuerpo reparte la sangre de otra forma; se está comprobando.</string>
+    <string name="explicacion_cognitivo_sueno">Tus pruebas de atención o memoria han bajado respecto a lo habitual en ti. Se está buscando la causa, como el sueño o el estrés.</string>
+    <string name="explicacion_cardiorrespiratorio">Tu oxígeno en sangre está más bajo de lo habitual en ti. Se va a repetir la medición y vigilar la respiración.</string>
+    <string name="astronauta_protocolo_que_hacer">Lo que tienes que hacer</string>
+    <string name="astronauta_protocolo_pruebas">Pruebas pendientes con la oficial médico: %1$s</string>
 </resources>

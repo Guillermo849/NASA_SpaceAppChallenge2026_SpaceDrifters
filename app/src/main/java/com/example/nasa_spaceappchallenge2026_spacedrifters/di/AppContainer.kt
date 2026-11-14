@@ -45,6 +45,8 @@ class AppContainer(context: Context) {
 
     val database: AppDatabase by lazy { AppDatabase.get(appContext) }
 
+    val userDao get() = database.appUserDao()
+
     /** assets/config_mision.json: retraso con la Tierra, umbrales de estado... */
     val configMision: ConfigMision by lazy { ConfigMision.leer(appContext) }
 
@@ -119,10 +121,12 @@ class AppContainer(context: Context) {
     }
 
     /**
-     * Astronauta que usa la app en el rol de astronauta (Maya Okafor en los datos de ejemplo).
-     * Provisional hasta que haya un selector de tripulante.
+     * Astronauta que usa la app: lo fija el inicio de sesión (el astronaut enlazado a su app_user).
+     * Por defecto, Maya Okafor (id 1 en los datos de ejemplo). Los ViewModels lo leen al crearse,
+     * es decir, después de entrar.
      */
-    val astronautaActualId: Long = 1L
+    @Volatile
+    var astronautaActualId: Long = 1L
 
     /** Arranca lo que tiene que estar listo cuanto antes. Lo llama la Application. */
     fun iniciar() {

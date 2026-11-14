@@ -51,7 +51,7 @@ class StroopCompletoTest {
 
     @Test
     fun stroopCompleto_guardaYMarcaComoHecha() {
-        compose.onNodeWithText(texto(R.string.rol_astronauta)).performClick()
+        compose.entrarComoAstronauta()
         compose.onAllNodesWithText(texto(R.string.empezar))[0].performClick()
         compose.waitUntil(timeoutMillis = 3_000) { hay(texto(R.string.stroop_practica_aviso)) }
         compose.onNodeWithText(texto(R.string.empezar)).performClick()

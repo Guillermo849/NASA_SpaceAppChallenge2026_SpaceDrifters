@@ -18,6 +18,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.ProtocoloEnCurso
 import kotlinx.coroutines.flow.stateIn
 import java.time.Instant
 import java.time.LocalDate
@@ -33,8 +37,16 @@ class InicioAstronautaViewModel(
     medico: MedicoRepository,
     astronautaId: Long,
     private val retrasoMin: Long,
+    /** Protocolos fisiológicos (tarjeta de arriba del panel). */
+    fisiologico: FisiologicoRepository? = null,
     private val zona: ZoneId = ZoneId.systemDefault(),
 ) : ViewModel() {
+
+    /** Protocolos fisiológicos abiertos de este astronauta, el más grave primero. */
+    val protocolos: StateFlow<List<ProtocoloEnCurso>> =
+        (fisiologico?.enCurso()?.map { todos -> todos.filter { it.protocolo.astronautaId == astronautaId } } ?: flowOf(emptyList()))
+            .catch { emit(emptyList()) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     private val hoy: LocalDate = LocalDate.now(zona)
     private val inicioDeHoy: Long = hoy.atStartOfDay(zona).toInstant().toEpochMilli()

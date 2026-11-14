@@ -25,7 +25,7 @@ class MedicoFlujoTest {
     private fun hay(t: String) = compose.onAllNodes(hasText(t, substring = true)).fetchSemanticsNodes().isNotEmpty()
 
     private fun abrirPerfil(nombre: String) {
-        compose.onNodeWithText(texto(R.string.rol_medico)).performClick()
+        compose.entrarComoMedico()
         compose.waitUntil(5_000) { hay(nombre) }
         compose.onNodeWithText(nombre).performClick()
         compose.waitUntil(5_000) { hay(texto(R.string.medico_pestana_cognitivas)) && hay(texto(R.string.medico_ultima_sesion)) }

@@ -443,4 +443,22 @@
     <string name="resultado_guardar">Save result</string>
     <string name="resultado_no_existe">This test no longer exists.</string>
     <string name="resultado_ya_hecha">This test already has a result.</string>
+    <!-- Sign in -->
+    <string name="login_subtitulo">Mission access</string>
+    <string name="login_usuario">Username</string>
+    <string name="login_contrasena">Password</string>
+    <string name="login_entrar">Sign in</string>
+    <string name="login_error_vacio">Enter your username and password.</string>
+    <string name="login_error_credenciales">Invalid username or password. Try again.</string>
+    <string name="cd_mostrar_contrasena">Show password</string>
+    <string name="cd_ocultar_contrasena">Hide password</string>
+    <string name="cd_cerrar_sesion">Sign out</string>
+
+    <!-- Physiological: protocol card on the astronaut dashboard -->
+    <string name="explicacion_trombosis_yugular">Your face or neck is swollen. In space blood moves towards the head and the neck vein can slow down; tests are checking it.</string>
+    <string name="explicacion_hemodinamico">Your pulse and blood pressure have moved away from your usual values. Without gravity the body distributes blood differently; it is being checked.</string>
+    <string name="explicacion_cognitivo_sueno">Your attention or memory tests have dropped compared with your usual results. The cause, such as sleep or stress, is being looked into.</string>
+    <string name="explicacion_cardiorrespiratorio">Your blood oxygen is lower than usual for you. The measurement will be repeated and your breathing watched.</string>
+    <string name="astronauta_protocolo_que_hacer">What you need to do</string>
+    <string name="astronauta_protocolo_pruebas">Pending tests with the medical officer: %1$s</string>
 </resources>

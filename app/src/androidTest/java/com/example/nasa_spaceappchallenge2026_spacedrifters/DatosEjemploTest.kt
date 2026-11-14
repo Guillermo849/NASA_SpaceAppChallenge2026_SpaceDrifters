@@ -204,12 +204,13 @@ class DatosEjemploTest {
         )
         assertEquals(CargoTripulante.OFICIAL_MEDICO, db.tripulacionDao().astronauta(ane).first()!!.cargo)
 
-        // Un usuario con rol ASTRONAUT por tripulante (app_user).
+        // Un usuario con rol ASTRONAUT por tripulante (app_user) y el admin del médico.
         val usuarios = db.query("SELECT username, role FROM app_user ORDER BY username", null).use { c ->
             buildList { while (c.moveToNext()) add(c.getString(0) to c.getString(1)) }
         }
-        assertEquals(4, usuarios.size)
-        assertTrue(usuarios.all { it.second == "ASTRONAUT" })
+        assertEquals(5, usuarios.size)
+        assertTrue(("admin" to "ADMIN") in usuarios)
+        assertEquals(4, usuarios.count { it.second == "ASTRONAUT" })
         assertTrue("leo.martin" in usuarios.map { it.first })
     }
 

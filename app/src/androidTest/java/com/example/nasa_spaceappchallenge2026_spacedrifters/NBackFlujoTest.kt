@@ -28,7 +28,7 @@ class NBackFlujoTest {
 
     @Test
     fun practica_pulsarEnElPrimerEstimuloEsFalsaAlarma() {
-        compose.onNodeWithText(texto(R.string.rol_astronauta)).performClick()
+        compose.entrarComoAstronauta()
         // En "Pruebas de hoy" el segundo "Empezar" es el del N-Back.
         compose.onAllNodesWithText(texto(R.string.empezar))[1].performClick()
         // Primero consulta en Room si ya hizo la práctica (en segundo plano).

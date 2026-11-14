@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -29,8 +30,22 @@ class OficialMedicoFlujoTest {
     private fun hay(t: String) = compose.onAllNodes(hasText(t, substring = true)).fetchSemanticsNodes().isNotEmpty()
 
     @Test
+    fun maya_veSuProtocoloArribaDelPanel_yNoElDeLaOficial() {
+        compose.entrarComoAstronauta()
+        compose.waitUntil(5_000) { hay(texto(R.string.protocolo_hemodinamico)) }
+        assertTrue(hay(texto(R.string.nivel_con_numero, 3, texto(R.string.nivel_3))))
+        assertTrue(hay(texto(R.string.astronauta_protocolo_que_hacer)))
+        assertTrue(hay(texto(R.string.accion_revisar_balance_hidrico_24h)))
+        // El acceso a los protocolos de toda la tripulación es solo para la oficial médico.
+        assertFalse(hay(texto(R.string.rol_oficial)))
+    }
+
+    @Test
     fun repeticionYEcocardio_subeANivel4() {
-        compose.onNodeWithText(texto(R.string.rol_oficial)).performClick()
+        // Ane es la oficial médico: entra como astronauta y abre "Protocolos a bordo" desde su panel.
+        compose.entrarComoOficialMedico()
+        compose.waitUntil(5_000) { hay(texto(R.string.oficial_titulo)) }
+        compose.onNodeWithText(texto(R.string.oficial_titulo)).performClick()
         compose.waitUntil(5_000) { hay("Maya Okafor") }
         // Maya va primero (actualizada más tarde): su prueba pendiente es repetir las constantes.
         compose.onNodeWithText(texto(R.string.prueba_repeticion_constantes)).assertExists()
