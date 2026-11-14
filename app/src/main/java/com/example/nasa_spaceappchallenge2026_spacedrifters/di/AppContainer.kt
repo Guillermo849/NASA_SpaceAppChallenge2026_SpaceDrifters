@@ -10,6 +10,10 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo.Cargado
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.MedicoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigUmbrales
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ProtocolosJson
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.UmbralesFisiologicos
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.TripulacionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -65,6 +69,21 @@ class AppContainer(context: Context) {
 
     val medicoRepository: MedicoRepository by lazy {
         MedicoRepository(database, cognitivoRepository, esperarDatos = { datosEjemplo.await() })
+    }
+
+    /** assets/protocolos.json: protocolos fisiológicos en árbol, signos de alarma y protocolo ambiental. */
+    val protocolos: ProtocolosJson by lazy { ProtocolosJson.leer(appContext) }
+
+    /** assets/config_umbrales.json: cuándo FC, PA, SpO2, FR, VS y GC se consideran alterados. */
+    val umbrales: UmbralesFisiologicos by lazy { ConfigUmbrales.leer(appContext) }
+
+    val fisiologicoRepository: FisiologicoRepository by lazy {
+        FisiologicoRepository(
+            database,
+            protocolos.motor(),
+            retrasoMisionMs = configMision.aConfigCognitiva().retrasoMisionMs,
+            esperarDatos = { datosEjemplo.await() },
+        )
     }
 
     /**

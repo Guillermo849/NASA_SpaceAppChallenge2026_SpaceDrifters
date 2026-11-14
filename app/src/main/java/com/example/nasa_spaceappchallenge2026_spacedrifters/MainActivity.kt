@@ -7,6 +7,8 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.navigation.AppNavHost
+import androidx.compose.foundation.layout.Box
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.emergencia.CapaEmergencia
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDriftersTheme
 
 /** Única Activity de la app. Todas las pantallas son destinos de Navigation Compose. */
@@ -20,7 +22,11 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             SpaceDriftersTheme {
-                AppNavHost()
+                Box {
+                    AppNavHost()
+                    // Encima de todo: si hay una emergencia (nivel 5) sin atender, ocupa la pantalla.
+                    CapaEmergencia()
+                }
             }
         }
     }

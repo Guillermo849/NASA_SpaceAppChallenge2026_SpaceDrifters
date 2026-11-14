@@ -13,6 +13,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.De
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.PerfilAstronautaViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.TripulacionViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.InicioAstronautaViewModel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.emergencia.EmergenciaViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.RegistroDiarioViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop.StroopViewModel
@@ -37,6 +38,10 @@ object AppViewModelProvider {
                 astronautaId = c.astronautaActualId,
                 retrasoMin = c.configMision.retrasoMisionMin,
             )
+        }
+        initializer {
+            val c = app().container
+            EmergenciaViewModel(c.fisiologicoRepository, c.astronautaActualId, c.ambitoAplicacion)
         }
         // Médico
         initializer { TripulacionViewModel(app().container.medicoRepository) }

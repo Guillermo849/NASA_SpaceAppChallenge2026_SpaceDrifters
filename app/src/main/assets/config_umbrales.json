@@ -1,0 +1,12 @@
+{
+  "_nota": "Valores de partida para el prototipo; tienen que validarse. Alterado = se aleja de su base más que la desviación O pasa el umbral absoluto. Métricas: FC (lpm), PAS (mmHg), SPO2 (%), FR (rpm), VS (ml), GC (l/min).",
+  "umbrales": [
+    { "hecho": "FC_ALTA",   "metrica": "FC",   "sentido": "SUBE", "desviacionPorcentaje": 20, "absoluto": 100 },
+    { "hecho": "PAS_BAJA",  "metrica": "PAS",  "sentido": "BAJA", "desviacionPorcentaje": 15, "absoluto": 90 },
+    { "hecho": "PAS_ALTA",  "metrica": "PAS",  "sentido": "SUBE", "desviacionPorcentaje": 15, "absoluto": 140 },
+    { "hecho": "SPO2_BAJA", "metrica": "SPO2", "sentido": "BAJA", "desviacionPuntos": 3,      "absoluto": 94 },
+    { "hecho": "TAQUIPNEA", "metrica": "FR",   "sentido": "SUBE", "desviacionPorcentaje": 30, "absoluto": 20 },
+    { "hecho": "VS_BAJO",   "metrica": "VS",   "sentido": "BAJA", "desviacionPorcentaje": 15 },
+    { "hecho": "GC_BAJO",   "metrica": "GC",   "sentido": "BAJA", "desviacionPorcentaje": 15 }
+  ]
+}

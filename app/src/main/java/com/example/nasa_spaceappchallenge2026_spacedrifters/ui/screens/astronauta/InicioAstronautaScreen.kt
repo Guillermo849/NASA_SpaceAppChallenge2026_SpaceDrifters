@@ -54,6 +54,8 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDrifte
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.nombreSintoma
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.emergencia.BotonAlarma
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.emergencia.EmergenciaViewModel
 import java.text.NumberFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -69,6 +71,7 @@ fun InicioAstronautaScreen(
     onEmpezarNBack: () -> Unit,
     onRegistro: () -> Unit,
     viewModel: InicioAstronautaViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    emergencia: EmergenciaViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val panel by viewModel.panel.collectAsStateWithLifecycle()
     PanelAstronautaContenido(
@@ -77,6 +80,8 @@ fun InicioAstronautaScreen(
         onEmpezarStroop = onEmpezarStroop,
         onEmpezarNBack = onEmpezarNBack,
         onRegistro = onRegistro,
+        signosAlarma = emergencia.signosAlarma,
+        onAlarma = emergencia::activar,
     )
 }
 
@@ -87,6 +92,8 @@ private fun PanelAstronautaContenido(
     onEmpezarStroop: () -> Unit,
     onEmpezarNBack: () -> Unit,
     onRegistro: () -> Unit,
+    signosAlarma: List<String> = emptyList(),
+    onAlarma: (Set<String>) -> Unit = {},
     ahora: Long = remember { System.currentTimeMillis() },
 ) {
     var periodo by rememberSaveable { mutableStateOf(Periodo.SEMANA) }
@@ -97,21 +104,32 @@ private fun PanelAstronautaContenido(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(padding),
         ) {
-            CabeceraPanel(panel)
-            if (panel.avisos.isNotEmpty()) TarjetaAvisos(panel.avisos)
-            TarjetaRegistroHoy(panel.registroHoy, onRegistro)
-            TarjetaPruebasDeHoy(
-                hechasHoy = panel.hechasHoy,
-                pruebasExtra = panel.pruebasExtra,
-                onEmpezarStroop = onEmpezarStroop,
-                onEmpezarNBack = onEmpezarNBack,
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                CabeceraPanel(panel)
+                if (panel.avisos.isNotEmpty()) TarjetaAvisos(panel.avisos)
+                TarjetaRegistroHoy(panel.registroHoy, onRegistro)
+                TarjetaPruebasDeHoy(
+                    hechasHoy = panel.hechasHoy,
+                    pruebasExtra = panel.pruebasExtra,
+                    onEmpezarStroop = onEmpezarStroop,
+                    onEmpezarNBack = onEmpezarNBack,
+                )
+                MiRendimiento(panel.rendimiento, periodo, onPeriodo = { periodo = it }, ahora = ahora)
+            }
+            // Siempre visible, fuera del scroll.
+            BotonAlarma(
+                signos = signosAlarma,
+                onActivar = onAlarma,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
-            MiRendimiento(panel.rendimiento, periodo, onPeriodo = { periodo = it }, ahora = ahora)
         }
     }
 }

@@ -1,0 +1,185 @@
+{
+  "_nota": "Prototipo, no es un dispositivo médico. Árboles de decisión del módulo fisiológico. Tipos de nodo: CONDICION (si/no), PRUEBA (espera el resultado de 'pruebas' y va a 'siguiente'), DECISION (primera rama que se cumple, si no 'otro'), FIN. 'nivel' solo sube automáticamente. Hechos: síntomas (CEFALEA...), constantes frente a su base (FC_ALTA... ver config_umbrales.json) y resultados de pruebas (un hecho con el nombre de la prueba).",
+
+  "signosAlarma": ["DOLOR_TORACICO", "SINCOPE", "DISNEA_GRAVE", "ALTERACION_LENGUAJE"],
+
+  "protocolos": [
+    {
+      "id": "trombosis-yugular",
+      "activacion": { "hecho": "EDEMA_FACIAL_CERVICAL" },
+      "emergencia": { "hecho": "DISNEA" },
+      "inicio": "p1-cefalea",
+      "nodos": [
+        { "id": "p1-cefalea", "tipo": "CONDICION", "nivel": 2,
+          "condicion": { "hecho": "CEFALEA" },
+          "acciones": ["VIGILAR_EDEMA", "REGISTRAR_SINTOMAS"],
+          "si": "p1-doppler" },
+        { "id": "p1-doppler", "tipo": "PRUEBA", "nivel": 3,
+          "pruebas": ["ECO_DOPPLER_YUGULAR"],
+          "acciones": ["HACER_ECO_DOPPLER_YUGULAR", "NOTIFICAR_MEDICO"],
+          "siguiente": "p1-resultado-doppler" },
+        { "id": "p1-resultado-doppler", "tipo": "DECISION",
+          "ramas": [
+            { "condicion": { "hecho": "ECO_DOPPLER_YUGULAR", "es": ["TROMBO"] }, "siguiente": "p1-trombo" },
+            { "condicion": { "hecho": "ECO_DOPPLER_YUGULAR", "es": ["RETROGRADO", "ESTASIS"] }, "siguiente": "p1-flujo-alterado" },
+            { "condicion": { "hecho": "ECO_DOPPLER_YUGULAR", "es": ["NORMAL"] }, "siguiente": "p1-normal" }
+          ] },
+        { "id": "p1-normal", "tipo": "FIN", "nivel": 2,
+          "acciones": ["REPETIR_VIGILANCIA_48H"] },
+        { "id": "p1-trombo", "tipo": "FIN", "nivel": 4,
+          "acciones": ["PROTOCOLO_TROMBOSIS", "NOTIFICAR_MEDICO_PRIORIDAD"] },
+        { "id": "p1-flujo-alterado", "tipo": "PRUEBA", "nivel": 3,
+          "pruebas": ["DIMERO_D", "HEMOGRAMA", "COAGULACION"],
+          "acciones": ["COMPARAR_ECO_DOPPLER_ANTERIOR", "PEDIR_ANALITICA"],
+          "siguiente": "p1-resultado-analitica" },
+        { "id": "p1-resultado-analitica", "tipo": "DECISION",
+          "ramas": [
+            { "condicion": { "alguno": [ { "hecho": "ECO_DOPPLER_PEOR_QUE_ANTERIOR" }, { "hecho": "ANALITICA_ALTERADA" } ] },
+              "siguiente": "p1-empeora" }
+          ],
+          "otro": "p1-seguimiento" },
+        { "id": "p1-empeora", "tipo": "FIN", "nivel": 4,
+          "acciones": ["PROTOCOLO_TROMBOSIS", "NOTIFICAR_MEDICO_PRIORIDAD"] },
+        { "id": "p1-seguimiento", "tipo": "FIN", "nivel": 3,
+          "acciones": ["REPETIR_VIGILANCIA_48H", "VALORACION_MEDICO"] }
+      ]
+    },
+
+    {
+      "id": "hemodinamico",
+      "activacion": { "alguno": [
+        { "todos": [ { "hecho": "FC_ALTA" }, { "hecho": "PAS_BAJA" } ] },
+        { "todos": [ { "hecho": "FC_ALTA" }, { "hecho": "PAS_ALTA" } ] }
+      ] },
+      "inicio": "p2-rama",
+      "nodos": [
+        { "id": "p2-rama", "tipo": "DECISION",
+          "ramas": [
+            { "condicion": { "todos": [ { "hecho": "FC_ALTA" }, { "hecho": "PAS_BAJA" } ] }, "siguiente": "p2a-sintomas" },
+            { "condicion": { "todos": [ { "hecho": "FC_ALTA" }, { "hecho": "PAS_ALTA" } ] }, "siguiente": "p2b-contexto" }
+          ] },
+
+        { "id": "p2a-sintomas", "tipo": "CONDICION", "nivel": 2,
+          "condicion": { "alguno": [ { "hecho": "MAREO" }, { "hecho": "FATIGA" }, { "hecho": "PRESINCOPE" } ] },
+          "acciones": ["RESPONDER_SINTOMAS"],
+          "si": "p2a-repetir", "no": "p2a-sin-sintomas" },
+        { "id": "p2a-sin-sintomas", "tipo": "FIN", "nivel": 2,
+          "acciones": ["REPETIR_MEDICION", "VIGILAR_MAS_A_MENUDO"] },
+        { "id": "p2a-repetir", "tipo": "PRUEBA", "nivel": 3,
+          "pruebas": ["REPETICION_CONSTANTES"],
+          "acciones": ["REVISAR_BALANCE_HIDRICO_24H", "REPETIR_MEDICION_REPOSO_5_MIN", "NOTIFICAR_MEDICO"],
+          "siguiente": "p2a-tras-repetir" },
+        { "id": "p2a-tras-repetir", "tipo": "CONDICION",
+          "condicion": { "hecho": "REPETICION_ALTERADA" },
+          "si": "p2a-ecocardio", "no": "p2a-mejora" },
+        { "id": "p2a-mejora", "tipo": "FIN", "nivel": 2,
+          "acciones": ["VIGILAR_MAS_A_MENUDO"] },
+        { "id": "p2a-ecocardio", "tipo": "PRUEBA", "nivel": 3,
+          "pruebas": ["ECOCARDIO"],
+          "acciones": ["HACER_ECOCARDIO"],
+          "siguiente": "p2a-resultado-ecocardio" },
+        { "id": "p2a-resultado-ecocardio", "tipo": "CONDICION",
+          "condicion": { "alguno": [ { "hecho": "VS_BAJO" }, { "hecho": "GC_BAJO" } ] },
+          "si": "p2a-alteracion", "no": "p2a-seguimiento" },
+        { "id": "p2a-alteracion", "tipo": "FIN", "nivel": 4,
+          "acciones": ["POSIBLE_ALTERACION_HEMODINAMICA", "NOTIFICAR_MEDICO_PRIORIDAD"] },
+        { "id": "p2a-seguimiento", "tipo": "FIN", "nivel": 3,
+          "acciones": ["VALORACION_MEDICO"] },
+
+        { "id": "p2b-contexto", "tipo": "CONDICION",
+          "condicion": { "alguno": [ { "hecho": "EJERCICIO_ULTIMA_HORA" }, { "hecho": "ESTRES_ULTIMA_HORA" } ] },
+          "acciones": ["INDICAR_EJERCICIO_O_ESTRES"],
+          "si": "p2b-esperable", "no": "p2b-ecg" },
+        { "id": "p2b-esperable", "tipo": "PRUEBA", "nivel": 1,
+          "pruebas": ["REPETICION_CONSTANTES"],
+          "acciones": ["REPETIR_EN_REPOSO_15_MIN"],
+          "siguiente": "p2b-tras-reposo" },
+        { "id": "p2b-tras-reposo", "tipo": "CONDICION",
+          "condicion": { "hecho": "REPETICION_ALTERADA" },
+          "si": "p2b-ecg", "no": "p2b-normal" },
+        { "id": "p2b-normal", "tipo": "FIN", "nivel": 1, "cerrar": true,
+          "acciones": ["SEGUIMIENTO_RUTINARIO"] },
+        { "id": "p2b-ecg", "tipo": "PRUEBA", "nivel": 3,
+          "pruebas": ["ECG"],
+          "acciones": ["HACER_ECG", "VALORACION_MEDICO"],
+          "siguiente": "p2b-resultado-ecg" },
+        { "id": "p2b-resultado-ecg", "tipo": "CONDICION",
+          "condicion": { "hecho": "ECG_ALTERADO" },
+          "si": "p2b-ecg-alterado", "no": "p2b-seguimiento" },
+        { "id": "p2b-ecg-alterado", "tipo": "FIN", "nivel": 4,
+          "acciones": ["NOTIFICAR_MEDICO_PRIORIDAD"] },
+        { "id": "p2b-seguimiento", "tipo": "FIN", "nivel": 3,
+          "acciones": ["VALORACION_MEDICO"] }
+      ]
+    },
+
+    {
+      "id": "cognitivo-sueno",
+      "activacion": { "alguno": [ { "hecho": "TIEMPO_REACCION_ALTO" }, { "hecho": "NBACK_BAJO" } ] },
+      "emergencia": { "hecho": "DETERIORO_COGNITIVO_BRUSCO" },
+      "inicio": "p3-sueno",
+      "nodos": [
+        { "id": "p3-sueno", "tipo": "CONDICION", "nivel": 2,
+          "condicion": { "hecho": "SUENO_BAJO" },
+          "si": "p3-sueno-bajo", "no": "p3-estres" },
+        { "id": "p3-sueno-bajo", "tipo": "DECISION",
+          "ramas": [
+            { "condicion": { "hecho": "COGNITIVO_ALERTA" }, "siguiente": "p3-sueno-alerta" }
+          ],
+          "otro": "p3-sueno-vigilar" },
+        { "id": "p3-sueno-vigilar", "tipo": "FIN", "nivel": 2,
+          "acciones": ["DESCANSAR", "REPETIR_PRUEBAS_COGNITIVAS"] },
+        { "id": "p3-sueno-alerta", "tipo": "FIN", "nivel": 3,
+          "acciones": ["DESCANSAR", "REPETIR_PRUEBAS_COGNITIVAS", "VALORACION_MEDICO"] },
+        { "id": "p3-estres", "tipo": "CONDICION",
+          "condicion": { "hecho": "ESTRES_ALTO" },
+          "acciones": ["RESPONDER_CUESTIONARIO_ESTRES"],
+          "si": "p3-estres-alto", "no": "p3-sin-causa" },
+        { "id": "p3-estres-alto", "tipo": "FIN", "nivel": 2,
+          "acciones": ["GESTIONAR_ESTRES", "REPETIR_PRUEBAS_COGNITIVAS"] },
+        { "id": "p3-sin-causa", "tipo": "FIN", "nivel": 3,
+          "acciones": ["VALORACION_MEDICO"] }
+      ]
+    },
+
+    {
+      "id": "cardiorrespiratorio",
+      "activacion": { "hecho": "SPO2_BAJA" },
+      "inicio": "p4-sintomas",
+      "nodos": [
+        { "id": "p4-sintomas", "tipo": "CONDICION", "nivel": 2,
+          "condicion": { "alguno": [ { "hecho": "TAQUIPNEA" }, { "hecho": "DISNEA" } ] },
+          "si": "p4-alerta", "no": "p4-repetir" },
+        { "id": "p4-repetir", "tipo": "PRUEBA", "nivel": 2,
+          "pruebas": ["REPETICION_CONSTANTES"],
+          "acciones": ["REPETIR_MEDICION_SPO2", "REVISAR_SENSOR"],
+          "siguiente": "p4-tras-repetir" },
+        { "id": "p4-tras-repetir", "tipo": "DECISION",
+          "ramas": [
+            { "condicion": { "no": { "hecho": "REPETICION_ALTERADA" } }, "siguiente": "p4-sensor" },
+            { "condicion": { "alguno": [ { "hecho": "TAQUIPNEA" }, { "hecho": "DISNEA" } ] }, "siguiente": "p4-alerta" }
+          ],
+          "otro": "p4-persistente" },
+        { "id": "p4-sensor", "tipo": "FIN", "nivel": 1,
+          "acciones": ["SEGUIMIENTO_RUTINARIO"] },
+        { "id": "p4-persistente", "tipo": "FIN", "nivel": 3,
+          "acciones": ["VIGILAR_MAS_A_MENUDO", "VALORACION_MEDICO"] },
+        { "id": "p4-alerta", "tipo": "CONDICION", "nivel": 4,
+          "condicion": { "alguno": [ { "hecho": "DOLOR_TORACICO" }, { "hecho": "MAREO_INTENSO" } ] },
+          "acciones": ["MEDIR_PA", "HACER_ECG", "MEDIR_FC", "RESPONDER_SINTOMAS", "NOTIFICAR_MEDICO_PRIORIDAD"],
+          "si": "p4-emergencia" },
+        { "id": "p4-emergencia", "tipo": "FIN", "nivel": 5,
+          "acciones": ["PROTOCOLO_EMERGENCIA"] }
+      ]
+    }
+  ],
+
+  "ambiental": {
+    "id": "ambiental",
+    "ventanaHoras": 24,
+    "minAstronautas": 2,
+    "nivel": 4,
+    "alteraciones": ["SPO2_BAJA", "CEFALEA", "DETERIORO_COGNITIVO"],
+    "acciones": ["REVISAR_CO2", "REVISAR_O2", "REVISAR_PRESION_CABINA", "REVISAR_TEMPERATURA_CABINA", "REVISAR_SOPORTE_VITAL"]
+  }
+}

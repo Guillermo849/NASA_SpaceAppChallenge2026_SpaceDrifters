@@ -279,4 +279,38 @@
     <string name="medico_respuesta">Respuesta: %1$s</string>
     <string name="medico_pulso">Pulsó</string>
     <string name="medico_no_pulso">No pulsó</string>
+
+    <!-- Fisiológico: signos de alarma y emergencia (nivel 5) -->
+    <string name="alarma_boton">Tengo un síntoma de alarma</string>
+    <string name="alarma_titulo">¿Qué te pasa?</string>
+    <string name="alarma_explicacion">Marca lo que tienes. Se activará la emergencia para toda la tripulación al momento.</string>
+    <string name="alarma_activar">Activar emergencia</string>
+    <string name="signo_dolor_toracico">Dolor en el pecho</string>
+    <string name="signo_sincope">Desmayo o pérdida de conocimiento</string>
+    <string name="signo_disnea_grave">Mucha falta de aire</string>
+    <string name="signo_alteracion_lenguaje">Dificultad para hablar</string>
+    <string name="signo_disnea">Falta de aire</string>
+    <string name="signo_deterioro_cognitivo_brusco">Deterioro cognitivo brusco</string>
+    <string name="signo_mareo_intenso">Mareo intenso</string>
+    <string name="emergencia_titulo">Emergencia</string>
+    <string name="emergencia_nivel">Nivel 5 · Toda la tripulación</string>
+    <string name="emergencia_astronauta_desconocido">Astronauta</string>
+    <string name="emergencia_motivo">Motivo: %1$s</string>
+    <string name="emergencia_desde">Desde las %1$s</string>
+    <string name="emergencia_pasos_titulo">Protocolo de emergencia</string>
+    <string name="emergencia_paso_1">Avisa a la oficial médico y acude junto al astronauta.</string>
+    <string name="emergencia_paso_2">Comprueba si responde y respira. Si no respira, empieza la reanimación (RCP).</string>
+    <string name="emergencia_paso_3">Trae el kit médico de emergencia y el desfibrilador.</string>
+    <string name="emergencia_paso_4">Mide la FC, la PA y la SpO₂ y da oxígeno si hace falta.</string>
+    <string name="emergencia_paso_5">No esperes a la Tierra para actuar.</string>
+    <string name="emergencia_tierra">El médico en la Tierra recibirá el aviso a las %1$s, con la máxima prioridad.</string>
+    <string name="emergencia_tierra_sin_hora">Se ha avisado al médico en la Tierra con la máxima prioridad.</string>
+    <plurals name="emergencia_otras">
+        <item quantity="one">Hay %d emergencia más sin atender.</item>
+        <item quantity="other">Hay %d emergencias más sin atender.</item>
+    </plurals>
+    <string name="emergencia_atendida">Emergencia atendida</string>
+    <string name="emergencia_atendida_confirmar_titulo">¿Está atendida?</string>
+    <string name="emergencia_atendida_confirmar_texto">La pantalla de emergencia se cerrará en todos los dispositivos. Quedará en el historial que la tripulación lo ha confirmado.</string>
+    <string name="emergencia_atendida_si">Sí, está atendida</string>
 </resources>
