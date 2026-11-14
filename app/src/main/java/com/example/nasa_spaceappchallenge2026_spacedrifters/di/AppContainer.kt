@@ -3,6 +3,9 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.di
 import android.content.Context
 import android.util.Log
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigMision
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ReglasJson
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo.CargadorDatosEjemplo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
@@ -47,6 +50,18 @@ class AppContainer(context: Context) {
         TripulacionRepository(database, esperarDatos = { datosEjemplo.await() })
     }
 
+    /** assets/reglas.json: reglas de alerta (tendencias, sueño, síntomas...). */
+    val reglas: List<Regla> by lazy { ReglasJson.leer(appContext) }
+
+    val alertasRepository: AlertasRepository by lazy {
+        AlertasRepository(
+            database,
+            reglas,
+            retrasoMisionMs = configMision.aConfigCognitiva().retrasoMisionMs,
+            esperarDatos = { datosEjemplo.await() },
+        )
+    }
+
     /**
      * Carga de assets/datos_ejemplo.json si la base de datos está vacía. Se lanza al arrancar
      * ([iniciar]); nunca falla hacia fuera (si algo va mal, se registra y la app sigue sin datos).
@@ -56,7 +71,7 @@ class AppContainer(context: Context) {
         appContext.deleteDatabase(BASE_DATOS_ANTIGUA)
         runCatching {
             val json = appContext.assets.open(CargadorDatosEjemplo.ARCHIVO).bufferedReader().use { it.readText() }
-            CargadorDatosEjemplo(database, cognitivoRepository).cargarSiVacia(json)
+            CargadorDatosEjemplo(database, cognitivoRepository, alertasRepository).cargarSiVacia(json)
         }.onFailure { Log.e("DatosEjemplo", "No se han podido cargar los datos de ejemplo", it) }
         Unit
     }

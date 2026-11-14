@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.annotation.StringRes
 import com.example.nasa_spaceappchallenge2026_spacedrifters.R
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.EstadoCognitivo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -27,6 +28,15 @@ fun fraseResultado(tipo: TipoPrueba, estado: EstadoCognitivo?): Int = when (esta
         TipoPrueba.STROOP -> R.string.stroop_resultado_alerta
         TipoPrueba.NBACK -> R.string.nback_resultado_alerta
     }
+}
+
+/**
+ * Evalúa las reglas de alerta del astronauta tras guardar algo. Un fallo aquí se registra pero no
+ * estropea el guardado (la sesión o el registro ya están guardados).
+ */
+suspend fun AlertasRepository.evaluarSinFallar(astronautaId: Long) {
+    runCatching { evaluar(astronautaId) }
+        .onFailure { Log.e("Alertas", "No se han podido evaluar las reglas", it) }
 }
 
 /**

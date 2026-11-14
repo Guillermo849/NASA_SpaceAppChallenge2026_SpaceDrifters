@@ -77,4 +77,30 @@ public class AlertEntity {
 
     @ColumnInfo(name = "notes")
     public String notes;
+
+    // ---- Alertas por reglas (p. ej. las cognitivas, source = NEURO). Null en otras alertas. ----
+
+    /** Id de la regla de assets/reglas.json que la ha generado ("nback-tendencia"...). */
+    @ColumnInfo(name = "rule_id")
+    public String ruleId;
+
+    /** Prioridad de la regla: AHORA, HOY o PUEDE_ESPERAR. */
+    @ColumnInfo(name = "priority")
+    public String priority;
+
+    /** Códigos de pasos recomendados al astronauta, separados por comas (texto en strings.xml). */
+    @ColumnInfo(name = "steps")
+    public String steps;
+
+    /** "Por qué ha saltado": JSON con la regla, el umbral, los datos y su fuente. */
+    @ColumnInfo(name = "explanation")
+    public String explanation;
+
+    /** Astronauta al que se asigna (p. ej. la oficial médico de a bordo), o null. */
+    @ColumnInfo(name = "assigned_astronaut_id")
+    public Long assignedAstronautId;
+
+    /** Cuándo la recibe el médico en la Tierra (generated_at + retraso de la misión). */
+    @ColumnInfo(name = "arrives_earth_at")
+    public Long arrivesEarthAt;
 }
