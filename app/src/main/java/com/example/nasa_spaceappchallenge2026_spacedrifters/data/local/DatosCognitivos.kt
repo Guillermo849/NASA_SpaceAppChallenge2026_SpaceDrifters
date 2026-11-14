@@ -156,11 +156,4 @@ interface CognitivoDao {
             "ORDER BY r.fechaEn"
     )
     fun resumenesMisionDesde(id: Long, tipo: TipoPrueba, desde: Long): Flow<List<ResumenSesion>>
-
-    // Primera sesión de misión (el día 1 de misión, mientras no haya una tabla de misión)
-    @Query(
-        "SELECT MIN(r.fechaEn) FROM resumen_sesion r JOIN sesion_prueba s ON s.id = r.sesionId " +
-            "WHERE r.astronautaId = :id AND s.esLineaBase = 0"
-    )
-    fun inicioMision(id: Long): Flow<Long?>
 }

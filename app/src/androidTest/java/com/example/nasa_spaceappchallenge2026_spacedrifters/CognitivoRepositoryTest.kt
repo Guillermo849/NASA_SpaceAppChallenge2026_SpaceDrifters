@@ -3,7 +3,7 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabaseAntiguo
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.SesionNueva
@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CognitivoRepositoryTest {
 
-    private lateinit var db: AppDatabaseAntiguo
+    private lateinit var db: AppDatabase
     private lateinit var repo: CognitivoRepository
     private val dao get() = db.cognitivoDao()
 
@@ -40,7 +40,7 @@ class CognitivoRepositoryTest {
     @Before
     fun crear() {
         val contexto = InstrumentationRegistry.getInstrumentation().targetContext
-        db = Room.inMemoryDatabaseBuilder(contexto, AppDatabaseAntiguo::class.java).build()
+        db = Room.inMemoryDatabaseBuilder(contexto, AppDatabase::class.java).build()
         repo = CognitivoRepository(db, ConfigCognitiva()) // retraso de 18 min, umbrales 1 y 2
     }
 

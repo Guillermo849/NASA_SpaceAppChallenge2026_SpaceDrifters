@@ -36,14 +36,14 @@ class InicioAstronautaViewModel(
     /** Lo de hoy: cabecera, pruebas hechas y registro diario. */
     private val hoyUi: Flow<PanelAstronautaUi> = combine(
         tripulacion.astronauta(astronautaId),
-        cognitivo.inicioMision(astronautaId),
         cognitivo.tiposHechosDesde(astronautaId, inicioDeHoy),
         tripulacion.registroDelDia(astronautaId, hoy),
-    ) { astronauta, inicioMision, hechas, registro ->
+    ) { astronauta, hechas, registro ->
         PanelAstronautaUi(
             nombre = astronauta?.nombre,
             cargo = astronauta?.cargo,
-            diaMision = inicioMision?.let { diaDeMision(it) },
+            // El día 1 es el de inicio de su misión (tabla mission).
+            diaMision = astronauta?.inicioMision?.let { diaDeMision(it) },
             retrasoMin = retrasoMin,
             hechasHoy = hechas,
             registroHoy = registro?.let { RegistroHoyUi(it.horasSueno, it.somnolencia, it.listaSintomas) },

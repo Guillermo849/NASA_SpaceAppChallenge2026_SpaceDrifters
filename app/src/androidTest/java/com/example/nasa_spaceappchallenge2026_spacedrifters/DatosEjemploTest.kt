@@ -4,7 +4,7 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo.CargadorDatosEjemplo
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabaseAntiguo
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.ResumenSesion
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
@@ -19,14 +19,16 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.CargoTripulante
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 
 /** Los datos de ejemplo de assets/ cargan bien y producen los casos de la demo. */
 @RunWith(AndroidJUnit4::class)
 class DatosEjemploTest {
 
-    private lateinit var db: AppDatabaseAntiguo
+    private lateinit var db: AppDatabase
     private lateinit var repo: CognitivoRepository
     private val dao get() = db.cognitivoDao()
 
@@ -43,7 +45,7 @@ class DatosEjemploTest {
     @Before
     fun cargar() = runBlocking {
         val contexto = InstrumentationRegistry.getInstrumentation().targetContext
-        db = Room.inMemoryDatabaseBuilder(contexto, AppDatabaseAntiguo::class.java).build()
+        db = Room.inMemoryDatabaseBuilder(contexto, AppDatabase::class.java).build()
         repo = CognitivoRepository(db, ConfigCognitiva())
         val json = contexto.assets.open(CargadorDatosEjemplo.ARCHIVO).bufferedReader().use { it.readText() }
         assertTrue(CargadorDatosEjemplo(db, repo).cargarSiVacia(json, ahora, zona))
@@ -70,6 +72,29 @@ class DatosEjemploTest {
         }
         // Una segunda carga no duplica nada.
         assertFalse(CargadorDatosEjemplo(db, repo).cargarSiVacia("{}", ahora, zona))
+    }
+
+    @Test
+    fun tripulacionEnLasTablasDelEquipo() = runBlocking {
+        // astronaut + mission: nombre completo, cargo, sueño habitual y día 1 de misión.
+        val m = db.tripulacionDao().astronauta(maya).first()!!
+        assertEquals("Maya Okafor", m.nombre)
+        assertEquals(CargoTripulante.COMANDANTE, m.cargo)
+        assertEquals(7.5, m.horasSuenoHabituales!!, 1e-9)
+        // Hoy (14 de noviembre) es el día 14: la misión empezó el 1 de noviembre.
+        assertEquals(
+            LocalDate.of(2026, 11, 1).atStartOfDay(zona).toInstant().toEpochMilli(),
+            m.inicioMision,
+        )
+        assertEquals(CargoTripulante.OFICIAL_MEDICO, db.tripulacionDao().astronauta(ane).first()!!.cargo)
+
+        // Un usuario con rol ASTRONAUT por tripulante (app_user).
+        val usuarios = db.query("SELECT username, role FROM app_user ORDER BY username", null).use { c ->
+            buildList { while (c.moveToNext()) add(c.getString(0) to c.getString(1)) }
+        }
+        assertEquals(4, usuarios.size)
+        assertTrue(usuarios.all { it.second == "ASTRONAUT" })
+        assertTrue("leo.martin" in usuarios.map { it.first })
     }
 
     @Test

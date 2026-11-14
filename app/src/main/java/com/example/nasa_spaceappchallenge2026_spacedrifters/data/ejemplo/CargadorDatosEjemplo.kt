@@ -1,9 +1,13 @@
 package com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo
 
 import androidx.room.withTransaction
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabaseAntiguo
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Astronauta
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.CargoTripulante
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.AppUserEntity
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.AstronautEntity
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.MissionEntity
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.model.Role
+import java.text.Normalizer
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.RegistroDiario
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
@@ -66,7 +70,7 @@ data class TripulanteEjemplo(
  * líneas base y los estados salen de los ensayos.
  */
 class CargadorDatosEjemplo(
-    private val db: AppDatabaseAntiguo,
+    private val db: AppDatabase,
     private val repositorio: CognitivoRepository,
 ) {
     private val configStroop = ConfigStroop()
@@ -80,17 +84,28 @@ class CargadorDatosEjemplo(
     ): Boolean {
         if (db.tripulacionDao().contarAstronautas() > 0) return false
         val datos = JSON.decodeFromString<DatosEjemplo>(json)
+        val hoy = Instant.ofEpochMilli(ahora).atZone(zona).toLocalDate()
+        val lanzamiento = hoy.minusDays(datos.diasMision - 1L)
         db.withTransaction {
-            datos.tripulacion.forEachIndexed { orden, t -> cargar(t, orden, datos.diasMision, ahora, zona) }
+            // Una misión para toda la tripulación: empieza el día 1 (hoy es el último día).
+            val misionId = db.tripulacionDao().insertarMision(
+                MissionEntity().apply {
+                    name = NOMBRE_MISION
+                    startDate = lanzamiento.atStartOfDay(zona).toInstant().toEpochMilli()
+                },
+            )
+            datos.tripulacion.forEachIndexed { orden, t ->
+                cargar(t, orden, datos.diasMision, misionId, ahora, zona)
+            }
         }
         return true
     }
 
-    private suspend fun cargar(t: TripulanteEjemplo, orden: Int, dias: Int, ahora: Long, zona: ZoneId) {
+    private suspend fun cargar(t: TripulanteEjemplo, orden: Int, dias: Int, misionId: Long, ahora: Long, zona: ZoneId) {
         listOf(t.stroopZ, t.nbackZ, t.horasSueno, t.somnolencia).forEach {
             require(it.size == dias) { "${t.nombre}: se esperaban $dias días y hay ${it.size}" }
         }
-        db.tripulacionDao().insertarAstronautas(listOf(Astronauta(t.id, t.nombre, t.cargo, t.horasSuenoHabituales)))
+        insertarTripulante(t, misionId, ahora)
 
         val random = Random(t.semilla)
         val hoy = Instant.ofEpochMilli(ahora).atZone(zona).toLocalDate()
@@ -170,6 +185,38 @@ class CargadorDatosEjemplo(
         repositorio.guardarNBack(sesion(t, inicio, esPractica = true, esLineaBase = false), resultados, secuencia.nivel)
     }
 
+    /** Usuario (rol ASTRONAUT) + astronauta en las tablas del equipo, con el id del JSON. */
+    private suspend fun insertarTripulante(t: TripulanteEjemplo, misionId: Long, ahora: Long) {
+        val dao = db.tripulacionDao()
+        val usuarioId = dao.insertarUsuario(
+            AppUserEntity().apply {
+                username = nombreUsuario(t.nombre)
+                // Prototipo sin inicio de sesión: no hay contraseñas.
+                passwordHash = ""
+                role = Role.ASTRONAUT.name
+                createdAt = ahora
+            },
+        )
+        val partes = t.nombre.trim().split(' ', limit = 2)
+        dao.insertarAstronauta(
+            AstronautEntity().apply {
+                id = t.id
+                userId = usuarioId
+                missionId = misionId
+                firstName = partes[0]
+                lastName = partes.getOrElse(1) { "" }
+                crewRole = t.cargo.name
+                usualSleepHours = t.horasSuenoHabituales
+            },
+        )
+    }
+
+    /** "Leo Martín" → "leo.martin". */
+    private fun nombreUsuario(nombre: String): String =
+        Normalizer.normalize(nombre.trim().lowercase(), Normalizer.Form.NFD)
+            .replace(Regex("\\p{M}"), "")
+            .replace(Regex("\\s+"), ".")
+
     private fun sesion(t: TripulanteEjemplo, inicio: Long, esPractica: Boolean, esLineaBase: Boolean) = SesionNueva(
         astronautaId = t.id,
         inicioEn = inicio,
@@ -181,6 +228,7 @@ class CargadorDatosEjemplo(
 
     companion object {
         const val ARCHIVO = "datos_ejemplo.json"
+        const val NOMBRE_MISION = "SpaceDrifters"
         private const val MINUTO = 60_000L
         private val JSON = Json { ignoreUnknownKeys = true }
     }
