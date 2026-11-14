@@ -1,0 +1,42 @@
+{
+  "_comentario": "Reglas de alerta. tipo: TENDENCIA (N sesiones válidas seguidas en esos estados), PRUEBA_Y_SUENO (última sesión en esos estados + N noches seguidas durmiendo menos de lo habitual), PRUEBA_Y_SINTOMAS (sesión de hoy en esos estados + alguno de esos síntomas en el registro de hoy). pasos: códigos con su texto en strings.xml (paso_*); sin pasos, el astronauta solo ve que se ha enviado a su médico. asignarA: cargo del tripulante que la recibe a bordo.",
+  "reglas": [
+    {
+      "id": "stroop-tendencia",
+      "tipo": "TENDENCIA",
+      "pruebas": ["STROOP"],
+      "estados": ["VIGILAR", "ALERTA"],
+      "sesionesSeguidas": 3,
+      "prioridad": "PUEDE_ESPERAR",
+      "pasos": []
+    },
+    {
+      "id": "nback-tendencia",
+      "tipo": "TENDENCIA",
+      "pruebas": ["NBACK"],
+      "estados": ["VIGILAR", "ALERTA"],
+      "sesionesSeguidas": 3,
+      "prioridad": "HOY",
+      "pasos": ["EVITAR_TAREAS_CRITICAS_SOLO", "REPETIR_PRUEBA_MANANA"]
+    },
+    {
+      "id": "fatiga-cognitiva-combinada",
+      "tipo": "PRUEBA_Y_SUENO",
+      "pruebas": ["NBACK"],
+      "estados": ["VIGILAR", "ALERTA"],
+      "nochesBajoBase": 3,
+      "prioridad": "HOY",
+      "pasos": ["REDUCIR_CARGA_TRABAJO", "DORMIR_8_HORAS", "REPETIR_PRUEBAS_MANANA"]
+    },
+    {
+      "id": "concentracion-sintomas",
+      "tipo": "PRUEBA_Y_SINTOMAS",
+      "pruebas": ["STROOP", "NBACK"],
+      "estados": ["ALERTA"],
+      "sintomas": ["DIFICULTAD_CONCENTRACION", "DOLOR_CABEZA"],
+      "prioridad": "AHORA",
+      "pasos": [],
+      "asignarA": "OFICIAL_MEDICO"
+    }
+  ]
+}

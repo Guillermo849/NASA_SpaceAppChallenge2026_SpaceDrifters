@@ -69,7 +69,7 @@ import java.util.concurrent.Executors
         // Registro diario
         RegistroDiario::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -88,6 +88,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun alertDao(): AlertDao
     abstract fun cognitivoDao(): CognitivoDao
     abstract fun tripulacionDao(): TripulacionDao
+    abstract fun alertasDao(): AlertasDao
 
     companion object {
         /** Hilos para escribir en la base de datos fuera del hilo principal (código Java del equipo). */

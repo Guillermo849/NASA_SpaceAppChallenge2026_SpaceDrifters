@@ -8,6 +8,8 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDataba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.ResumenSesion
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ReglasJson
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.ConfigCognitiva
 import kotlinx.coroutines.flow.first
@@ -30,6 +32,7 @@ class DatosEjemploTest {
 
     private lateinit var db: AppDatabase
     private lateinit var repo: CognitivoRepository
+    private lateinit var alertas: AlertasRepository
     private val dao get() = db.cognitivoDao()
 
     private val zona = ZoneId.of("Europe/Madrid")
@@ -47,8 +50,55 @@ class DatosEjemploTest {
         val contexto = InstrumentationRegistry.getInstrumentation().targetContext
         db = Room.inMemoryDatabaseBuilder(contexto, AppDatabase::class.java).build()
         repo = CognitivoRepository(db, ConfigCognitiva())
+        // Las mismas reglas que la app (assets/reglas.json) y el retraso de 18 min.
+        alertas = AlertasRepository(db, ReglasJson.leer(contexto), retrasoMisionMs = ConfigCognitiva().retrasoMisionMs)
         val json = contexto.assets.open(CargadorDatosEjemplo.ARCHIVO).bufferedReader().use { it.readText() }
-        assertTrue(CargadorDatosEjemplo(db, repo).cargarSiVacia(json, ahora, zona))
+        assertTrue(CargadorDatosEjemplo(db, repo, alertas).cargarSiVacia(json, ahora, zona))
+    }
+
+    // ---- Alertas por reglas ----
+
+    private suspend fun reglasActivas(id: Long) =
+        db.alertasDao().deAstronauta(id).filter { it.status == "ACTIVE" }.map { it.ruleId }.toSet()
+
+    @Test
+    fun alertas_mayaFatigaYTendenciaNBack() = runBlocking {
+        assertEquals(setOf("fatiga-cognitiva-combinada", "nback-tendencia"), reglasActivas(maya))
+        val fatiga = db.alertasDao().deAstronauta(maya).single { it.ruleId == "fatiga-cognitiva-combinada" }
+        assertEquals("HOY", fatiga.priority)
+        assertEquals("NEURO", fatiga.source)
+        assertEquals("REDUCIR_CARGA_TRABAJO,DORMIR_8_HORAS,REPETIR_PRUEBAS_MANANA", fatiga.steps)
+        assertEquals(ahora + 18 * 60_000L, fatiga.arrivesEarthAt)
+        // "Por qué ha saltado": la sesión de N-Back, las 3 noches y su base de sueño.
+        val porQue = AlertasRepository.leerExplicacion(fatiga.explanation)!!
+        assertEquals("NBACK", porQue.sesiones.single().prueba)
+        assertEquals(listOf("2026-11-14", "2026-11-13", "2026-11-12"), porQue.noches.map { it.fecha })
+        assertEquals(7.5, porQue.suenoHabitual!!, 1e-9)
+        assertTrue(AlertasRepository.FUENTE_REGISTRO in porQue.fuentes)
+    }
+
+    @Test
+    fun alertas_leoConcentracionYSintomas_asignadaALaOficialMedico() = runBlocking {
+        assertEquals(setOf("concentracion-sintomas"), reglasActivas(leo))
+        val alerta = db.alertasDao().deAstronauta(leo).single()
+        assertEquals("AHORA", alerta.priority)
+        assertEquals("CRITICAL", alerta.severity)
+        assertEquals(ane, alerta.assignedAstronautId) // Ane es la oficial médico de a bordo
+        val porQue = AlertasRepository.leerExplicacion(alerta.explanation)!!
+        assertEquals(listOf("DOLOR_CABEZA"), porQue.sintomas)
+        assertEquals("ALERTA", porQue.sesiones.single().estado)
+        // A Ane le aparece en su panel como asignada.
+        val deAne = db.alertasDao().activasPara(ane).first()
+        assertEquals("Leo Martín", deAne.single().nombreAstronauta)
+    }
+
+    @Test
+    fun alertas_aneEIlanSinAlertas_yNoSeRepiten() = runBlocking {
+        assertTrue(reglasActivas(ane).isEmpty())
+        assertTrue(reglasActivas(ilan).isEmpty())
+        // Volver a evaluar no duplica las alertas activas.
+        assertTrue(alertas.evaluar(maya, ahora, zona).isEmpty())
+        assertEquals(2, db.alertasDao().deAstronauta(maya).size)
     }
 
     @After

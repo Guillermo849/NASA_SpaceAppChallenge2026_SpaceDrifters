@@ -108,4 +108,12 @@ interface TripulacionDao {
     // El mismo registro como flujo: se actualiza solo al guardar
     @Query("SELECT * FROM registro_diario WHERE astronautaId = :id AND fecha = :fecha")
     fun registroDelDia(id: Long, fecha: String): Flow<RegistroDiario?>
+
+    // Registros desde una fecha ISO (incluida), para las reglas
+    @Query("SELECT * FROM registro_diario WHERE astronautaId = :id AND fecha >= :desde")
+    suspend fun registrosRecientes(id: Long, desde: String): List<RegistroDiario>
+
+    // Tripulante con un cargo (p. ej. la oficial médico de a bordo, para asignarle alertas)
+    @Query("SELECT id FROM astronaut WHERE crew_role = :cargo ORDER BY id LIMIT 1")
+    suspend fun idConCargo(cargo: String): Long?
 }

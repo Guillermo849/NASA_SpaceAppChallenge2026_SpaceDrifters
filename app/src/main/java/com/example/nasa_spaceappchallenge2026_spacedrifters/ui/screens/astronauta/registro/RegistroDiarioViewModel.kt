@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.RegistroDiario
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.TripulacionRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.evaluarSinFallar
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.registro.ReglasRegistro
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +37,8 @@ data class RegistroUi(
 /** Registro diario del astronauta para hoy: horas de sueño, somnolencia y síntomas. */
 class RegistroDiarioViewModel(
     private val repositorio: TripulacionRepository,
+    /** Evalúa las reglas de alerta después de guardar el registro. */
+    private val alertas: AlertasRepository,
     private val astronautaId: Long,
     zona: ZoneId = ZoneId.systemDefault(),
 ) : ViewModel() {
@@ -94,7 +98,11 @@ class RegistroDiarioViewModel(
                         sintomas = RegistroDiario.unirSintomas(actual.sintomas),
                     ),
                 )
-            }.onSuccess { _ui.update { it.copy(guardando = false, guardado = true) } }
+            }.onSuccess {
+                // El sueño y los síntomas pueden completar una regla (fatiga, concentración).
+                alertas.evaluarSinFallar(astronautaId)
+                _ui.update { it.copy(guardando = false, guardado = true) }
+            }
                 .onFailure { _ui.update { it.copy(guardando = false, error = true) } }
         }
     }

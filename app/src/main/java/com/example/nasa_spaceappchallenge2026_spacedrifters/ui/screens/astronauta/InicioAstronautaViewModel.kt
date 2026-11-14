@@ -2,7 +2,10 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronau
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AlertaConNombre
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.LineaBaseCognitiva
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.ResumenSesion
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
@@ -24,6 +27,7 @@ import java.time.temporal.ChronoUnit
 class InicioAstronautaViewModel(
     cognitivo: CognitivoRepository,
     tripulacion: TripulacionRepository,
+    alertas: AlertasRepository,
     astronautaId: Long,
     private val retrasoMin: Long,
     private val zona: ZoneId = ZoneId.systemDefault(),
@@ -33,13 +37,15 @@ class InicioAstronautaViewModel(
     private val inicioDeHoy: Long = hoy.atStartOfDay(zona).toInstant().toEpochMilli()
     private val inicioHace30Dias: Long = hoy.minusDays(Periodo.MES.dias - 1L).atStartOfDay(zona).toInstant().toEpochMilli()
 
-    /** Lo de hoy: cabecera, pruebas hechas y registro diario. */
+    /** Lo de hoy: cabecera, avisos, pruebas hechas y registro diario. */
     private val hoyUi: Flow<PanelAstronautaUi> = combine(
         tripulacion.astronauta(astronautaId),
         cognitivo.tiposHechosDesde(astronautaId, inicioDeHoy),
         tripulacion.registroDelDia(astronautaId, hoy),
-    ) { astronauta, hechas, registro ->
+        alertas.activasPara(astronautaId),
+    ) { astronauta, hechas, registro, activas ->
         PanelAstronautaUi(
+            avisos = activas.map { aAviso(it, astronautaId) },
             nombre = astronauta?.nombre,
             cargo = astronauta?.cargo,
             // El día 1 es el de inicio de su misión (tabla mission).
@@ -70,6 +76,19 @@ class InicioAstronautaViewModel(
     }
 
     companion object {
+        /** Alerta guardada → aviso del panel. "Propio" = es sobre este astronauta (no asignada por otro). */
+        fun aAviso(a: AlertaConNombre, astronautaId: Long): AvisoUi {
+            val alerta = a.alerta
+            return AvisoUi(
+                id = alerta.id,
+                reglaId = alerta.ruleId.orEmpty(),
+                prioridad = Regla.Prioridad.entries.firstOrNull { it.name == alerta.priority },
+                pasos = alerta.steps.orEmpty().split(',').filter { it.isNotBlank() },
+                esPropio = alerta.astronautId == astronautaId,
+                nombreAfectado = a.nombreAstronauta,
+            )
+        }
+
         /** Resúmenes → puntos de la gráfica ("más alto = mejor"). Las sesiones sin métrica no se pintan. */
         fun aRendimiento(tipo: TipoPrueba, resumenes: List<ResumenSesion>, base: LineaBaseCognitiva?): RendimientoUi {
             val direccion = CognitivoRepository.direccion(tipo)

@@ -50,6 +50,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.etique
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.LocalEstadoColores
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDriftersTheme
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.nombreSintoma
 import java.text.NumberFormat
 import java.time.Instant
@@ -100,6 +101,7 @@ private fun PanelAstronautaContenido(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             CabeceraPanel(panel)
+            if (panel.avisos.isNotEmpty()) TarjetaAvisos(panel.avisos)
             TarjetaRegistroHoy(panel.registroHoy, onRegistro)
             TarjetaPruebasDeHoy(
                 hechasHoy = panel.hechasHoy,
@@ -163,6 +165,87 @@ private fun nombreCargo(cargo: CargoTripulante): Int = when (cargo) {
     CargoTripulante.INGENIERIA_VUELO -> R.string.cargo_ingenieria_vuelo
     CargoTripulante.OFICIAL_MEDICO -> R.string.cargo_oficial_medico
     CargoTripulante.ESPECIALISTA_MISION -> R.string.cargo_especialista_mision
+}
+
+// ---- Avisos (alertas por reglas) ----
+
+@Composable
+private fun TarjetaAvisos(avisos: List<AvisoUi>) {
+    Card(
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(text = stringResource(R.string.avisos_titulo), style = MaterialTheme.typography.titleLarge)
+            avisos.forEachIndexed { i, aviso ->
+                if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+                Aviso(aviso)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Aviso(aviso: AvisoUi) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        aviso.prioridad?.let { MarcaPrioridad(it) }
+        if (!aviso.esPropio) {
+            Text(
+                text = stringResource(R.string.aviso_asignada, aviso.nombreAfectado ?: stringResource(R.string.estado_sin_datos)),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+        Text(text = stringResource(tituloRegla(aviso.reglaId)), style = MaterialTheme.typography.titleMedium)
+        // Al afectado: sus pasos (si la regla tiene) y que su médico lo ha recibido.
+        if (aviso.esPropio) {
+            aviso.pasos.mapNotNull(::textoPaso).forEach { paso ->
+                Text(text = "• ${stringResource(paso)}", style = MaterialTheme.typography.bodyMedium)
+            }
+            Text(
+                text = stringResource(R.string.aviso_enviado_medico),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+/** Prioridad con su texto y su color (nunca solo el color). */
+@Composable
+private fun MarcaPrioridad(prioridad: Regla.Prioridad) {
+    val estados = LocalEstadoColores.current
+    val (texto, color) = when (prioridad) {
+        Regla.Prioridad.AHORA -> R.string.prioridad_ahora to estados.alerta
+        Regla.Prioridad.HOY -> R.string.prioridad_hoy to estados.vigilar
+        Regla.Prioridad.PUEDE_ESPERAR -> R.string.prioridad_puede_esperar to estados.sinDatos
+    }
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(10.dp).background(color, CircleShape))
+        Text(text = stringResource(texto), style = MaterialTheme.typography.labelLarge, color = color)
+    }
+}
+
+@StringRes
+private fun tituloRegla(reglaId: String): Int = when (reglaId) {
+    "stroop-tendencia" -> R.string.regla_stroop_tendencia
+    "nback-tendencia" -> R.string.regla_nback_tendencia
+    "fatiga-cognitiva-combinada" -> R.string.regla_fatiga_cognitiva
+    "concentracion-sintomas" -> R.string.regla_concentracion_sintomas
+    else -> R.string.regla_generica
+}
+
+@StringRes
+private fun textoPaso(codigo: String): Int? = when (codigo) {
+    "EVITAR_TAREAS_CRITICAS_SOLO" -> R.string.paso_evitar_tareas_criticas_solo
+    "REPETIR_PRUEBA_MANANA" -> R.string.paso_repetir_prueba_manana
+    "REDUCIR_CARGA_TRABAJO" -> R.string.paso_reducir_carga_trabajo
+    "DORMIR_8_HORAS" -> R.string.paso_dormir_8_horas
+    "REPETIR_PRUEBAS_MANANA" -> R.string.paso_repetir_pruebas_manana
+    else -> null
 }
 
 // ---- Registro de hoy ----
@@ -440,6 +523,13 @@ private fun PanelAstronautaPreview() {
                 retrasoMin = 18,
                 hechasHoy = setOf(TipoPrueba.STROOP),
                 registroHoy = RegistroHoyUi(horasSueno = 5.0, somnolencia = 8, sintomas = listOf(Sintoma.FATIGA)),
+                avisos = listOf(
+                    AvisoUi(
+                        id = 1, reglaId = "fatiga-cognitiva-combinada", prioridad = Regla.Prioridad.HOY,
+                        pasos = listOf("REDUCIR_CARGA_TRABAJO", "DORMIR_8_HORAS", "REPETIR_PRUEBAS_MANANA"),
+                        esPropio = true, nombreAfectado = "Maya Okafor",
+                    ),
+                ),
                 rendimiento = listOf(
                     RendimientoUi(TipoPrueba.STROOP, true, puntos(0.3, -0.4, 0.1, -0.5, 0.2, 0.0, -0.4, 0.5, -0.2, 0.0, -0.3, -0.5, -0.7, -0.6)),
                     RendimientoUi(TipoPrueba.NBACK, true, puntos(0.2, -0.3, 0.4, 0.0, -0.5, 0.3, 0.1, -0.2, 0.4, 0.0, -1.5, -2.0, -2.3, -2.6)),

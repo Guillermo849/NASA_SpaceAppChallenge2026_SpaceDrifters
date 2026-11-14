@@ -59,6 +59,24 @@
     <string name="estado_sin_datos">No data</string>
     <string name="estado_sin_linea_base">No baseline</string>
 
+    <!-- Notices (rule-based alerts) -->
+    <string name="avisos_titulo">Notices</string>
+    <string name="aviso_enviado_medico">It has been sent to your flight surgeon.</string>
+    <string name="aviso_asignada">Assigned to you · %1$s</string>
+    <string name="prioridad_ahora">Now</string>
+    <string name="prioridad_hoy">Today</string>
+    <string name="prioridad_puede_esperar">Can wait</string>
+    <string name="regla_stroop_tendencia">Your Stroop results</string>
+    <string name="regla_nback_tendencia">Your working memory is below your usual</string>
+    <string name="regla_fatiga_cognitiva">Signs of fatigue</string>
+    <string name="regla_concentracion_sintomas">Concentration and symptoms</string>
+    <string name="regla_generica">Health notice</string>
+    <string name="paso_evitar_tareas_criticas_solo">Avoid critical tasks on your own today</string>
+    <string name="paso_repetir_prueba_manana">Repeat the test tomorrow</string>
+    <string name="paso_reducir_carga_trabajo">Reduce your workload</string>
+    <string name="paso_dormir_8_horas">Sleep at least 8 h</string>
+    <string name="paso_repetir_pruebas_manana">Repeat the tests tomorrow</string>
+
     <!-- Daily log -->
     <string name="registro_titulo">Today\'s log</string>
     <string name="registro_pendiente">You haven\'t done today\'s log yet.</string>

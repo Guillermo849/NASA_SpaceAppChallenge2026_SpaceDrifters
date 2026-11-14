@@ -61,6 +61,24 @@
     <string name="estado_sin_datos">Sin datos</string>
     <string name="estado_sin_linea_base">Sin línea base</string>
 
+    <!-- Avisos (alertas por reglas) -->
+    <string name="avisos_titulo">Avisos</string>
+    <string name="aviso_enviado_medico">Se ha enviado a tu médico.</string>
+    <string name="aviso_asignada">Asignada a ti · %1$s</string>
+    <string name="prioridad_ahora">Ahora</string>
+    <string name="prioridad_hoy">Hoy</string>
+    <string name="prioridad_puede_esperar">Puede esperar</string>
+    <string name="regla_stroop_tendencia">Tus resultados del Stroop</string>
+    <string name="regla_nback_tendencia">Tu memoria de trabajo está por debajo de lo habitual</string>
+    <string name="regla_fatiga_cognitiva">Signos de fatiga</string>
+    <string name="regla_concentracion_sintomas">Concentración y síntomas</string>
+    <string name="regla_generica">Aviso de salud</string>
+    <string name="paso_evitar_tareas_criticas_solo">Evita tareas críticas en solitario hoy</string>
+    <string name="paso_repetir_prueba_manana">Repite la prueba mañana</string>
+    <string name="paso_reducir_carga_trabajo">Reduce la carga de trabajo</string>
+    <string name="paso_dormir_8_horas">Duerme al menos 8 h</string>
+    <string name="paso_repetir_pruebas_manana">Repite las pruebas mañana</string>
+
     <!-- Registro diario -->
     <string name="registro_titulo">Registro de hoy</string>
     <string name="registro_pendiente">Aún no has hecho el registro de hoy.</string>

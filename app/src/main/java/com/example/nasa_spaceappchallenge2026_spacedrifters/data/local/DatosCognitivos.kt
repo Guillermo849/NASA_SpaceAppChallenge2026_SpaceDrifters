@@ -156,4 +156,11 @@ interface CognitivoDao {
             "ORDER BY r.fechaEn"
     )
     fun resumenesMisionDesde(id: Long, tipo: TipoPrueba, desde: Long): Flow<List<ResumenSesion>>
+
+    // Últimas sesiones de misión de todas las pruebas, de la más reciente a la más antigua (para las reglas)
+    @Query(
+        "SELECT r.* FROM resumen_sesion r JOIN sesion_prueba s ON s.id = r.sesionId " +
+            "WHERE r.astronautaId = :id AND s.esLineaBase = 0 ORDER BY r.fechaEn DESC LIMIT :limite"
+    )
+    suspend fun resumenesMisionRecientes(id: Long, limite: Int): List<ResumenSesion>
 }

@@ -25,21 +25,22 @@ object AppViewModelProvider {
             InicioAstronautaViewModel(
                 cognitivo = c.cognitivoRepository,
                 tripulacion = c.tripulacionRepository,
+                alertas = c.alertasRepository,
                 astronautaId = c.astronautaActualId,
                 retrasoMin = c.configMision.retrasoMisionMin,
             )
         }
         initializer {
             val c = app().container
-            StroopViewModel(c.cognitivoRepository, c.astronautaActualId, c.ambitoAplicacion)
+            StroopViewModel(c.cognitivoRepository, c.astronautaActualId, c.ambitoAplicacion, c.alertasRepository)
         }
         initializer {
             val c = app().container
-            NBackViewModel(c.cognitivoRepository, c.astronautaActualId, c.ambitoAplicacion)
+            NBackViewModel(c.cognitivoRepository, c.astronautaActualId, c.ambitoAplicacion, c.alertasRepository)
         }
         initializer {
             val c = app().container
-            RegistroDiarioViewModel(c.tripulacionRepository, c.astronautaActualId)
+            RegistroDiarioViewModel(c.tripulacionRepository, c.alertasRepository, c.astronautaActualId)
         }
     }
 }

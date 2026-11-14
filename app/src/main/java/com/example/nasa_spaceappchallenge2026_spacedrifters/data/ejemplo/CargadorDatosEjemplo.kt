@@ -10,6 +10,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.model.Role
 import java.text.Normalizer
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.RegistroDiario
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.SesionNueva
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.ejemplo.GeneradorEnsayosEjemplo
@@ -72,6 +73,8 @@ data class TripulanteEjemplo(
 class CargadorDatosEjemplo(
     private val db: AppDatabase,
     private val repositorio: CognitivoRepository,
+    /** Si se pasa, al terminar evalúa las reglas para cada tripulante (alertas de la demo). */
+    private val alertas: AlertasRepository? = null,
 ) {
     private val configStroop = ConfigStroop()
     private val configNBack = ConfigNBack()
@@ -97,6 +100,8 @@ class CargadorDatosEjemplo(
             datos.tripulacion.forEachIndexed { orden, t ->
                 cargar(t, orden, datos.diasMision, misionId, ahora, zona)
             }
+            // Con todo cargado, las reglas ven el estado de hoy (no se evalúan sesión a sesión).
+            alertas?.let { a -> datos.tripulacion.forEach { a.evaluar(it.id, ahora, zona) } }
         }
         return true
     }

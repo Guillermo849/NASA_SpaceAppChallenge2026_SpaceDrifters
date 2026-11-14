@@ -3,6 +3,7 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronau
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.SesionNueva
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.EstadoCognitivo
@@ -10,6 +11,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.ControladorNBack
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.FaseNBack
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.GeneradorNBack
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.evaluarSinFallar
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.guardarEnSegundoPlano
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.temporizador
 import kotlinx.coroutines.CoroutineScope
@@ -31,6 +33,8 @@ class NBackViewModel(
     private val astronautaId: Long,
     /** Ámbito de la app: los guardados terminan aunque se cierre la pantalla. */
     private val ambitoGuardado: CoroutineScope,
+    /** Evalúa las reglas de alerta después de guardar una sesión válida. */
+    private val alertas: AlertasRepository,
     private val config: ConfigNBack = ConfigNBack(),
     private val random: Random = Random(),
     private val reloj: () -> Long = System::currentTimeMillis,
@@ -134,6 +138,10 @@ class NBackViewModel(
         )
         val resultados = c.resultados
         val nivel = c.nivel
-        return guardarEnSegundoPlano(ambitoGuardado) { repositorio.guardarNBack(sesion, resultados, nivel) }
+        return guardarEnSegundoPlano(ambitoGuardado) {
+            val estado = repositorio.guardarNBack(sesion, resultados, nivel)
+            if (sesion.cuenta) alertas.evaluarSinFallar(astronautaId)
+            estado
+        }
     }
 }
