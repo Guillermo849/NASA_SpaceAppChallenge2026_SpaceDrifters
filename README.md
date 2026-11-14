@@ -110,7 +110,7 @@ Las carpetas vacías tienen un `.gitkeep` para que existan en git; bórralo cuan
 
 ### Datos (Room)
 
-Hay **una sola base de datos**: `data/local/AppDatabase.java` (archivo `astronaut_health.db`). Tiene:
+Hay **una sola base de datos**: `data/local/AppDatabase.kt` (archivo `astronaut_health.db`). Tiene:
 
 - Usuarios, misión y tripulación (`app_user`, `mission`, `astronaut`, con el cargo y las horas de sueño habituales), mediciones, ECG, tensión, pruebas clínicas y alertas (`entity/` y `dao/`).
 - Pruebas cognitivas Stroop y N-Back (`DatosCognitivos.kt`): sesiones, cada ensayo, resúmenes con el retraso con la Tierra y línea base.
@@ -119,7 +119,7 @@ Hay **una sola base de datos**: `data/local/AppDatabase.java` (archivo `astronau
 Para añadir algo:
 
 1. La entidad y su DAO en `data/local/` (entidades en `entity/`, DAOs en `dao/`).
-2. Añade la entidad a la lista de `@Database` y el DAO como método en `AppDatabase.java`, y **sube `version`** (no hay migraciones: Room borra y recrea la base de datos, y se vuelven a cargar los datos de ejemplo).
+2. Añade la entidad a la lista de `@Database` y el DAO como método en `AppDatabase.kt`, y **sube `version`** (no hay migraciones: Room borra y recrea la base de datos, y se vuelven a cargar los datos de ejemplo).
 3. Un repositorio en `data/repository/` que use los DAOs, creado en `di/AppContainer.kt` con `by lazy`. La base de datos se obtiene con `AppDatabase.get(context)`.
 
 ### Textos
