@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.BienestarRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.ConstantesRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.ProtocoloEnCurso
 import kotlinx.coroutines.flow.stateIn
@@ -42,6 +43,8 @@ class InicioAstronautaViewModel(
     fisiologico: FisiologicoRepository? = null,
     /** Check-in de bienestar psicológico (tarjeta "Bienestar"). */
     bienestar: BienestarRepository? = null,
+    /** Últimas constantes (tarjeta "Mis constantes"). */
+    constantes: ConstantesRepository? = null,
     private val zona: ZoneId = ZoneId.systemDefault(),
 ) : ViewModel() {
 
@@ -91,10 +94,12 @@ class InicioAstronautaViewModel(
         rendimiento(cognitivo, astronautaId, TipoPrueba.STROOP),
         rendimiento(cognitivo, astronautaId, TipoPrueba.NBACK),
         bienestar?.delDia(astronautaId, hoy) ?: flowOf(null),
-    ) { base, stroop, nback, checkin ->
+        constantes?.ultimas(astronautaId) ?: flowOf(null),
+    ) { base, stroop, nback, checkin, ultimas ->
         base.copy(
             rendimiento = listOf(stroop, nback),
             bienestarHoy = checkin?.let { BienestarHoyUi(it.animo, it.estres, it.aislamiento) },
+            constantes = ultimas,
         )
     }
         .catch { emit(PanelAstronautaUi(retrasoMin = retrasoMin)) }

@@ -14,6 +14,9 @@ import java.util.Map;
  */
 public final class UmbralesFisiologicos {
 
+    /** La línea base de cada constante es la media de sus primeros días de misión. */
+    public static final int DIAS_LINEA_BASE = 7;
+
     private final List<Umbral> umbrales;
     private final Map<String, Double> referencias;
 

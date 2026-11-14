@@ -7,7 +7,9 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.toRoute
 import com.example.nasa_spaceappchallenge2026_spacedrifters.SpaceDriftersApp
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.navigation.RutaConstantes
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.navigation.RutaDetalleSesion
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.constantes.ConstantesViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.navigation.RutaPerfilAstronauta
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.navigation.RutaResultadoPrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.oficial.OficialMedicoViewModel
@@ -55,6 +57,17 @@ object AppViewModelProvider {
                 retrasoMin = c.configMision.retrasoMisionMin,
                 fisiologico = c.fisiologicoRepository,
                 bienestar = c.bienestarRepository,
+                constantes = c.constantesRepository,
+            )
+        }
+        initializer {
+            val c = app().container
+            ConstantesViewModel(
+                c.constantesRepository,
+                c.tripulacionRepository,
+                astronautaId = createSavedStateHandle().toRoute<RutaConstantes>().astronautaId ?: c.astronautaActualId,
+                ambito = c.ambitoAplicacion,
+                retrasoMin = c.configMision.retrasoMisionMin,
             )
         }
         // Bienestar psicológico

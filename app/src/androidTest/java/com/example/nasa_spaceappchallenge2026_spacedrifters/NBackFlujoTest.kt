@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
@@ -30,7 +31,7 @@ class NBackFlujoTest {
     fun practica_pulsarEnElPrimerEstimuloEsFalsaAlarma() {
         compose.entrarComoAstronauta()
         // En "Pruebas de hoy" el segundo "Empezar" es el del N-Back.
-        compose.onAllNodesWithText(texto(R.string.empezar))[1].performClick()
+        compose.onAllNodesWithText(texto(R.string.empezar))[1].performScrollTo().performClick()
         // Primero consulta en Room si ya hizo la práctica (en segundo plano).
         compose.waitUntil(timeoutMillis = 3_000) {
             compose.onAllNodes(hasText(texto(R.string.nback_instrucciones))).fetchSemanticsNodes().isNotEmpty()

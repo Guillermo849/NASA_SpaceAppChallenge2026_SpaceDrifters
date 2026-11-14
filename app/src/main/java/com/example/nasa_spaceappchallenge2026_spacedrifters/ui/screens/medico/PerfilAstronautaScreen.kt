@@ -97,6 +97,8 @@ class AccionesPerfil(
 fun PerfilAstronautaScreen(
     onAtras: () -> Unit,
     onSesion: (Long) -> Unit,
+    /** "Añadir constantes" de este astronauta (pestaña Fisiológico). */
+    onConstantes: () -> Unit = {},
     viewModel: PerfilAstronautaViewModel = viewModel(factory = AppViewModelProvider.Factory),
     fisiologicoVm: FisiologicoMedicoViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
@@ -121,6 +123,7 @@ fun PerfilAstronautaScreen(
                     pedirPrueba = fisiologicoVm::pedirPrueba,
                     anadirIndicacion = fisiologicoVm::anadirIndicacion,
                     mensajeVisto = fisiologicoVm::mensajeVisto,
+                    anadirConstantes = onConstantes,
                 ),
             )
         },

@@ -28,6 +28,10 @@ data object RutaPruebaNBack
 @Serializable
 data object RutaRegistroDiario
 
+// Tomar constantes (FC, tensión, SpO2, FR). Sin id: el astronauta que ha iniciado sesión.
+@Serializable
+data class RutaConstantes(val astronautaId: Long? = null)
+
 // Bienestar psicológico: check-in y herramientas
 @Serializable
 data object RutaBienestar

@@ -54,6 +54,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDrifte
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.UltimasConstantes
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.etiquetaAnimo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.etiquetaIntensidad
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.nombreEjercicio
@@ -78,6 +79,7 @@ fun InicioAstronautaScreen(
     onRegistro: () -> Unit,
     onCerrarSesion: () -> Unit = {},
     onBienestar: () -> Unit = {},
+    onConstantes: () -> Unit = {},
     viewModel: InicioAstronautaViewModel = viewModel(factory = AppViewModelProvider.Factory),
     emergencia: EmergenciaViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
@@ -94,6 +96,7 @@ fun InicioAstronautaScreen(
         onAlarma = emergencia::activar,
         onCerrarSesion = onCerrarSesion,
         onBienestar = onBienestar,
+        onConstantes = onConstantes,
     )
 }
 
@@ -109,6 +112,7 @@ private fun PanelAstronautaContenido(
     onAlarma: (Set<String>) -> Unit = {},
     onCerrarSesion: () -> Unit = {},
     onBienestar: () -> Unit = {},
+    onConstantes: () -> Unit = {},
     ahora: Long = remember { System.currentTimeMillis() },
 ) {
     var periodo by rememberSaveable { mutableStateOf(Periodo.SEMANA) }
@@ -133,6 +137,7 @@ private fun PanelAstronautaContenido(
                 // Protocolos fisiológicos abiertos: arriba, el más grave primero.
                 protocolos.forEach { TarjetaProtocoloAstronauta(it) }
                 if (panel.avisos.isNotEmpty()) TarjetaAvisos(panel.avisos)
+                TarjetaConstantes(panel.constantes, onConstantes)
                 TarjetaRegistroHoy(panel.registroHoy, onRegistro)
                 TarjetaBienestar(panel.bienestarHoy, onBienestar)
                 TarjetaPruebasDeHoy(
@@ -342,6 +347,63 @@ private fun TarjetaRegistroHoy(registro: RegistroHoyUi?, onRegistro: () -> Unit)
                 OutlinedButton(onClick = onRegistro, modifier = Modifier.heightIn(min = 48.dp)) {
                     Text(stringResource(R.string.registro_editar))
                 }
+            }
+        }
+    }
+}
+
+// ---- Constantes ----
+
+@Composable
+private fun TarjetaConstantes(ultimas: UltimasConstantes?, onConstantes: () -> Unit) {
+    val sinDatos = stringResource(R.string.estado_sin_datos)
+    fun entero(v: Double?) = v?.let { Math.round(it).toString() }
+    Card(
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(text = stringResource(R.string.constantes_mis), style = MaterialTheme.typography.titleLarge)
+            if (ultimas == null) {
+                Text(
+                    text = stringResource(R.string.constantes_ninguna_aun),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                val cuando = Instant.ofEpochMilli(ultimas.instante).atZone(ZoneId.systemDefault())
+                    .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
+                Text(
+                    text = stringResource(R.string.constantes_ultima_toma, cuando),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.constante_fc),
+                    valor = entero(ultimas.fc)?.let { "$it ${stringResource(R.string.unidad_lpm)}" } ?: sinDatos,
+                )
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.constante_pa),
+                    valor = if (ultimas.pas != null || ultimas.pad != null) {
+                        "${ultimas.pas ?: "–"}/${ultimas.pad ?: "–"} ${stringResource(R.string.unidad_mmhg)}"
+                    } else {
+                        sinDatos
+                    },
+                )
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.constante_spo2),
+                    valor = entero(ultimas.spo2)?.let { "$it ${stringResource(R.string.unidad_porcentaje)}" } ?: sinDatos,
+                )
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.constante_fr),
+                    valor = entero(ultimas.fr)?.let { "$it ${stringResource(R.string.unidad_rpm)}" } ?: sinDatos,
+                )
+            }
+            Button(onClick = onConstantes, modifier = Modifier.heightIn(min = 48.dp)) {
+                Text(stringResource(R.string.constantes_tomar))
             }
         }
     }

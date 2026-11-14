@@ -6,6 +6,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigMi
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ReglasJson
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.BienestarRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.ConstantesRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo.CargadorDatosEjemplo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
@@ -135,6 +136,11 @@ class AppContainer(context: Context) {
             esperarDatos = { datosEjemplo.await() },
             analiticasNasa = ::analiticasNasaDe,
         )
+    }
+
+    /** Constantes introducidas a mano: se guardan, se evalúan frente a su base y abren protocolos. */
+    val constantesRepository: ConstantesRepository by lazy {
+        ConstantesRepository(database, umbrales, fisiologicoRepository, esperarDatos = { datosEjemplo.await() })
     }
 
     /**

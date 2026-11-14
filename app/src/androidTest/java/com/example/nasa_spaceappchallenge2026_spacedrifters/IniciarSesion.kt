@@ -15,8 +15,8 @@ import kotlinx.coroutines.withContext
 /** Entra en la app como médico (admin). */
 fun AndroidComposeTestRule<*, *>.entrarComoMedico() = entrar("admin", Role.ADMIN)
 
-/** Entra en la app como astronauta (Maya Okafor). */
-fun AndroidComposeTestRule<*, *>.entrarComoAstronauta() = entrar("maya.okafor", Role.ASTRONAUT)
+/** Entra en la app como astronauta (por defecto Maya Okafor; "ane.etxeberria", "leo.martin"...). */
+fun AndroidComposeTestRule<*, *>.entrarComoAstronauta(usuario: String = "maya.okafor") = entrar(usuario, Role.ASTRONAUT)
 
 /**
  * Rellena el login y pulsa "Entrar". Si la base de datos está vacía (BaseDeDatosLimpia) crea antes
