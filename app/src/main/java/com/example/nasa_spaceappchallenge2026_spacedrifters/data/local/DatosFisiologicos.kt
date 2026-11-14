@@ -28,6 +28,8 @@ enum class TipoPruebaClinica {
     DIMERO_D,
     HEMOGRAMA,
     COAGULACION,
+    /** Bioquímica (panel metabólico): con datos reales de NASA LSDS-8. */
+    BIOQUIMICA,
     /** Repetir FC, PA, SpO2 y FR tras un reposo (el tiempo lo indica la acción del protocolo). */
     REPETICION_CONSTANTES,
 }

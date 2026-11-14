@@ -40,9 +40,11 @@ import java.util.concurrent.Executors
  * Pruebas cognitivas (Stroop, N-Back): tablas sesion_prueba, ensayo_stroop, ensayo_nback,
  * resumen_sesion y linea_base_cognitiva (DatosCognitivos.kt, CognitivoDao). Guardan cada ensayo,
  * el retraso con la Tierra (llegaTierraEn), la línea base y el estado frente a ella.
- * Registro diario (sueño, somnolencia, síntomas): registro_diario (DatosTripulacion.kt).
+ * Registro diario (sueño, somnolencia, síntomas, hidratación, nutrición, ejercicio):
+ * registro_diario (DatosTripulacion.kt).
  * Fisiológico (protocolos de decisión): protocolo_activo, evento_protocolo, prueba_clinica y
  * balance_hidrico (DatosFisiologicos.kt, FisiologicoDao).
+ * Bienestar psicológico: bienestar_diario y actividad_bienestar (DatosBienestar.kt, BienestarDao).
  * Esas tablas usan astronautaId = astronaut.id.
  *
  * Prototipo: no hay migraciones. Si cambias una entidad, sube `version` y Room borra y
@@ -78,8 +80,11 @@ import java.util.concurrent.Executors
         EventoProtocolo::class,
         PruebaClinica::class,
         BalanceHidrico::class,
+        // Bienestar psicológico: check-in diario y herramientas usadas
+        BienestarDiario::class,
+        ActividadBienestar::class,
     ],
-    version = 6,
+    version = 8,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -101,6 +106,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun alertasDao(): AlertasDao
     abstract fun medicoDao(): MedicoDao
     abstract fun fisiologicoDao(): FisiologicoDao
+    abstract fun bienestarDao(): BienestarDao
 
     companion object {
         /** Hilos para escribir en la base de datos fuera del hilo principal (código Java del equipo). */

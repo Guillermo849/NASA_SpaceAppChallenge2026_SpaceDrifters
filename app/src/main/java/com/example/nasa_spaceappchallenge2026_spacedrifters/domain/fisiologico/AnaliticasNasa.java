@@ -1,6 +1,7 @@
 package com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -9,23 +10,33 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Hemogramas reales de NASA (Open Science Data Repository, estudio LSDS-7, archivo
- * assets/LSDS-7_Complete_Blood_Count_CBC_TRANSFORMED.csv): 4 tripulantes (C001–C004) con muestras
- * antes del vuelo (L-92, L-44, L-3) y tras el regreso (R+1, R+45, R+82, R+194).
+ * Analíticas reales de NASA (Open Science Data Repository, misión SpaceX Inspiration4): 4
+ * tripulantes (C001–C004) con muestras antes del vuelo (L-92, L-44, L-3) y tras el regreso (R+1,
+ * R+45, R+82, R+194).
+ * <ul>
+ *   <li>Hemograma: LSDS-7 (OSD-569), assets/LSDS-7_Complete_Blood_Count_CBC_TRANSFORMED.csv,
+ *       muestras "C002_whole-blood_R+82_cbc".</li>
+ *   <li>Bioquímica (panel metabólico completo): LSDS-8 (OSD-575),
+ *       assets/LSDS-8_Comprehensive_Metabolic_Panel_CMP_TRANSFORMED.csv, muestras "C002_serum_R+82".</li>
+ * </ul>
+ * Formato: una fila por muestra y, por cada parámetro, tres columnas: {@code <parámetro>_value[_<unidad>]},
+ * {@code <parámetro>_range_min[_<unidad>]} y {@code <parámetro>_range_max[_<unidad>]} (en LSDS-8 algunas
+ * se llaman {@code <parámetro>_max_<unidad>}). Los cocientes no llevan unidad.
  * <p>
- * Formato: una fila por muestra ("C002_whole-blood_R+82_cbc") y, por cada parámetro, tres columnas:
- * {@code <parámetro>_value_<unidad>}, {@code <parámetro>_range_min_<unidad>} y
- * {@code <parámetro>_range_max_<unidad>}. Un parámetro está fuera de rango si su valor queda por
- * debajo del mínimo o por encima del máximo de esa misma fila.
+ * Un parámetro está fuera de rango si su valor queda por debajo del mínimo o por encima del máximo de
+ * esa misma fila. Un límite "N/A" es un rango abierto (el eGFR no tiene máximo). Un valor vacío o "NA"
+ * es "sin dato", nunca "normal".
  */
-public final class HemogramasNasa {
+public final class AnaliticasNasa {
 
-    private static final Pattern COLUMNA_VALOR = Pattern.compile("^(.+)_value_(.+)$");
-    private static final Pattern MUESTRA = Pattern.compile("^(C\\d+)_whole-blood_([LR])([+-]\\d+)_cbc$");
+    private static final Pattern COLUMNA_VALOR = Pattern.compile("^(.+)_value(?:_(.+))?$");
+    private static final Pattern MUESTRA = Pattern.compile("^(C\\d+)_[a-z-]+_([LR])([+-]\\d+)(?:_[a-z]+)?$");
+    /** Límite de rango sin valor: rango abierto por ese lado. */
+    private static final String SIN_LIMITE = "N/A";
 
-    private HemogramasNasa() {}
+    private AnaliticasNasa() {}
 
-    /** Un parámetro de un hemograma con su rango de referencia. */
+    /** Un parámetro de una analítica con su rango de referencia. */
     public static final class Parametro {
         private final String codigo;
         private final String unidad;
@@ -33,6 +44,7 @@ public final class HemogramasNasa {
         private final double minimo;
         private final double maximo;
 
+        /** Sin mínimo: Double.NEGATIVE_INFINITY; sin máximo: Double.POSITIVE_INFINITY. */
         public Parametro(String codigo, String unidad, double valor, double minimo, double maximo) {
             this.codigo = Objects.requireNonNull(codigo);
             this.unidad = Objects.requireNonNull(unidad);
@@ -41,20 +53,22 @@ public final class HemogramasNasa {
             this.maximo = maximo;
         }
 
-        /** Nombre de la columna sin "_value_…", p. ej. "hemoglobin" o "platelet_count". */
+        /** Nombre de la columna sin "_value…", p. ej. "hemoglobin" o "bun_to_creatinine_ratio". */
         public String getCodigo() { return codigo; }
-        /** Unidad tal y como viene en el archivo, p. ej. "cells_per_microliter". */
+        /** Unidad tal y como viene en el archivo, p. ej. "cells_per_microliter"; vacía en los cocientes. */
         public String getUnidad() { return unidad; }
         public double getValor() { return valor; }
         public double getMinimo() { return minimo; }
         public double getMaximo() { return maximo; }
+        public boolean hasMinimo() { return !Double.isInfinite(minimo); }
+        public boolean hasMaximo() { return !Double.isInfinite(maximo); }
 
         public boolean isBajo() { return valor < minimo; }
         public boolean isAlto() { return valor > maximo; }
         public boolean isFueraDeRango() { return isBajo() || isAlto(); }
     }
 
-    /** Una muestra de sangre de un tripulante. */
+    /** Una muestra (de sangre o de suero) de un tripulante. */
     public static final class Muestra {
         private final String nombre;
         private final String tripulante;
@@ -73,7 +87,7 @@ public final class HemogramasNasa {
             this.sinDato = Collections.unmodifiableList(new ArrayList<>(sinDato));
         }
 
-        /** Nombre de la muestra en el archivo, p. ej. "C002_whole-blood_R+82_cbc". */
+        /** Nombre de la muestra en el archivo, p. ej. "C002_whole-blood_R+82_cbc" o "C002_serum_R+82". */
         public String getNombre() { return nombre; }
         /** Código del tripulante, p. ej. "C002". */
         public String getTripulante() { return tripulante; }
@@ -84,7 +98,7 @@ public final class HemogramasNasa {
         /** "L-3", "R+82"... */
         public String getMomento() { return (antesDelVuelo ? "L-" : "R+") + dias; }
         public List<Parametro> getParametros() { return parametros; }
-        /** Parámetros que esta muestra no trae (casilla vacía en el archivo): "Sin dato", nunca "normal". */
+        /** Parámetros que esta muestra no trae (casilla vacía o "NA"): "Sin dato", nunca "normal". */
         public List<String> getSinDato() { return sinDato; }
 
         public List<Parametro> fueraDeRango() {
@@ -93,11 +107,25 @@ public final class HemogramasNasa {
             return fuera;
         }
 
+        /** El parámetro con ese código, o null si la muestra no lo trae. */
+        public Parametro parametro(String codigo) {
+            for (Parametro p : parametros) if (p.codigo.equals(codigo)) return p;
+            return null;
+        }
+
         public boolean isAlterado() { return !fueraDeRango().isEmpty(); }
     }
 
     /** Lee todas las muestras del CSV (admite BOM y finales de línea \r\n). */
     public static List<Muestra> leer(String csv) {
+        return leer(csv, Collections.<String>emptyList());
+    }
+
+    /**
+     * @param excluir códigos de parámetro que no se leen (p. ej. el eGFR, que en LSDS-8 se calcula con
+     *                una fórmula basada en la raza y sale de la creatinina, que ya se muestra)
+     */
+    public static List<Muestra> leer(String csv, Collection<String> excluir) {
         String texto = csv.startsWith("﻿") ? csv.substring(1) : csv;
         String[] lineas = texto.split("\r?\n");
         if (lineas.length < 2) return Collections.emptyList();
@@ -109,9 +137,12 @@ public final class HemogramasNasa {
             Matcher m = COLUMNA_VALOR.matcher(cabecera[i].trim());
             if (!m.matches()) continue;
             String codigo = m.group(1);
-            String unidad = m.group(2);
-            int min = indice(cabecera, codigo + "_range_min_" + unidad);
-            int max = indice(cabecera, codigo + "_range_max_" + unidad);
+            if (excluir.contains(codigo)) continue;
+            String unidad = m.group(2) == null ? "" : m.group(2);
+            String sufijo = unidad.isEmpty() ? "" : "_" + unidad;
+            int min = indice(cabecera, codigo + "_range_min" + sufijo);
+            int max = indice(cabecera, codigo + "_range_max" + sufijo);
+            if (max < 0) max = indice(cabecera, codigo + "_max" + sufijo);
             if (min < 0 || max < 0) continue;
             columnas.add(new int[] {i, min, max});
             nombres.add(new String[] {codigo, unidad});
@@ -128,8 +159,8 @@ public final class HemogramasNasa {
             for (int c = 0; c < columnas.size(); c++) {
                 int[] col = columnas.get(c);
                 Double valor = numero(celdas, col[0]);
-                Double min = numero(celdas, col[1]);
-                Double max = numero(celdas, col[2]);
+                Double min = limite(celdas, col[1], Double.NEGATIVE_INFINITY);
+                Double max = limite(celdas, col[2], Double.POSITIVE_INFINITY);
                 if (valor == null || min == null || max == null) {
                     sinDato.add(nombres.get(c)[0]);
                     continue;
@@ -167,5 +198,11 @@ public final class HemogramasNasa {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    /** Un límite de rango: número, "N/A" (= sin límite por ese lado) o null si falta. */
+    private static Double limite(String[] celdas, int i, double sinLimite) {
+        if (i < celdas.length && SIN_LIMITE.equals(celdas[i].trim())) return sinLimite;
+        return numero(celdas, i);
     }
 }

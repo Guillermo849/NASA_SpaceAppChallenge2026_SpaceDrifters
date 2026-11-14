@@ -26,11 +26,26 @@ public final class UmbralesFisiologicos {
      *                    (p. ej. VS y GC antes del primer ecocardio)
      */
     public UmbralesFisiologicos(List<Umbral> umbrales, Map<String, Double> referencias) {
-        this.umbrales = Collections.unmodifiableList(new ArrayList<>(umbrales));
-        this.referencias = Collections.unmodifiableMap(new HashMap<>(referencias));
+        this(umbrales, referencias, Collections.<String>emptyList());
     }
 
+    /**
+     * @param indicanDeshidratacion parámetros de la bioquímica (códigos de LSDS-8) que, por encima de
+     *                              su rango, indican deshidratación (BUN/creatinina, urea, sodio)
+     */
+    public UmbralesFisiologicos(List<Umbral> umbrales, Map<String, Double> referencias,
+                                List<String> indicanDeshidratacion) {
+        this.umbrales = Collections.unmodifiableList(new ArrayList<>(umbrales));
+        this.referencias = Collections.unmodifiableMap(new HashMap<>(referencias));
+        this.indicanDeshidratacion = Collections.unmodifiableList(new ArrayList<>(indicanDeshidratacion));
+    }
+
+    private final List<String> indicanDeshidratacion;
+
     public List<Umbral> getUmbrales() { return umbrales; }
+
+    /** Parámetros de la bioquímica que, altos, indican deshidratación (config_umbrales.json). */
+    public List<String> getIndicanDeshidratacion() { return indicanDeshidratacion; }
 
     /** Valor de referencia de una métrica (config_umbrales.json, "referencias"), o null. */
     public Double referencia(String metrica) { return referencias.get(metrica); }

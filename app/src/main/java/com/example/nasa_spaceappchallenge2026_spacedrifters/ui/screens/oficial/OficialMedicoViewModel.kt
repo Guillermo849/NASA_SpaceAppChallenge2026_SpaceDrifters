@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.ProtocoloEnCurso
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.PruebaParaResultado
-import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.HemogramasNasa
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.AnaliticasNasa
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPruebaClinica
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.guardarEnSegundoPlano
@@ -54,9 +54,12 @@ class ResultadoPruebaViewModel(
     fun guardarOpcion(tipo: TipoPruebaClinica, opcion: String) =
         guardar(InterpretePruebas.resultadoCerrado(tipo.name, opcion))
 
-    /** Guarda como resultado un hemograma real de NASA (Normal o Alterado según sus rangos). */
-    fun guardarHemogramaNasa(muestra: HemogramasNasa.Muestra) =
-        guardar(InterpretePruebas.resultadoHemograma(muestra))
+    /**
+     * Guarda como resultado una analítica real de NASA: hemograma (Normal o Alterado) o bioquímica
+     * (Normal, Deshidratación u Otra alteración), según sus rangos.
+     */
+    fun guardarAnaliticaNasa(tipo: TipoPruebaClinica, muestra: AnaliticasNasa.Muestra) =
+        guardar(repositorio.resultadoAnaliticaNasa(tipo, muestra))
 
     /** Guarda el ecocardio. */
     fun guardarEcocardio(vsMl: Double, gcLmin: Double) =

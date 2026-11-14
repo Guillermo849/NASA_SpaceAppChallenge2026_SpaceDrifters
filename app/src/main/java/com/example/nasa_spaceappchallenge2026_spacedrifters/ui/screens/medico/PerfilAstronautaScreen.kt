@@ -53,6 +53,10 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.DatoNoche
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.DatoAgua
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.DatoBienestar
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.etiquetaAnimo
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.etiquetaIntensidad
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.DatoSesion
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.ExplicacionAlerta
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.UmbralRegla
@@ -360,8 +364,11 @@ private fun TarjetaAlerta(a: AlertaMedicoUi, acciones: AccionesPerfil) {
             )
             a.explicacion?.let { PorQueHaSaltado(a.reglaId, it) }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp)) {
-                OutlinedButton(onClick = { acciones.pedirOtraPrueba(a.id) }, modifier = Modifier.heightIn(min = 48.dp)) {
-                    Text(stringResource(R.string.medico_pedir_otra_prueba))
+                // Solo si la alerta viene de una prueba cognitiva (la de hidratación no tiene prueba que repetir).
+                if (a.explicacion?.sesiones?.isNotEmpty() != false) {
+                    OutlinedButton(onClick = { acciones.pedirOtraPrueba(a.id) }, modifier = Modifier.heightIn(min = 48.dp)) {
+                        Text(stringResource(R.string.medico_pedir_otra_prueba))
+                    }
                 }
                 Button(onClick = { acciones.confirmarAlerta(a.id) }, modifier = Modifier.heightIn(min = 48.dp)) {
                     Text(stringResource(R.string.medico_confirmar))
@@ -393,6 +400,10 @@ private fun PorQueHaSaltado(reglaId: String, e: ExplicacionAlerta) {
             )
         }
         if (e.sintomas.isNotEmpty()) LineaPorQue(R.string.medico_por_que_dato, nombresSintomas(e.sintomas))
+        if (e.agua.isNotEmpty()) {
+            LineaPorQue(R.string.medico_por_que_dato, e.agua.map { textoAgua(it) }.joinToString("; "))
+        }
+        e.bienestar.forEach { LineaPorQue(R.string.medico_por_que_dato, textoBienestar(it)) }
         LineaPorQue(R.string.medico_por_que_fuente, e.fuentes.map { nombreFuente(it) }.joinToString(", "))
     }
 }
@@ -409,7 +420,18 @@ private fun textoUmbral(u: UmbralRegla): String {
         .joinToString(stringResource(R.string.medico_o))
     return buildList {
         if (u.sesionesSeguidas > 0) add(pluralStringResource(R.plurals.medico_umbral_seguidas, u.sesionesSeguidas, u.sesionesSeguidas, estados))
-        else add(stringResource(R.string.medico_umbral_estado, estados))
+        else if (estados.isNotEmpty()) add(stringResource(R.string.medico_umbral_estado, estados))
+        if (u.diasSeguidos > 0 && (u.animoMax != null || u.estresMin != null || u.aislamientoMin != null)) {
+            val partes = listOfNotNull(
+                u.animoMax?.let { stringResource(R.string.medico_umbral_animo, it) },
+                u.estresMin?.let { stringResource(R.string.medico_umbral_estres, it) },
+                u.aislamientoMin?.let { stringResource(R.string.medico_umbral_aislamiento, it) },
+            ).joinToString(stringResource(R.string.medico_o))
+            add(pluralStringResource(R.plurals.medico_umbral_bienestar, u.diasSeguidos, u.diasSeguidos, partes))
+        }
+        if (u.aguaMinLitros != null && u.diasSeguidos > 0) {
+            add(pluralStringResource(R.plurals.medico_umbral_agua, u.diasSeguidos, u.diasSeguidos, numero(u.aguaMinLitros, 2)))
+        }
         if (u.nochesBajoBase > 0) add(pluralStringResource(R.plurals.medico_umbral_noches, u.nochesBajoBase, u.nochesBajoBase))
         if (u.sintomas.isNotEmpty()) add(stringResource(R.string.medico_umbral_sintomas, nombresSintomas(u.sintomas)))
     }.joinToString(" + ")
@@ -432,6 +454,23 @@ private fun textoNoche(n: DatoNoche): String =
     "${fechaIso(n.fecha)}: ${n.horas?.let { stringResource(R.string.registro_horas, numero(it, 1)) } ?: stringResource(R.string.estado_sin_datos)}"
 
 @Composable
+private fun textoBienestar(d: DatoBienestar): String {
+    val sinDatos = stringResource(R.string.estado_sin_datos)
+    return "${fechaIso(d.fecha)}: " + listOf(
+        stringResource(R.string.bienestar_dato_animo) + " " +
+            (d.animo?.let { "$it/5 (${stringResource(etiquetaAnimo(it))})" } ?: sinDatos),
+        stringResource(R.string.bienestar_dato_estres) + " " +
+            (d.estres?.let { "$it/5 (${stringResource(etiquetaIntensidad(it))})" } ?: sinDatos),
+        stringResource(R.string.bienestar_dato_aislamiento) + " " +
+            (d.aislamiento?.let { "$it/5 (${stringResource(etiquetaIntensidad(it))})" } ?: sinDatos),
+    ).joinToString(" · ")
+}
+
+@Composable
+private fun textoAgua(d: DatoAgua): String =
+    "${fechaIso(d.fecha)}: ${d.litros?.let { stringResource(R.string.registro_litros, numero(it, 2)) } ?: stringResource(R.string.estado_sin_datos)}"
+
+@Composable
 private fun nombresSintomas(codigos: List<String>): String =
     codigos.mapNotNull { c -> Sintoma.entries.firstOrNull { it.name == c } }.map { stringResource(nombreSintoma(it)) }.joinToString(", ")
 
@@ -440,6 +479,7 @@ private fun nombreFuente(codigo: String): String = when (codigo) {
     TipoPrueba.STROOP.name -> stringResource(R.string.stroop_nombre)
     TipoPrueba.NBACK.name -> stringResource(R.string.nback_nombre)
     AlertasRepository.FUENTE_REGISTRO -> stringResource(R.string.medico_fuente_registro)
+    AlertasRepository.FUENTE_BIENESTAR -> stringResource(R.string.medico_fuente_bienestar)
     else -> codigo
 }
 
@@ -452,6 +492,9 @@ private fun tituloReglaMedico(reglaId: String): Int = when (reglaId) {
     "nback-tendencia" -> R.string.medico_regla_nback_tendencia
     "fatiga-cognitiva-combinada" -> R.string.medico_regla_fatiga
     "concentracion-sintomas" -> R.string.medico_regla_concentracion
+    "hidratacion-baja" -> R.string.medico_regla_hidratacion
+    "bienestar-bajo" -> R.string.medico_regla_bienestar
+    AlertasRepository.REGLA_SOLICITUD_APOYO -> R.string.medico_regla_solicitud_apoyo
     else -> R.string.regla_generica
 }
 
@@ -570,6 +613,12 @@ private fun FilaSesion(f: FilaSesionUi, onClick: () -> Unit) {
                 stringResource(R.string.medico_aciertos, f.aciertos?.let { numero(it, 0) } ?: "–"),
                 stringResource(if (f.valida) R.string.medico_valida_si else R.string.medico_valida_no),
                 stringResource(R.string.medico_sueno_kss, f.horasSueno?.let { numero(it, 1) } ?: "–", f.somnolencia?.toString() ?: "–"),
+                stringResource(
+                    R.string.medico_habitos,
+                    f.aguaLitros?.let { numero(it, 2) } ?: "–",
+                    f.ingesta?.toString() ?: "–",
+                    f.ejercicioMinutos?.toString() ?: "–",
+                ),
             ).joinToString(" · "),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -600,7 +649,7 @@ private fun PerfilPreview() {
                     PruebaMedicoUi(TipoPrueba.NBACK, ahora, 2.24, EstadoCognitivo.ALERTA, Tendencia.Sentido.EMPEORANDO, 2.88, 0.29, puntos),
                 ),
                 alertas = listOf(AlertaMedicoUi(1, "nback-tendencia", Regla.Prioridad.HOY, ahora, null)),
-                sesiones = listOf(FilaSesionUi(1, TipoPrueba.NBACK, ahora, 2.24, 75.0, EstadoCognitivo.ALERTA, true, false, 5.0, 8)),
+                sesiones = listOf(FilaSesionUi(1, TipoPrueba.NBACK, ahora, 2.24, 75.0, EstadoCognitivo.ALERTA, true, false, 5.0, 8, 1.25, 50, 30)),
             ),
             mensaje = null,
             onAtras = {},

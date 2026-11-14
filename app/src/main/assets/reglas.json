@@ -1,5 +1,5 @@
 {
-  "_comentario": "Reglas de alerta. tipo: TENDENCIA (N sesiones válidas seguidas en esos estados), PRUEBA_Y_SUENO (última sesión en esos estados + N noches seguidas durmiendo menos de lo habitual), PRUEBA_Y_SINTOMAS (sesión de hoy en esos estados + alguno de esos síntomas en el registro de hoy). pasos: códigos con su texto en strings.xml (paso_*); sin pasos, el astronauta solo ve que se ha enviado a su médico. asignarA: cargo del tripulante que la recibe a bordo.",
+  "_comentario": "Reglas de alerta. tipo: TENDENCIA (N sesiones válidas seguidas en esos estados), PRUEBA_Y_SUENO (última sesión en esos estados + N noches seguidas durmiendo menos de lo habitual), PRUEBA_Y_SINTOMAS (sesión de hoy en esos estados + alguno de esos síntomas en el registro de hoy), HIDRATACION_BAJA (diasSeguidos registros diarios seguidos, hoy incluido, con menos de aguaMinLitros de líquido anotado; un día sin anotar no la dispara), BIENESTAR_BAJO (diasSeguidos check-ins de bienestar seguidos, hoy incluido, con ánimo ≤ animoMax, estrés ≥ estresMin o aislamiento ≥ aislamientoMin; escalas 1–5; un día sin check-in no la dispara). pasos: códigos con su texto en strings.xml (paso_*); sin pasos, el astronauta solo ve que se ha enviado a su médico. asignarA: cargo del tripulante que la recibe a bordo.",
   "reglas": [
     {
       "id": "stroop-tendencia",
@@ -37,6 +37,24 @@
       "prioridad": "AHORA",
       "pasos": [],
       "asignarA": "OFICIAL_MEDICO"
+    },
+    {
+      "id": "hidratacion-baja",
+      "tipo": "HIDRATACION_BAJA",
+      "diasSeguidos": 2,
+      "aguaMinLitros": 1.5,
+      "prioridad": "HOY",
+      "pasos": ["BEBER_MAS_LIQUIDO", "VIGILAR_MAREO"]
+    },
+    {
+      "id": "bienestar-bajo",
+      "tipo": "BIENESTAR_BAJO",
+      "diasSeguidos": 2,
+      "animoMax": 2,
+      "estresMin": 4,
+      "aislamientoMin": 4,
+      "prioridad": "HOY",
+      "pasos": ["HABLAR_APOYO_PSICOLOGICO", "PROBAR_RESPIRACION"]
     }
   ]
 }

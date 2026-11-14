@@ -5,6 +5,13 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.Con
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
+/** Objetivos diarios del registro (hidratación y ejercicio). */
+@Serializable
+data class ObjetivosDiarios(
+    val aguaLitros: Double = 2.0,
+    val ejercicioMinutos: Int = 120,
+)
+
 /** Contenido de assets/config_mision.json. Cambiar los umbrales o el retraso no requiere tocar código. */
 @Serializable
 data class ConfigMision(
@@ -12,8 +19,11 @@ data class ConfigMision(
     val umbralVigilarDesviaciones: Double = 1.0,
     val umbralAlertaDesviaciones: Double = 2.0,
     val minSesionesLineaBase: Int = 3,
-    /** astronaut.id → tripulante de NASA LSDS-7 ("C002") cuyos hemogramas reales se usan en la demo. */
-    val hemogramaNasa: Map<String, String> = emptyMap(),
+    /** astronaut.id → tripulante de Inspiration4 ("C002") cuyas analíticas reales (LSDS-7, LSDS-8) se usan en la demo. */
+    val tripulanteNasa: Map<String, String> = emptyMap(),
+    /** Parámetros de las analíticas de NASA que no se leen (ver config_mision.json). */
+    val parametrosNasaExcluidos: List<String> = emptyList(),
+    val objetivosDiarios: ObjetivosDiarios = ObjetivosDiarios(),
 ) {
     fun aConfigCognitiva() = ConfigCognitiva(
         retrasoMisionMin * 60_000L,

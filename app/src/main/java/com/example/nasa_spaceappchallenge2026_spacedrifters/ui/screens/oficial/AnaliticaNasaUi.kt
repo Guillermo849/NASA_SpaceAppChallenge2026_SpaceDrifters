@@ -25,33 +25,40 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.nasa_spaceappchallenge2026_spacedrifters.R
-import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.HemogramasNasa
-import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreParametroHemograma
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPruebaClinica
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.AnaliticasNasa
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreParametroAnalitica
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.numero
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.textoDe
-import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.unidadHemograma
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.unidadAnalitica
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.LocalEstadoColores
 
 /** "Antes del vuelo · 3 días" / "Tras el regreso · 82 días". */
 @Composable
-fun momentoMuestra(m: HemogramasNasa.Muestra): String = pluralStringResource(
+fun momentoMuestra(m: AnaliticasNasa.Muestra): String = pluralStringResource(
     if (m.isAntesDelVuelo) R.plurals.hemo_antes else R.plurals.hemo_despues,
     m.dias,
     m.dias,
 )
 
 /**
- * Hemogramas reales de NASA (OSDR, LSDS-7) del tripulante que corresponde a este astronauta: se
- * elige una muestra, se ve su tabla con lo que sale de rango y se guarda como resultado.
+ * Analíticas reales de NASA (OSDR, misión Inspiration4) del tripulante que corresponde a este
+ * astronauta: hemograma (LSDS-7) o bioquímica (LSDS-8). Se elige una muestra, se ve su tabla con lo
+ * que sale de rango y se guarda como resultado.
  */
 @Composable
-fun HemogramaNasa(muestras: List<HemogramasNasa.Muestra>, onUsar: (HemogramasNasa.Muestra) -> Unit) {
+fun AnaliticaNasa(
+    tipo: TipoPruebaClinica,
+    muestras: List<AnaliticasNasa.Muestra>,
+    onUsar: (AnaliticasNasa.Muestra) -> Unit,
+) {
     // Por defecto, la primera tras el regreso (la más cercana al vuelo).
     val porDefecto = muestras.indexOfFirst { !it.isAntesDelVuelo }.takeIf { it >= 0 } ?: 0
     var elegida by rememberSaveable { mutableIntStateOf(porDefecto) }
     val muestra = muestras.getOrNull(elegida) ?: return
     val alerta = LocalEstadoColores.current.alerta
     val normal = LocalEstadoColores.current.normal
+    val bioquimica = tipo == TipoPruebaClinica.BIOQUIMICA
 
     Column(
         modifier = Modifier
@@ -60,9 +67,12 @@ fun HemogramaNasa(muestras: List<HemogramasNasa.Muestra>, onUsar: (HemogramasNas
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Text(stringResource(R.string.hemo_titulo), style = MaterialTheme.typography.titleMedium)
         Text(
-            stringResource(R.string.hemo_explicacion, muestra.tripulante),
+            stringResource(if (bioquimica) R.string.bq_titulo else R.string.hemo_titulo),
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Text(
+            stringResource(if (bioquimica) R.string.bq_explicacion else R.string.hemo_explicacion, muestra.tripulante),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -90,16 +100,16 @@ fun HemogramaNasa(muestras: List<HemogramasNasa.Muestra>, onUsar: (HemogramasNas
 
         HorizontalDivider()
         muestra.parametros.forEach { p ->
-            val unidad = stringResource(unidadHemograma(p.codigo, p.unidad))
+            val unidad = stringResource(unidadAnalitica(p.codigo, p.unidad))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    textoDe(nombreParametroHemograma(p.codigo), p.codigo),
+                    textoDe(nombreParametroAnalitica(p.codigo), p.codigo),
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.weight(1f),
                 )
                 Column(Modifier.weight(1f)) {
                     Text(
-                        "${numero(p.valor, decimales(p.valor))} $unidad" + when {
+                        "${numero(p.valor, decimales(p.valor))} $unidad".trim() + when {
                             p.isBajo -> " · " + stringResource(R.string.hemo_bajo)
                             p.isAlto -> " · " + stringResource(R.string.hemo_alto)
                             else -> ""
@@ -108,7 +118,7 @@ fun HemogramaNasa(muestras: List<HemogramasNasa.Muestra>, onUsar: (HemogramasNas
                         color = if (p.isFueraDeRango) alerta else MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        stringResource(R.string.hemo_rango, numero(p.minimo, decimales(p.minimo)), numero(p.maximo, decimales(p.maximo))),
+                        textoRango(p),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -117,15 +127,25 @@ fun HemogramaNasa(muestras: List<HemogramasNasa.Muestra>, onUsar: (HemogramasNas
         }
         if (muestra.sinDato.isNotEmpty()) {
             Text(
-                stringResource(R.string.hemo_sin_dato, muestra.sinDato.map { textoDe(nombreParametroHemograma(it), it) }.joinToString(", ")),
+                stringResource(R.string.hemo_sin_dato, muestra.sinDato.map { textoDe(nombreParametroAnalitica(it), it) }.joinToString(", ")),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         Button(onClick = { onUsar(muestra) }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
-            Text(stringResource(R.string.hemo_usar))
+            Text(stringResource(if (bioquimica) R.string.bq_usar else R.string.hemo_usar))
         }
     }
+}
+
+/** "Rango 3,6–5,1", o "≥ 60" / "≤ 1,2" si el rango es abierto por un lado. */
+@Composable
+private fun textoRango(p: AnaliticasNasa.Parametro): String = when {
+    p.hasMinimo() && p.hasMaximo() ->
+        stringResource(R.string.hemo_rango, numero(p.minimo, decimales(p.minimo)), numero(p.maximo, decimales(p.maximo)))
+    p.hasMinimo() -> stringResource(R.string.bq_rango_min, numero(p.minimo, decimales(p.minimo)))
+    p.hasMaximo() -> stringResource(R.string.bq_rango_max, numero(p.maximo, decimales(p.maximo)))
+    else -> ""
 }
 
 /** Decimales para mostrar un valor del archivo tal cual (11.5 → 1, 2667 → 0). */

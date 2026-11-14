@@ -1,5 +1,5 @@
 {
-  "_comentario": "Datos simulados. constantes: FC (lpm), PAS/PAD (mmHg), SPO2 (%), FR (rpm); base = su valor habitual y dias = día de misión con otro valor (4 medidas al día con algo de ruido). Se cargan al primer arranque (base de datos vacía). Día 14 = hoy. stroopZ / nbackZ = desviaciones respecto a su media, positivo = peor (Stroop más lento, d' más baja). Los ensayos se generan a partir de esto.",
+  "_comentario": "Datos simulados. constantes: FC (lpm), PAS/PAD (mmHg), SPO2 (%), FR (rpm); base = su valor habitual y dias = día de misión con otro valor (4 medidas al día con algo de ruido). Se cargan al primer arranque (base de datos vacía). Día 14 = hoy. stroopZ / nbackZ = desviaciones respecto a su media, positivo = peor (Stroop más lento, d' más baja). Los ensayos se generan a partir de esto. aguaLitros, ingesta (% del menú) y ejercicioMinutos: hábitos del día anterior anotados en el registro de cada día; null = sin anotar; vacío = sin datos. bienestar: check-in psicológico de cada día (escalas 1–5: animo 1 = muy bajo; estres y aislamiento 1 = nada, 5 = mucho).",
   "diasMision": 14,
   "tripulacion": [
     {
@@ -16,6 +16,14 @@
       "horasSueno": [7.6, 7.3, 7.8, 7.2, 7.5, 7.4, 7.7, 7.1, 7.3, 7.0, 6.4, 5.2, 4.8, 5.0],
       "somnolencia": [3, 3, 2, 4, 3, 3, 2, 4, 3, 4, 5, 7, 7, 8],
       "sintomas": { "13": ["FATIGA"], "14": ["FATIGA"] },
+      "aguaLitros": [2.25, 2.0, 2.25, 2.0, 2.25, 2.0, 2.5, 2.0, 2.25, 2.0, 1.75, 1.5, 1.25, 1.0],
+      "ingesta": [100, 100, 75, 100, 100, 100, 100, 75, 100, 100, 75, 75, 50, 50],
+      "ejercicioMinutos": [120, 135, 120, 120, 150, 120, 120, 135, 120, 120, 90, 60, 45, 30],
+      "bienestar": {
+        "animo": [4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3],
+        "estres": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3],
+        "aislamiento": [1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+      },
       "constantes": {
         "base": { "FC": 62, "PAS": 118, "PAD": 76, "SPO2": 98, "FR": 14 },
         "dias": { "13": { "FC": 88, "PAS": 102, "PAD": 68 }, "14": { "FC": 96, "PAS": 94, "PAD": 62 } }
@@ -34,6 +42,14 @@
       "horasSueno": [7.1, 6.9, 7.2, 7.0, 6.8, 7.3, 7.0, 6.9, 7.1, 7.2, 6.8, 7.0, 6.9, 6.6],
       "somnolencia": [3, 3, 3, 2, 3, 3, 3, 3, 2, 3, 3, 3, 4, 5],
       "sintomas": { "14": ["DOLOR_CABEZA"] },
+      "aguaLitros": [2.0, 2.25, 2.0, 2.0, 2.25, 2.0, 2.0, 2.25, 2.0, 2.0, 2.0, 1.75, 1.75, 1.5],
+      "ingesta": [100, 100, 100, 100, 75, 100, 100, 100, 100, 100, 100, 100, 75, 75],
+      "ejercicioMinutos": [120, 120, 135, 120, 120, 120, 135, 120, 120, 120, 120, 120, 105, 90],
+      "bienestar": {
+        "animo": [4, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 3],
+        "estres": [2, 2, 2, 3, 2, 2, 2, 2, 2, 3, 2, 2, 3, 4],
+        "aislamiento": [1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+      },
       "constantes": { "base": { "FC": 66, "PAS": 122, "PAD": 80, "SPO2": 98, "FR": 15 } }
     },
     {
@@ -49,6 +65,14 @@
       "horasSueno": [7.4, 7.6, 7.5, 7.8, 7.3, 7.5, 7.7, 7.4, 7.6, 7.5, 7.2, 7.6, 7.5, 7.4],
       "somnolencia": [2, 3, 2, 2, 3, 2, 3, 2, 2, 3, 3, 2, 2, 3],
       "sintomas": {},
+      "aguaLitros": [2.5, 2.25, 2.5, 2.5, 2.25, 2.5, 2.5, 2.25, 2.5, 2.5, 2.25, 2.5, 2.5, 2.25],
+      "ingesta": [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+      "ejercicioMinutos": [135, 120, 135, 135, 120, 150, 135, 120, 135, 135, 120, 135, 135, 120],
+      "bienestar": {
+        "animo": [5, 5, 4, 5, 5, 4, 5, 5, 4, 5, 5, 4, 5, 5],
+        "estres": [1, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2],
+        "aislamiento": [1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2]
+      },
       "constantes": { "base": { "FC": 58, "PAS": 112, "PAD": 72, "SPO2": 99, "FR": 13 } }
     },
     {
@@ -64,6 +88,14 @@
       "horasSueno": [6.9, 7.1, 7.0, 6.8, 7.2, 7.0, 6.9, 7.1, 7.3, 7.0, 6.8, 7.1, 7.0, 6.9],
       "somnolencia": [3, 3, 2, 3, 3, 2, 3, 3, 2, 3, 3, 3, 2, 3],
       "sintomas": { "6": ["NAUSEAS"] },
+      "aguaLitros": [2.0, 2.0, 2.25, 2.0, 2.0, 1.5, 1.75, 2.0, 2.25, 2.0, 2.0, 2.25, 2.0, null],
+      "ingesta": [100, 100, 100, 100, 100, 50, 75, 100, 100, 100, 100, 100, 100, null],
+      "ejercicioMinutos": [120, 120, 120, 135, 120, 0, 60, 120, 120, 120, 135, 120, 120, null],
+      "bienestar": {
+        "animo": [4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 4, 3, 3, 3],
+        "estres": [2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 3, 3],
+        "aislamiento": [2, 2, 2, 2, 2, 2, 3, 2, 3, 3, 3, 3, 4, 4]
+      },
       "constantes": { "base": { "FC": 64, "PAS": 120, "PAD": 78, "SPO2": 98, "FR": 14 } }
     }
   ]

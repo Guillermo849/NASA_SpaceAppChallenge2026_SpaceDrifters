@@ -3,6 +3,10 @@
   "umbralVigilarDesviaciones": 1.0,
   "umbralAlertaDesviaciones": 2.0,
   "minSesionesLineaBase": 3,
-  "_hemogramaNasa": "astronaut.id de la demo → tripulante real del estudio NASA OSDR LSDS-7 (assets/LSDS-7_Complete_Blood_Count_CBC_TRANSFORMED.csv). Sus hemogramas reales se ofrecen al introducir el resultado de un hemograma.",
-  "hemogramaNasa": { "1": "C001", "2": "C002", "3": "C003", "4": "C004" }
+  "_objetivosDiarios": "Objetivos del registro diario: litros de líquido y minutos de ejercicio al día (referencia: unas 2 h diarias de ejercicio en la ISS). Se muestran al astronauta y al médico; por debajo se indica con texto.",
+  "objetivosDiarios": { "aguaLitros": 2.0, "ejercicioMinutos": 120 },
+  "_tripulanteNasa": "astronaut.id de la demo → tripulante real de la misión SpaceX Inspiration4 en NASA OSDR. Sus analíticas reales se ofrecen al introducir el resultado: hemograma (LSDS-7, assets/LSDS-7_Complete_Blood_Count_CBC_TRANSFORMED.csv) y bioquímica (LSDS-8, assets/LSDS-8_Comprehensive_Metabolic_Panel_CMP_TRANSFORMED.csv).",
+  "tripulanteNasa": { "1": "C001", "2": "C002", "3": "C003", "4": "C004" },
+  "_parametrosNasaExcluidos": "Parámetros que no se leen: el eGFR de LSDS-8 se calcula con una fórmula basada en la raza (ya en desuso) y sale de la creatinina, que sí se muestra.",
+  "parametrosNasaExcluidos": ["egfr_african_american", "egfr_non_african_american"]
 }

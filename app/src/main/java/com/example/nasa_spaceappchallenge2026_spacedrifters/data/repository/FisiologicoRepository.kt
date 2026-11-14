@@ -7,7 +7,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EventoPro
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.ProtocoloActivo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.PruebaClinica
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPruebaClinica
-import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.HemogramasNasa
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.AnaliticasNasa
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.protocolos.Cambio
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.protocolos.EstadoProtocolo
@@ -63,8 +63,11 @@ data class PruebaParaResultado(
     val nombre: String?,
     /** Opciones cerradas; vacía para el ecocardio (VS y GC en números). */
     val opciones: List<String>,
-    /** Para un hemograma: las muestras reales de NASA LSDS-7 de su tripulante, en orden; si no, vacía. */
-    val muestrasNasa: List<HemogramasNasa.Muestra> = emptyList(),
+    /**
+     * Para un hemograma o una bioquímica: las muestras reales de NASA (LSDS-7 / LSDS-8) de su
+     * tripulante, en orden; si no, vacía.
+     */
+    val muestrasNasa: List<AnaliticasNasa.Muestra> = emptyList(),
 )
 
 /**
@@ -77,8 +80,8 @@ class FisiologicoRepository(
     private val interprete: InterpretePruebas,
     private val retrasoMisionMs: Long,
     private val esperarDatos: suspend () -> Unit = {},
-    /** Hemogramas reales de NASA que corresponden a un astronauta de la demo (vacío si no hay). */
-    private val hemogramasNasa: (Long) -> List<HemogramasNasa.Muestra> = { emptyList() },
+    /** Analíticas reales de NASA de una prueba para un astronauta de la demo (vacío si no hay). */
+    private val analiticasNasa: (TipoPruebaClinica, Long) -> List<AnaliticasNasa.Muestra> = { _, _ -> emptyList() },
 ) {
     private val dao get() = db.fisiologicoDao()
 
@@ -122,9 +125,16 @@ class FisiologicoRepository(
         esperarDatos()
         val prueba = dao.prueba(pruebaId) ?: return null
         val nombre = db.tripulacionDao().astronauta(prueba.astronautaId).first()?.nombre
-        val muestras = if (prueba.tipo == TipoPruebaClinica.HEMOGRAMA) hemogramasNasa(prueba.astronautaId) else emptyList()
+        val muestras = analiticasNasa(prueba.tipo, prueba.astronautaId)
         return PruebaParaResultado(prueba, nombre, InterpretePruebas.opciones(prueba.tipo.name), muestras)
     }
+
+    /** Resultado de un hemograma o una bioquímica a partir de una muestra real de NASA. */
+    fun resultadoAnaliticaNasa(tipo: TipoPruebaClinica, muestra: AnaliticasNasa.Muestra): Map<String, Any> =
+        when (tipo) {
+            TipoPruebaClinica.BIOQUIMICA -> interprete.resultadoBioquimica(muestra)
+            else -> InterpretePruebas.resultadoHemograma(muestra)
+        }
 
     /** La oficial médico de a bordo (quien introduce los resultados), o null si no hay. */
     suspend fun oficialMedicoId(): Long? {

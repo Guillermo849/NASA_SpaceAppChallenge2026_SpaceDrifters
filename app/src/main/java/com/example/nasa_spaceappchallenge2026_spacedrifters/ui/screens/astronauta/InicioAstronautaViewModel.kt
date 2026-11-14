@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.BienestarRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.ProtocoloEnCurso
 import kotlinx.coroutines.flow.stateIn
@@ -39,6 +40,8 @@ class InicioAstronautaViewModel(
     private val retrasoMin: Long,
     /** Protocolos fisiológicos (tarjeta de arriba del panel). */
     fisiologico: FisiologicoRepository? = null,
+    /** Check-in de bienestar psicológico (tarjeta "Bienestar"). */
+    bienestar: BienestarRepository? = null,
     private val zona: ZoneId = ZoneId.systemDefault(),
 ) : ViewModel() {
 
@@ -69,7 +72,17 @@ class InicioAstronautaViewModel(
             diaMision = astronauta?.inicioMision?.let { diaDeMision(it) },
             retrasoMin = retrasoMin,
             hechasHoy = hechas,
-            registroHoy = registro?.let { RegistroHoyUi(it.horasSueno, it.somnolencia, it.listaSintomas) },
+            registroHoy = registro?.let {
+                RegistroHoyUi(
+                    horasSueno = it.horasSueno,
+                    somnolencia = it.somnolencia,
+                    sintomas = it.listaSintomas,
+                    aguaLitros = it.aguaLitros,
+                    ingesta = it.ingestaPorcentaje,
+                    ejercicioMinutos = it.ejercicioMinutos,
+                    ejercicios = it.listaEjercicios,
+                )
+            },
         )
     }
 
@@ -77,7 +90,13 @@ class InicioAstronautaViewModel(
         hoyUi,
         rendimiento(cognitivo, astronautaId, TipoPrueba.STROOP),
         rendimiento(cognitivo, astronautaId, TipoPrueba.NBACK),
-    ) { base, stroop, nback -> base.copy(rendimiento = listOf(stroop, nback)) }
+        bienestar?.delDia(astronautaId, hoy) ?: flowOf(null),
+    ) { base, stroop, nback, checkin ->
+        base.copy(
+            rendimiento = listOf(stroop, nback),
+            bienestarHoy = checkin?.let { BienestarHoyUi(it.animo, it.estres, it.aislamiento) },
+        )
+    }
         .catch { emit(PanelAstronautaUi(retrasoMin = retrasoMin)) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PanelAstronautaUi(retrasoMin = retrasoMin))
 
