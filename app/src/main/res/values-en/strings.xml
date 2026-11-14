@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">SpaceDrifters · Health Monitor</string>
+
+    <!-- Common -->
+    <string name="aviso_prototipo">Prototype, not a medical device · Simulated data</string>
+    <string name="cd_aviso">Notice</string>
+    <string name="cd_atras">Back</string>
+    <string name="pantalla_en_construccion">Screen under construction</string>
+
+    <!-- Role selector -->
+    <string name="selector_titulo">Crew health monitor</string>
+    <string name="selector_subtitulo">Choose how you want to sign in</string>
+    <string name="rol_astronauta">Astronaut</string>
+    <string name="rol_astronauta_desc">Your daily log, your tests and your alerts</string>
+    <string name="rol_medico">Flight surgeon</string>
+    <string name="rol_medico_desc">The whole crew, from Earth</string>
+    <string name="cd_astronauta">Astronaut icon</string>
+    <string name="cd_medico">Doctor icon</string>
+
+    <!-- Astronaut -->
+    <string name="astronauta_inicio_titulo">Home</string>
+
+    <!-- Doctor -->
+    <string name="medico_tripulacion_titulo">Crew</string>
+</resources>

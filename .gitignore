@@ -1,15 +1,30 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# --- Gradle / compilación ---
+.gradle/
+build/
+.kotlin/
+.externalNativeBuild/
+.cxx/
+captures/
+
+# --- Configuración local de cada ordenador ---
 local.properties
+
+# --- Android Studio / IntelliJ ---
+# La configuración del IDE depende de cada máquina (JDK, rutas...): no se comparte.
+*.iml
+.idea/
+# Excepción: estilo de código común para todo el equipo.
+!.idea/codeStyles/
+
+# --- Artefactos y firmas ---
+*.apk
+*.aab
+*.ap_
+*.dex
+*.jks
+*.keystore
+
+# --- Logs y sistema ---
+*.log
+.DS_Store
+Thumbs.db
