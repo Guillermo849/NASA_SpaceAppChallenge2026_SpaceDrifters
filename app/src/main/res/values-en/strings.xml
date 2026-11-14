@@ -277,4 +277,15 @@
     <string name="medico_respuesta">Answer: %1$s</string>
     <string name="medico_pulso">Tapped</string>
     <string name="medico_no_pulso">Didn\'t tap</string>
+
+    <!-- Sign in -->
+    <string name="login_subtitulo">Mission access</string>
+    <string name="login_usuario">Username</string>
+    <string name="login_contrasena">Password</string>
+    <string name="login_entrar">Sign in</string>
+    <string name="login_error_vacio">Enter your username and password.</string>
+    <string name="login_error_credenciales">Invalid username or password. Try again.</string>
+    <string name="cd_mostrar_contrasena">Show password</string>
+    <string name="cd_ocultar_contrasena">Hide password</string>
+    <string name="cd_cerrar_sesion">Sign out</string>
 </resources>

@@ -26,7 +26,7 @@ class StroopFlujoTest {
 
     @Test
     fun practica_tocarUnColorMuestraElAviso() {
-        compose.onNodeWithText(texto(R.string.rol_astronauta)).performClick()
+        compose.entrarComoAstronauta()
         // En "Pruebas de hoy" el primer "Empezar" es el del Stroop.
         compose.onAllNodesWithText(texto(R.string.empezar))[0].performClick()
         // Primero consulta en Room si ya hizo la práctica (en segundo plano).

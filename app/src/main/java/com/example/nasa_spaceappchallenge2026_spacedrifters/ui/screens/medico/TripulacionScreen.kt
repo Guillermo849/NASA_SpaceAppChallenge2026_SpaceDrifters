@@ -42,10 +42,11 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDrifte
 fun TripulacionScreen(
     onAtras: () -> Unit,
     onAstronauta: (Long) -> Unit,
+    onCerrarSesion: () -> Unit = {},
     viewModel: TripulacionViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val tripulacion by viewModel.tripulacion.collectAsStateWithLifecycle()
-    TripulacionContenido(tripulacion, onAtras, onAstronauta)
+    TripulacionContenido(tripulacion, onAtras, onAstronauta, onCerrarSesion)
 }
 
 @Composable
@@ -53,10 +54,12 @@ private fun TripulacionContenido(
     tripulacion: List<FilaTripulanteUi>?,
     onAtras: () -> Unit,
     onAstronauta: (Long) -> Unit,
+    onCerrarSesion: () -> Unit = {},
 ) {
     PantallaBase(
         titulo = stringResource(R.string.medico_tripulacion_titulo),
         onAtras = onAtras,
+        onCerrarSesion = onCerrarSesion,
     ) { padding ->
         LazyColumn(
             modifier = Modifier
