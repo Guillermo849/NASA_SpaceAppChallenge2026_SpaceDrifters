@@ -33,22 +33,28 @@ class InicioAstronautaViewModel(
     private val inicioDeHoy: Long = hoy.atStartOfDay(zona).toInstant().toEpochMilli()
     private val inicioHace30Dias: Long = hoy.minusDays(Periodo.MES.dias - 1L).atStartOfDay(zona).toInstant().toEpochMilli()
 
-    val panel: StateFlow<PanelAstronautaUi> = combine(
+    /** Lo de hoy: cabecera, pruebas hechas y registro diario. */
+    private val hoyUi: Flow<PanelAstronautaUi> = combine(
         tripulacion.astronauta(astronautaId),
         cognitivo.inicioMision(astronautaId),
         cognitivo.tiposHechosDesde(astronautaId, inicioDeHoy),
-        rendimiento(cognitivo, astronautaId, TipoPrueba.STROOP),
-        rendimiento(cognitivo, astronautaId, TipoPrueba.NBACK),
-    ) { astronauta, inicioMision, hechas, stroop, nback ->
+        tripulacion.registroDelDia(astronautaId, hoy),
+    ) { astronauta, inicioMision, hechas, registro ->
         PanelAstronautaUi(
             nombre = astronauta?.nombre,
             cargo = astronauta?.cargo,
             diaMision = inicioMision?.let { diaDeMision(it) },
             retrasoMin = retrasoMin,
             hechasHoy = hechas,
-            rendimiento = listOf(stroop, nback),
+            registroHoy = registro?.let { RegistroHoyUi(it.horasSueno, it.somnolencia, it.listaSintomas) },
         )
     }
+
+    val panel: StateFlow<PanelAstronautaUi> = combine(
+        hoyUi,
+        rendimiento(cognitivo, astronautaId, TipoPrueba.STROOP),
+        rendimiento(cognitivo, astronautaId, TipoPrueba.NBACK),
+    ) { base, stroop, nback -> base.copy(rendimiento = listOf(stroop, nback)) }
         .catch { emit(PanelAstronautaUi(retrasoMin = retrasoMin)) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PanelAstronautaUi(retrasoMin = retrasoMin))
 

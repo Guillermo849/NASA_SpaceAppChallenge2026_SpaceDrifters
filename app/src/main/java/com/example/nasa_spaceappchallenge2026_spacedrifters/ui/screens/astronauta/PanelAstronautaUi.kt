@@ -1,6 +1,7 @@
 package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta
 
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.CargoTripulante
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.EstadoCognitivo
 
@@ -16,8 +17,19 @@ data class PanelAstronautaUi(
     val diaMision: Int? = null,
     val retrasoMin: Long? = null,
     val hechasHoy: Set<TipoPrueba> = emptySet(),
+    /** Registro diario de hoy, o null si aún no lo ha hecho. */
+    val registroHoy: RegistroHoyUi? = null,
     /** Una entrada por prueba, con las sesiones de los últimos 30 días. */
     val rendimiento: List<RendimientoUi> = emptyList(),
+)
+
+/** Resumen del registro diario de hoy. Los null se muestran como "Sin datos". */
+data class RegistroHoyUi(
+    val horasSueno: Double?,
+    /** Escala KSS 1–9. */
+    val somnolencia: Int?,
+    /** Vacío = ninguno. */
+    val sintomas: List<Sintoma>,
 )
 
 data class RendimientoUi(

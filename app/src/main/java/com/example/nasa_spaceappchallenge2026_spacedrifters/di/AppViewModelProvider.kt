@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.nasa_spaceappchallenge2026_spacedrifters.SpaceDriftersApp
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.InicioAstronautaViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackViewModel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.RegistroDiarioViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop.StroopViewModel
 
 /**
@@ -35,6 +36,10 @@ object AppViewModelProvider {
         initializer {
             val c = app().container
             NBackViewModel(c.cognitivoRepository, c.astronautaActualId, c.ambitoAplicacion)
+        }
+        initializer {
+            val c = app().container
+            RegistroDiarioViewModel(c.tripulacionRepository, c.astronautaActualId)
         }
     }
 }
