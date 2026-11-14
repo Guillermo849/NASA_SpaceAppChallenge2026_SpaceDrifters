@@ -21,3 +21,17 @@ val StroopRojo = Color(0xFFFF6B6B)
 val StroopAzul = Color(0xFF3D7BFF)
 val StroopVerde = Color(0xFF33D17A)
 val StroopAmarillo = Color(0xFFFFE14D)
+
+// Cuerpos celestes del juego "Parejas orbitales" (Bienestar). Solo decoran el dibujo: cada carta
+// lleva además su nombre en texto.
+val CuerpoTierra = Color(0xFF3D7BFF)
+val CuerpoTierraTierra = Color(0xFF3DDC97)
+val CuerpoLuna = Color(0xFFC9D1DE)
+val CuerpoLunaCrater = Color(0xFF8E99AB)
+val CuerpoMarte = Color(0xFFE2603F)
+val CuerpoSaturno = Color(0xFFE8C77A)
+val CuerpoSol = Color(0xFFFFC93D)
+val CuerpoCometa = Color(0xFF9FE6FF)
+
+// Círculo de la respiración guiada.
+val RespiracionCirculo = Color(0x334CC3FF)

@@ -20,6 +20,8 @@ import java.util.Objects;
  *       normal (o false cuando las tres son normales).</li>
  *   <li>ECG {"valor": NORMAL|ALTERADO} → ECG_ALTERADO.</li>
  *   <li>REPETICION_CONSTANTES {"valor": MEJOR|IGUAL_O_PEOR} → REPETICION_ALTERADA.</li>
+ *   <li>BIOQUIMICA {"valor": NORMAL|DESHIDRATACION|ALTERADA} → BIOQUIMICA_ALTERADA y
+ *       DESHIDRATACION_ANALITICA.</li>
  *   <li>ECOCARDIO {"vs_ml": n, "gc_lmin": n} → VS_BAJO / GC_BAJO frente a su primer ecocardio o,
  *       si no tiene, a la referencia de config_umbrales.json.</li>
  * </ul>
@@ -34,8 +36,10 @@ public final class InterpretePruebas {
     public static final String HEMOGRAMA = "HEMOGRAMA";
     public static final String COAGULACION = "COAGULACION";
     public static final String REPETICION_CONSTANTES = "REPETICION_CONSTANTES";
+    public static final String BIOQUIMICA = "BIOQUIMICA";
 
     public static final String NORMAL = "NORMAL";
+    public static final String DESHIDRATACION = "DESHIDRATACION";
     public static final String TROMBO = "TROMBO";
     public static final String IGUAL_O_PEOR = "IGUAL_O_PEOR";
 
@@ -55,6 +59,7 @@ public final class InterpretePruebas {
         OPCIONES.put(HEMOGRAMA, Arrays.asList(NORMAL, "ALTERADO"));
         OPCIONES.put(COAGULACION, Arrays.asList(NORMAL, "ALTERADA"));
         OPCIONES.put(REPETICION_CONSTANTES, Arrays.asList("MEJOR", IGUAL_O_PEOR));
+        OPCIONES.put(BIOQUIMICA, Arrays.asList(NORMAL, DESHIDRATACION, "ALTERADA"));
     }
 
     /** Un resultado ya introducido. */
@@ -109,10 +114,29 @@ public final class InterpretePruebas {
      * Resultado de un hemograma a partir de una muestra real de NASA LSDS-7: ALTERADO si algún
      * parámetro queda fuera de su rango, NORMAL si no; guarda la muestra y qué parámetros salen.
      */
-    public static Map<String, Object> resultadoHemograma(HemogramasNasa.Muestra muestra) {
+    public static Map<String, Object> resultadoHemograma(AnaliticasNasa.Muestra muestra) {
         List<String> fuera = new java.util.ArrayList<>();
-        for (HemogramasNasa.Parametro p : muestra.fueraDeRango()) fuera.add(p.getCodigo());
+        for (AnaliticasNasa.Parametro p : muestra.fueraDeRango()) fuera.add(p.getCodigo());
         Map<String, Object> r = resultadoCerrado(HEMOGRAMA, fuera.isEmpty() ? NORMAL : "ALTERADO");
+        r.put(MUESTRA_NASA, muestra.getNombre());
+        r.put(FUERA_DE_RANGO, String.join(",", fuera));
+        return r;
+    }
+
+    /**
+     * Resultado de una bioquímica a partir de una muestra real de NASA LSDS-8: DESHIDRATACION si
+     * alguno de los parámetros de config_umbrales.json ("indicanDeshidratacion") está por encima de su
+     * rango; ALTERADA si sale de rango otro; NORMAL si ninguno. Guarda la muestra y qué parámetros salen.
+     */
+    public Map<String, Object> resultadoBioquimica(AnaliticasNasa.Muestra muestra) {
+        List<String> fuera = new java.util.ArrayList<>();
+        boolean deshidratacion = false;
+        for (AnaliticasNasa.Parametro p : muestra.fueraDeRango()) {
+            fuera.add(p.getCodigo());
+            if (p.isAlto() && umbrales.getIndicanDeshidratacion().contains(p.getCodigo())) deshidratacion = true;
+        }
+        String opcion = deshidratacion ? DESHIDRATACION : fuera.isEmpty() ? NORMAL : "ALTERADA";
+        Map<String, Object> r = resultadoCerrado(BIOQUIMICA, opcion);
         r.put(MUESTRA_NASA, muestra.getNombre());
         r.put(FUERA_DE_RANGO, String.join(",", fuera));
         return r;
@@ -169,6 +193,13 @@ public final class InterpretePruebas {
         Resultado repeticion = ultima.get(REPETICION_CONSTANTES);
         if (repeticion != null) {
             h.con("REPETICION_ALTERADA", IGUAL_O_PEOR.equals(opcionDe(REPETICION_CONSTANTES, repeticion.valores)));
+        }
+
+        Resultado bioquimica = ultima.get(BIOQUIMICA);
+        if (bioquimica != null) {
+            String opcion = opcionDe(BIOQUIMICA, bioquimica.valores);
+            h.con("BIOQUIMICA_ALTERADA", !NORMAL.equals(opcion));
+            h.con("DESHIDRATACION_ANALITICA", DESHIDRATACION.equals(opcion));
         }
 
         Resultado eco = ultima.get(ECOCARDIO);

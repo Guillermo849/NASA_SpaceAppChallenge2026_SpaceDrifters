@@ -23,6 +23,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -76,7 +77,7 @@ class DatosEjemploTest {
 
     @Test
     fun alertas_mayaFatigaYTendenciaNBack() = runBlocking {
-        assertEquals(setOf("fatiga-cognitiva-combinada", "nback-tendencia"), reglasActivas(maya))
+        assertEquals(setOf("fatiga-cognitiva-combinada", "nback-tendencia", "hidratacion-baja"), reglasActivas(maya))
         val fatiga = db.alertasDao().deAstronauta(maya).single { it.ruleId == "fatiga-cognitiva-combinada" }
         assertEquals("HOY", fatiga.priority)
         assertEquals("NEURO", fatiga.source)
@@ -89,6 +90,24 @@ class DatosEjemploTest {
         assertEquals(listOf("2026-11-14", "2026-11-13", "2026-11-12"), porQue.noches.map { it.fecha })
         assertEquals(7.5, porQue.suenoHabitual!!, 1e-9)
         assertTrue(AlertasRepository.FUENTE_REGISTRO in porQue.fuentes)
+    }
+
+    @Test
+    fun alertas_mayaBebePocoDosDiasSeguidos() = runBlocking {
+        val alerta = db.alertasDao().deAstronauta(maya).single { it.ruleId == "hidratacion-baja" }
+        assertEquals("HOY", alerta.priority)
+        assertEquals("BEBER_MAS_LIQUIDO,VIGILAR_MAREO", alerta.steps)
+        assertEquals(AlertasRepository.METRICA_AGUA, alerta.metric)
+        assertEquals(1.0, alerta.value!!, 1e-9)
+        // "Por qué ha saltado": hoy 1 L y ayer 1,25 L, por debajo de 1,5 L; solo del registro diario.
+        val porQue = AlertasRepository.leerExplicacion(alerta.explanation)!!
+        assertEquals(listOf("2026-11-14" to 1.0, "2026-11-13" to 1.25), porQue.agua.map { it.fecha to it.litros })
+        assertEquals(1.5, porQue.umbral.aguaMinLitros!!, 1e-9)
+        assertEquals(2, porQue.umbral.diasSeguidos)
+        assertTrue(porQue.sesiones.isEmpty())
+        assertEquals(listOf(AlertasRepository.FUENTE_REGISTRO), porQue.fuentes)
+        // Leo (1,75 y 1,5 L) no llega: 1,5 no está por debajo del umbral.
+        assertTrue("hidratacion-baja" !in reglasActivas(leo))
     }
 
     @Test
@@ -108,12 +127,35 @@ class DatosEjemploTest {
     }
 
     @Test
-    fun alertas_aneEIlanSinAlertas_yNoSeRepiten() = runBlocking {
+    fun alertas_aneSinAlertas_yNoSeRepiten() = runBlocking {
         assertTrue(reglasActivas(ane).isEmpty())
-        assertTrue(reglasActivas(ilan).isEmpty())
         // Volver a evaluar no duplica las alertas activas.
         assertTrue(alertas.evaluar(maya, ahora, zona).isEmpty())
-        assertEquals(2, db.alertasDao().deAstronauta(maya).size)
+        assertEquals(3, db.alertasDao().deAstronauta(maya).size)
+    }
+
+    @Test
+    fun alertas_ilanSeSienteAisladoDosDiasSeguidos() = runBlocking {
+        // Solo la de bienestar: sus pruebas, sueño y constantes están bien.
+        assertEquals(setOf("bienestar-bajo"), reglasActivas(ilan))
+        val alerta = db.alertasDao().deAstronauta(ilan).single()
+        assertEquals("HOY", alerta.priority)
+        assertEquals("HABLAR_APOYO_PSICOLOGICO,PROBAR_RESPIRACION", alerta.steps)
+        val porQue = AlertasRepository.leerExplicacion(alerta.explanation)!!
+        assertEquals(listOf("2026-11-14", "2026-11-13"), porQue.bienestar.map { it.fecha })
+        assertTrue(porQue.bienestar.all { it.aislamiento == 4 })
+        assertEquals(4, porQue.umbral.aislamientoMin)
+        assertEquals(listOf(AlertasRepository.FUENTE_BIENESTAR), porQue.fuentes)
+        // Leo tiene estrés 4 solo hoy: no basta.
+        assertTrue("bienestar-bajo" !in reglasActivas(leo))
+    }
+
+    @Test
+    fun bienestar_cargaLosCheckinsYNoSeDuplicaLaPeticionDeApoyo() = runBlocking {
+        assertEquals(14, db.bienestarDao().recientes(maya, "2000-01-01").size)
+        assertTrue(alertas.solicitarApoyo(maya, ahora))
+        assertFalse("la segunda petición no se duplica", alertas.solicitarApoyo(maya, ahora))
+        assertEquals(1, db.alertasDao().deAstronauta(maya).count { it.ruleId == AlertasRepository.REGLA_SOLICITUD_APOYO })
     }
 
     // ---- Protocolos fisiológicos de la demo ----
@@ -145,7 +187,11 @@ class DatosEjemploTest {
         assertEquals("hemodinamico", p.protocoloId)
         assertEquals("p2a-repetir", p.nodoActual)
         assertEquals(3, p.nivel)
-        assertEquals(TipoPruebaClinica.REPETICION_CONSTANTES, db.fisiologicoDao().pruebasDeProtocolo(p.id).single().tipo)
+        // Repetir las constantes y, a la vez, una bioquímica (para ver si es deshidratación).
+        assertEquals(
+            setOf(TipoPruebaClinica.REPETICION_CONSTANTES, TipoPruebaClinica.BIOQUIMICA),
+            db.fisiologicoDao().pruebasDeProtocolo(p.id).map { it.tipo }.toSet(),
+        )
         assertTrue(db.fisiologicoDao().balancesDesde(maya, "2000-01-01").all { it.balanceMl < 0 })
         assertTrue(db.fisiologicoDao().abiertosAhora(ane).isEmpty())
     }
@@ -240,6 +286,17 @@ class DatosEjemploTest {
 
         val registros = db.tripulacionDao().registrosDesde(maya, "2000-01-01").first()
         assertTrue(registros.take(3).all { it.horasSueno!! < 7.5 })
+        // Y bebe, come y entrena cada vez menos (encaja con su FC alta y su tensión baja).
+        assertTrue(registros.take(3).all { it.aguaLitros!! < 2.0 && it.ejercicioMinutos!! < 120 })
+        assertEquals(50, registros.first().ingestaPorcentaje)
+    }
+
+    @Test
+    fun ilan_hoySinHabitosAnotados() = runBlocking {
+        val hoy = db.tripulacionDao().registrosDesde(ilan, "2000-01-01").first().first()
+        assertNull(hoy.aguaLitros)
+        assertNull(hoy.ejercicioMinutos)
+        assertTrue(hoy.listaEjercicios.isEmpty())
     }
 
     @Test

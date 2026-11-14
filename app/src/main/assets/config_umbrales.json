@@ -10,5 +10,7 @@
     { "hecho": "GC_BAJO",   "metrica": "GC",   "sentido": "BAJA", "desviacionPorcentaje": 15 }
   ],
   "_referencias": "Para comparar VS (ml) y GC (l/min) mientras el astronauta no tiene un ecocardio anterior propio.",
-  "referencias": { "VS": 70, "GC": 5.0 }
+  "referencias": { "VS": 70, "GC": 5.0 },
+  "_bioquimica": "Bioquímica (panel metabólico, NASA OSDR LSDS-8): DESHIDRATACION si alguno de estos parámetros está por encima de su rango (cociente BUN/creatinina, urea, sodio); ALTERADA si sale otro; NORMAL si ninguno. Códigos = nombre de columna del CSV sin _value.",
+  "bioquimica": { "indicanDeshidratacion": ["bun_to_creatinine_ratio", "urea_nitrogen_bun", "sodium"] }
 }

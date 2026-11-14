@@ -2,6 +2,7 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronau
 
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.CargoTripulante
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoEjercicio
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.EstadoCognitivo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
@@ -24,6 +25,8 @@ data class PanelAstronautaUi(
     val pruebasExtra: Set<TipoPrueba> = emptySet(),
     /** Registro diario de hoy, o null si aún no lo ha hecho. */
     val registroHoy: RegistroHoyUi? = null,
+    /** Check-in de bienestar de hoy, o null si aún no lo ha hecho. */
+    val bienestarHoy: BienestarHoyUi? = null,
     /** Una entrada por prueba, con las sesiones de los últimos 30 días. */
     val rendimiento: List<RendimientoUi> = emptyList(),
 )
@@ -42,6 +45,9 @@ data class AvisoUi(
     val nombreAfectado: String?,
 )
 
+/** Check-in de bienestar de hoy (escalas 1–5; null = sin datos). */
+data class BienestarHoyUi(val animo: Int?, val estres: Int?, val aislamiento: Int?)
+
 /** Resumen del registro diario de hoy. Los null se muestran como "Sin datos". */
 data class RegistroHoyUi(
     val horasSueno: Double?,
@@ -49,6 +55,12 @@ data class RegistroHoyUi(
     val somnolencia: Int?,
     /** Vacío = ninguno. */
     val sintomas: List<Sintoma>,
+    /** Litros bebidos ayer. */
+    val aguaLitros: Double? = null,
+    /** % del menú comido ayer. */
+    val ingesta: Int? = null,
+    val ejercicioMinutos: Int? = null,
+    val ejercicios: List<TipoEjercicio> = emptyList(),
 )
 
 data class RendimientoUi(

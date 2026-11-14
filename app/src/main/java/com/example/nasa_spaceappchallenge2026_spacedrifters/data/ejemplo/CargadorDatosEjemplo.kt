@@ -12,7 +12,9 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.model.BloodPr
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.model.MeasurementType
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.model.Role
 import java.text.Normalizer
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.BienestarDiario
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.RegistroDiario
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoEjercicio
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
@@ -70,8 +72,23 @@ data class TripulanteEjemplo(
     val somnolencia: List<Int?>,
     /** Día de misión ("1".."14") → síntomas de ese día. */
     val sintomas: Map<String, List<Sintoma>> = emptyMap(),
+    /** Hábitos del día anterior anotados en el registro de cada día; vacío o null = sin datos. */
+    val aguaLitros: List<Double?> = emptyList(),
+    /** % del menú comido. */
+    val ingesta: List<Int?> = emptyList(),
+    val ejercicioMinutos: List<Int?> = emptyList(),
+    /** Check-in de bienestar psicológico por día; null = sin check-ins. */
+    val bienestar: BienestarEjemplo? = null,
     /** Constantes vitales simuladas (FC, PAS, PAD, SPO2, FR); null = sin constantes. */
     val constantes: ConstantesEjemplo? = null,
+)
+
+/** Escalas 1–5 por día de misión: ánimo (1 = muy bajo), estrés y aislamiento (1 = nada). */
+@Serializable
+data class BienestarEjemplo(
+    val animo: List<Int?>,
+    val estres: List<Int?>,
+    val aislamiento: List<Int?>,
 )
 
 /** Constantes de un tripulante: su valor habitual y, por día de misión ("13"), los que cambian. */
@@ -221,6 +238,9 @@ class CargadorDatosEjemplo(
         listOf(t.stroopZ, t.nbackZ, t.horasSueno, t.somnolencia).forEach {
             require(it.size == dias) { "${t.nombre}: se esperaban $dias días y hay ${it.size}" }
         }
+        listOf(t.aguaLitros, t.ingesta, t.ejercicioMinutos).forEach {
+            require(it.isEmpty() || it.size == dias) { "${t.nombre}: se esperaban $dias días de hábitos y hay ${it.size}" }
+        }
         insertarTripulante(t, misionId, ahora)
         t.constantes?.let { constantes(t.id, it, t.semilla, dias, ahora, zona) }
 
@@ -266,11 +286,43 @@ class CargadorDatosEjemplo(
                     horasSueno = t.horasSueno[dia - 1],
                     somnolencia = t.somnolencia[dia - 1],
                     sintomas = RegistroDiario.unirSintomas(t.sintomas[dia.toString()].orEmpty()),
+                    aguaLitros = t.aguaLitros.getOrNull(dia - 1),
+                    ingestaPorcentaje = t.ingesta.getOrNull(dia - 1),
+                    ejercicioMinutos = minutos(t, dia),
+                    ejercicioTipos = RegistroDiario.unirEjercicios(
+                        when {
+                            (minutos(t, dia) ?: 0) == 0 -> emptyList()
+                            dia % 2 == 0 -> listOf(TipoEjercicio.CINTA, TipoEjercicio.FUERZA)
+                            else -> listOf(TipoEjercicio.BICICLETA, TipoEjercicio.FUERZA)
+                        },
+                    ),
                 )
             },
         )
+
+        // Check-in de bienestar: por la noche (el de hoy, antes de su última sesión).
+        t.bienestar?.let { b ->
+            listOf(b.animo, b.estres, b.aislamiento).forEach {
+                require(it.size == dias) { "${t.nombre}: se esperaban $dias días de bienestar y hay ${it.size}" }
+            }
+            db.bienestarDao().guardar(
+                (1..dias).map { dia ->
+                    val fecha = lanzamiento.plusDays(dia - 1L)
+                    BienestarDiario(
+                        astronautaId = t.id,
+                        fecha = fecha.toString(),
+                        animo = b.animo[dia - 1],
+                        estres = b.estres[dia - 1],
+                        aislamiento = b.aislamiento[dia - 1],
+                        guardadoEn = if (fecha == hoy) ultimaSesion - MINUTO else a(fecha, 21, 0),
+                    )
+                },
+            )
+        }
         return ultimaSesion
     }
+
+    private fun minutos(t: TripulanteEjemplo, dia: Int): Int? = t.ejercicioMinutos.getOrNull(dia - 1)
 
     /** Stroop a [z] desviaciones de su media (positivo = más efecto, más lento y más errores). */
     private suspend fun stroop(t: TripulanteEjemplo, inicio: Long, esPractica: Boolean, esLineaBase: Boolean, z: Double, random: Random) {

@@ -35,6 +35,9 @@ data class Astronauta(
 /** Síntomas del registro diario. Se guardan por nombre, separados por comas. */
 enum class Sintoma { DOLOR_CABEZA, DIFICULTAD_CONCENTRACION, FATIGA, NAUSEAS }
 
+/** Ejercicio del día. Se guarda por nombre, separado por comas. */
+enum class TipoEjercicio { CINTA, BICICLETA, FUERZA }
+
 /** Lo que el astronauta anota cada día. Los null son "Sin datos", nunca "bien". */
 @Entity(
     tableName = "registro_diario",
@@ -52,14 +55,28 @@ data class RegistroDiario(
     val somnolencia: Int?,
     /** Nombres de [Sintoma] separados por comas; vacío si ninguno. */
     val sintomas: String = "",
+    /** Litros de líquido bebidos ayer (agua, zumos, café…). */
+    val aguaLitros: Double? = null,
+    /** Parte del menú planificado que comió ayer, en % (0, 25, 50, 75, 100). */
+    val ingestaPorcentaje: Int? = null,
+    /** Minutos de ejercicio ayer. */
+    val ejercicioMinutos: Int? = null,
+    /** Nombres de [TipoEjercicio] separados por comas; vacío si ninguno o sin anotar. */
+    val ejercicioTipos: String = "",
 ) {
     val listaSintomas: List<Sintoma>
         get() = sintomas.split(',').filter { it.isNotBlank() }.mapNotNull { nombre ->
             Sintoma.entries.firstOrNull { it.name == nombre.trim() }
         }
 
+    val listaEjercicios: List<TipoEjercicio>
+        get() = ejercicioTipos.split(',').filter { it.isNotBlank() }.mapNotNull { nombre ->
+            TipoEjercicio.entries.firstOrNull { it.name == nombre.trim() }
+        }
+
     companion object {
         fun unirSintomas(sintomas: Collection<Sintoma>) = sintomas.joinToString(",") { it.name }
+        fun unirEjercicios(tipos: Collection<TipoEjercicio>) = tipos.joinToString(",") { it.name }
     }
 }
 

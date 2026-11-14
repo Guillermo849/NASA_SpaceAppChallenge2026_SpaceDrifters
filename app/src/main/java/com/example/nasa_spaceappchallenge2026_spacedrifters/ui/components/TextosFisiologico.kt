@@ -44,6 +44,7 @@ fun nombrePruebaClinica(tipo: TipoPruebaClinica): Int = when (tipo) {
     TipoPruebaClinica.HEMOGRAMA -> R.string.prueba_hemograma
     TipoPruebaClinica.COAGULACION -> R.string.prueba_coagulacion
     TipoPruebaClinica.REPETICION_CONSTANTES -> R.string.prueba_repeticion_constantes
+    TipoPruebaClinica.BIOQUIMICA -> R.string.prueba_bioquimica
 }
 
 /** Opción cerrada de un resultado (ver InterpretePruebas.opciones). */
@@ -58,6 +59,7 @@ fun nombreOpcionResultado(opcion: String): Int? = when (opcion) {
     "ELEVADO" -> R.string.opcion_elevado
     "MEJOR" -> R.string.opcion_mejor
     "IGUAL_O_PEOR" -> R.string.opcion_igual_o_peor
+    "DESHIDRATACION" -> R.string.opcion_deshidratacion
     else -> null
 }
 
@@ -115,6 +117,8 @@ fun nombreNodo(id: String): Int? = when (id) {
     "p2a-sin-sintomas" -> R.string.nodo_p2a_sin_sintomas
     "p2a-repetir" -> R.string.nodo_p2a_repetir
     "p2a-tras-repetir" -> R.string.nodo_p2a_tras_repetir
+    "p2a-deshidratacion" -> R.string.nodo_p2a_deshidratacion
+    "p2a-rehidratar" -> R.string.nodo_p2a_rehidratar
     "p2a-mejora" -> R.string.nodo_p2a_mejora
     "p2a-ecocardio" -> R.string.nodo_p2a_ecocardio
     "p2a-resultado-ecocardio" -> R.string.nodo_p2a_resultado_ecocardio
@@ -165,6 +169,8 @@ fun nombreAccion(codigo: String): Int? = when (codigo) {
     "VIGILAR_MAS_A_MENUDO" -> R.string.accion_vigilar_mas_a_menudo
     "REVISAR_BALANCE_HIDRICO_24H" -> R.string.accion_revisar_balance_hidrico_24h
     "REPETIR_MEDICION_REPOSO_5_MIN" -> R.string.accion_repetir_medicion_reposo_5_min
+    "PEDIR_BIOQUIMICA" -> R.string.accion_pedir_bioquimica
+    "REHIDRATACION_ORAL" -> R.string.accion_rehidratacion_oral
     "HACER_ECOCARDIO" -> R.string.accion_hacer_ecocardio
     "POSIBLE_ALTERACION_HEMODINAMICA" -> R.string.accion_posible_alteracion_hemodinamica
     "INDICAR_EJERCICIO_O_ESTRES" -> R.string.accion_indicar_ejercicio_o_estres
@@ -209,6 +215,8 @@ fun nombreHecho(codigo: String): Int? = when (codigo) {
     "ANALITICA_ALTERADA" -> R.string.hecho_analitica_alterada
     "ECO_DOPPLER_PEOR_QUE_ANTERIOR" -> R.string.hecho_eco_doppler_peor
     "REPETICION_ALTERADA" -> R.string.hecho_repeticion_alterada
+    "BIOQUIMICA_ALTERADA" -> R.string.hecho_bioquimica_alterada
+    "DESHIDRATACION_ANALITICA" -> R.string.hecho_deshidratacion_analitica
     "VS_BAJO" -> R.string.hecho_vs_bajo
     "GC_BAJO" -> R.string.hecho_gc_bajo
     "ECG_ALTERADO" -> R.string.hecho_ecg_alterado
@@ -257,9 +265,28 @@ fun textoMotivo(motivo: String): String {
 @Composable
 private fun textoHechos(codigos: List<String>): String = codigos.map { textoDe(nombreHecho(it), it) }.joinToString(", ")
 
-/** Parámetro de un hemograma de NASA LSDS-7 (nombre de columna sin "_value_…"). */
+/** Parámetro de una analítica de NASA: hemograma LSDS-7 o bioquímica LSDS-8 (columna sin "_value…"). */
 @StringRes
-fun nombreParametroHemograma(codigo: String): Int? = when (codigo) {
+fun nombreParametroAnalitica(codigo: String): Int? = when (codigo) {
+    // Bioquímica (LSDS-8)
+    "albumin" -> R.string.bq_p_albumina
+    "albumin_to_globulin_ratio" -> R.string.bq_p_albumina_globulina
+    "alkaline_phosphatase" -> R.string.bq_p_fosfatasa_alcalina
+    "alt" -> R.string.bq_p_alt
+    "ast" -> R.string.bq_p_ast
+    "total_bilirubin" -> R.string.bq_p_bilirrubina
+    "bun_to_creatinine_ratio" -> R.string.bq_p_bun_creatinina
+    "calcium" -> R.string.bq_p_calcio
+    "carbon_dioxide" -> R.string.bq_p_bicarbonato
+    "chloride" -> R.string.bq_p_cloro
+    "creatinine" -> R.string.bq_p_creatinina
+    "globulin" -> R.string.bq_p_globulina
+    "glucose" -> R.string.bq_p_glucosa
+    "potassium" -> R.string.bq_p_potasio
+    "total_protein" -> R.string.bq_p_proteinas
+    "sodium" -> R.string.bq_p_sodio
+    "urea_nitrogen_bun" -> R.string.bq_p_urea
+    // Hemograma (LSDS-7)
     "absolute_basophils" -> R.string.hemo_p_basofilos_abs
     "absolute_eosinophils" -> R.string.hemo_p_eosinofilos_abs
     "absolute_lymphocytes" -> R.string.hemo_p_linfocitos_abs
@@ -284,12 +311,16 @@ fun nombreParametroHemograma(codigo: String): Int? = when (codigo) {
 }
 
 /**
- * Unidad de un parámetro del hemograma. La hemoglobina viene marcada como "percent" en el archivo,
- * pero sus valores (11–17) y su rango son g/dl.
+ * Unidad de un parámetro de una analítica de NASA. La hemoglobina viene marcada como "percent" en el
+ * archivo, pero sus valores (11–17) y su rango son g/dl. Los cocientes no llevan unidad.
  */
 @StringRes
-fun unidadHemograma(codigo: String, unidad: String): Int = when {
+fun unidadAnalitica(codigo: String, unidad: String): Int = when {
     codigo == "hemoglobin" -> R.string.hemo_u_g_dl
+    unidad == "gram_per_deciliter" -> R.string.hemo_u_g_dl
+    unidad == "milligram_per_deciliter" -> R.string.bq_u_mg_dl
+    unidad == "millimol_per_liter" -> R.string.bq_u_mmol_l
+    unidad == "units_per_liter" -> R.string.bq_u_u_l
     unidad == "cells_per_microliter" -> R.string.hemo_u_por_ul
     unidad == "percent" -> R.string.hemo_u_porcentaje
     unidad == "picogram" -> R.string.hemo_u_pg

@@ -53,6 +53,11 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.LocalEstado
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDriftersTheme
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.etiquetaAnimo
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.etiquetaIntensidad
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.nombreEjercicio
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.nombreIngesta
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.nombreSintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.emergencia.BotonAlarma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.ProtocoloEnCurso
@@ -72,6 +77,7 @@ fun InicioAstronautaScreen(
     onEmpezarNBack: () -> Unit,
     onRegistro: () -> Unit,
     onCerrarSesion: () -> Unit = {},
+    onBienestar: () -> Unit = {},
     viewModel: InicioAstronautaViewModel = viewModel(factory = AppViewModelProvider.Factory),
     emergencia: EmergenciaViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
@@ -87,6 +93,7 @@ fun InicioAstronautaScreen(
         signosAlarma = emergencia.signosAlarma,
         onAlarma = emergencia::activar,
         onCerrarSesion = onCerrarSesion,
+        onBienestar = onBienestar,
     )
 }
 
@@ -101,6 +108,7 @@ private fun PanelAstronautaContenido(
     signosAlarma: List<String> = emptyList(),
     onAlarma: (Set<String>) -> Unit = {},
     onCerrarSesion: () -> Unit = {},
+    onBienestar: () -> Unit = {},
     ahora: Long = remember { System.currentTimeMillis() },
 ) {
     var periodo by rememberSaveable { mutableStateOf(Periodo.SEMANA) }
@@ -126,6 +134,7 @@ private fun PanelAstronautaContenido(
                 protocolos.forEach { TarjetaProtocoloAstronauta(it) }
                 if (panel.avisos.isNotEmpty()) TarjetaAvisos(panel.avisos)
                 TarjetaRegistroHoy(panel.registroHoy, onRegistro)
+                TarjetaBienestar(panel.bienestarHoy, onBienestar)
                 TarjetaPruebasDeHoy(
                     hechasHoy = panel.hechasHoy,
                     pruebasExtra = panel.pruebasExtra,
@@ -244,6 +253,9 @@ private fun tituloRegla(reglaId: String): Int = when (reglaId) {
     "nback-tendencia" -> R.string.regla_nback_tendencia
     "fatiga-cognitiva-combinada" -> R.string.regla_fatiga_cognitiva
     "concentracion-sintomas" -> R.string.regla_concentracion_sintomas
+    "hidratacion-baja" -> R.string.regla_hidratacion_baja
+    "bienestar-bajo" -> R.string.regla_bienestar_bajo
+    AlertasRepository.REGLA_SOLICITUD_APOYO -> R.string.regla_solicitud_apoyo
     else -> R.string.regla_generica
 }
 
@@ -254,6 +266,10 @@ private fun textoPaso(codigo: String): Int? = when (codigo) {
     "REDUCIR_CARGA_TRABAJO" -> R.string.paso_reducir_carga_trabajo
     "DORMIR_8_HORAS" -> R.string.paso_dormir_8_horas
     "REPETIR_PRUEBAS_MANANA" -> R.string.paso_repetir_pruebas_manana
+    "BEBER_MAS_LIQUIDO" -> R.string.paso_beber_mas_liquido
+    "VIGILAR_MAREO" -> R.string.paso_vigilar_mareo
+    "HABLAR_APOYO_PSICOLOGICO" -> R.string.paso_hablar_apoyo
+    "PROBAR_RESPIRACION" -> R.string.paso_probar_respiracion
     else -> null
 }
 
@@ -284,6 +300,9 @@ private fun TarjetaRegistroHoy(registro: RegistroHoyUi?, onRegistro: () -> Unit)
                 val formato = remember {
                     NumberFormat.getNumberInstance().apply { maximumFractionDigits = 1 }
                 }
+                val formatoLitros = remember {
+                    NumberFormat.getNumberInstance().apply { maximumFractionDigits = 2 }
+                }
                 DatoRegistro(
                     etiqueta = stringResource(R.string.registro_dato_sueno),
                     valor = registro.horasSueno?.let { stringResource(R.string.registro_horas, formato.format(it)) } ?: sinDatos,
@@ -300,8 +319,72 @@ private fun TarjetaRegistroHoy(registro: RegistroHoyUi?, onRegistro: () -> Unit)
                         registro.sintomas.map { stringResource(nombreSintoma(it)) }.joinToString(", ")
                     },
                 )
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.registro_dato_agua),
+                    valor = registro.aguaLitros?.let {
+                        stringResource(R.string.registro_litros, formatoLitros.format(it))
+                    } ?: sinDatos,
+                )
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.registro_dato_ingesta),
+                    valor = registro.ingesta?.let {
+                        "${stringResource(nombreIngesta(it))} (${stringResource(R.string.registro_ingesta_valor, it)})"
+                    } ?: sinDatos,
+                )
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.registro_dato_ejercicio),
+                    valor = registro.ejercicioMinutos?.let { min ->
+                        listOf(stringResource(R.string.registro_minutos, min))
+                            .plus(registro.ejercicios.map { stringResource(nombreEjercicio(it)) })
+                            .joinToString(" · ")
+                    } ?: sinDatos,
+                )
                 OutlinedButton(onClick = onRegistro, modifier = Modifier.heightIn(min = 48.dp)) {
                     Text(stringResource(R.string.registro_editar))
+                }
+            }
+        }
+    }
+}
+
+// ---- Bienestar psicológico ----
+
+@Composable
+private fun TarjetaBienestar(bienestar: BienestarHoyUi?, onBienestar: () -> Unit) {
+    val sinDatos = stringResource(R.string.estado_sin_datos)
+    Card(
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(text = stringResource(R.string.bienestar_titulo), style = MaterialTheme.typography.titleLarge)
+            if (bienestar == null) {
+                Text(
+                    text = stringResource(R.string.bienestar_pendiente),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Button(onClick = onBienestar, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(stringResource(R.string.bienestar_hacer_checkin))
+                }
+            } else {
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.bienestar_dato_animo),
+                    valor = bienestar.animo?.let { stringResource(etiquetaAnimo(it)) } ?: sinDatos,
+                )
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.bienestar_dato_estres),
+                    valor = bienestar.estres?.let { stringResource(etiquetaIntensidad(it)) } ?: sinDatos,
+                )
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.bienestar_dato_aislamiento),
+                    valor = bienestar.aislamiento?.let { stringResource(etiquetaIntensidad(it)) } ?: sinDatos,
+                )
+                OutlinedButton(onClick = onBienestar, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(stringResource(R.string.bienestar_abrir))
                 }
             }
         }

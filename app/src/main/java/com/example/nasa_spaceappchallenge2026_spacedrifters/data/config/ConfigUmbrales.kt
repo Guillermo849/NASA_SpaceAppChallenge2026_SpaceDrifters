@@ -12,9 +12,10 @@ data class ConfigUmbrales(
     val umbrales: List<UmbralJson>,
     /** Referencia por métrica para quien aún no tiene línea base propia (p. ej. VS, GC). */
     val referencias: Map<String, Double> = emptyMap(),
+    val bioquimica: BioquimicaJson = BioquimicaJson(),
 ) {
 
-    fun aUmbrales() = UmbralesFisiologicos(umbrales.map { it.aUmbral() }, referencias)
+    fun aUmbrales() = UmbralesFisiologicos(umbrales.map { it.aUmbral() }, referencias, bioquimica.indicanDeshidratacion)
 
     companion object {
         const val ARCHIVO = "config_umbrales.json"
@@ -27,6 +28,13 @@ data class ConfigUmbrales(
             context.assets.open(ARCHIVO).bufferedReader().use { desdeTexto(it.readText()) }
     }
 }
+
+/** Cómo se interpreta la bioquímica (panel metabólico de NASA LSDS-8). */
+@Serializable
+data class BioquimicaJson(
+    /** Códigos de parámetro que, por encima de su rango, indican deshidratación. */
+    val indicanDeshidratacion: List<String> = emptyList(),
+)
 
 @Serializable
 data class UmbralJson(

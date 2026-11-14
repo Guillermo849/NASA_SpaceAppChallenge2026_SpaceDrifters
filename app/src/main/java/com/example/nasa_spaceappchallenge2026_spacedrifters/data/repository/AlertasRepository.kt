@@ -77,7 +77,43 @@ class AlertasRepository(
         val noches = registros.map { ContextoReglas.Noche(LocalDate.parse(it.fecha), it.horasSueno) }
         val sintomasHoy = registros.firstOrNull { it.fecha == hoy.toString() }?.listaSintomas.orEmpty().map { it.name }.toSet()
         val suenoHabitual = trip.astronauta(astronautaId).first()?.horasSuenoHabituales
-        return ContextoReglas(hoy, sesiones, noches, suenoHabitual, sintomasHoy)
+        val agua = registros.map { ContextoReglas.DiaAgua(LocalDate.parse(it.fecha), it.aguaLitros) }
+        val bienestar = db.bienestarDao().recientes(astronautaId, hoy.minusDays(DIAS_DE_REGISTRO - 1L).toString()).map {
+            ContextoReglas.DiaBienestar(LocalDate.parse(it.fecha), it.animo, it.estres, it.aislamiento)
+        }
+        return ContextoReglas(hoy, sesiones, noches, suenoHabitual, sintomasHoy, agua, bienestar)
+    }
+
+    /**
+     * "Hablar con apoyo psicológico": alerta para el médico, sin regla detrás. Devuelve false si ya
+     * hay una petición activa (no se duplica).
+     */
+    suspend fun solicitarApoyo(astronautaId: Long, ahora: Long = System.currentTimeMillis()): Boolean {
+        if (alertas.contarActivas(astronautaId, REGLA_SOLICITUD_APOYO) > 0) return false
+        val explicacion = ExplicacionAlerta(
+            regla = REGLA_SOLICITUD_APOYO,
+            prioridad = Regla.Prioridad.HOY.name,
+            umbral = UmbralRegla(estados = emptyList()),
+            sesiones = emptyList(),
+            fuentes = listOf(FUENTE_BIENESTAR),
+        )
+        alertas.insertar(
+            AlertEntity().apply {
+                this.astronautId = astronautaId
+                source = AlertSource.NEURO.name
+                metric = REGLA_SOLICITUD_APOYO
+                message = "El astronauta pide hablar con el equipo de apoyo psicológico"
+                severity = Severity.WARNING.name
+                generatedAt = ahora
+                status = AlertStatus.ACTIVE.name
+                ruleId = REGLA_SOLICITUD_APOYO
+                priority = Regla.Prioridad.HOY.name
+                steps = ""
+                this.explanation = JSON.encodeToString(ExplicacionAlerta.serializer(), explicacion)
+                arrivesEarthAt = ahora + retrasoMisionMs
+            },
+        )
+        return true
     }
 
     private suspend fun aAlerta(
@@ -96,6 +132,11 @@ class AlertasRepository(
                 sesionesSeguidas = regla.sesionesSeguidas,
                 nochesBajoBase = regla.nochesBajoBase,
                 sintomas = regla.sintomas.toList(),
+                diasSeguidos = regla.diasSeguidos,
+                aguaMinLitros = regla.aguaMinLitros.takeIf { it > 0 },
+                animoMax = regla.bienestar?.animoMax,
+                estresMin = regla.bienestar?.estresMin,
+                aislamientoMin = regla.bienestar?.aislamientoMin,
             ),
             sesiones = cumplida.sesiones.map {
                 DatoSesion(it.sesionId, it.prueba, it.fecha.toString(), it.estado.name, it.metrica, it.valor)
@@ -103,17 +144,27 @@ class AlertasRepository(
             noches = cumplida.noches.map { DatoNoche(it.fecha.toString(), it.horas) },
             suenoHabitual = if (cumplida.noches.isNotEmpty()) contexto.suenoHabitual else null,
             sintomas = cumplida.sintomas.toList(),
+            agua = cumplida.agua.map { DatoAgua(it.fecha.toString(), it.litros) },
+            bienestar = cumplida.bienestar.map { DatoBienestar(it.fecha.toString(), it.animo, it.estres, it.aislamiento) },
             fuentes = buildList {
                 addAll(cumplida.sesiones.map { it.prueba }.distinct())
-                if (cumplida.noches.isNotEmpty() || cumplida.sintomas.isNotEmpty()) add(FUENTE_REGISTRO)
+                if (cumplida.noches.isNotEmpty() || cumplida.sintomas.isNotEmpty() || cumplida.agua.isNotEmpty()) {
+                    add(FUENTE_REGISTRO)
+                }
+                if (cumplida.bienestar.isNotEmpty()) add(FUENTE_BIENESTAR)
             },
         )
+        val aguaHoy = cumplida.agua.firstOrNull()
         return AlertEntity().apply {
             this.astronautId = astronautaId
             source = AlertSource.NEURO.name
             sourceRecordId = disparo?.sesionId
-            metric = disparo?.metrica ?: regla.id
-            value = disparo?.valor
+            metric = disparo?.metrica ?: when {
+                aguaHoy != null -> METRICA_AGUA
+                cumplida.bienestar.isNotEmpty() -> FUENTE_BIENESTAR
+                else -> regla.id
+            }
+            value = disparo?.valor ?: aguaHoy?.litros
             message = MENSAJES[regla.id] ?: regla.id
             severity = when (regla.prioridad) {
                 Regla.Prioridad.AHORA -> Severity.CRITICAL
@@ -137,6 +188,12 @@ class AlertasRepository(
         /** Días de registro diario que se miran (de sobra para "3 noches"). */
         private const val DIAS_DE_REGISTRO = 7
         const val FUENTE_REGISTRO = "REGISTRO_DIARIO"
+        /** alert.metric de las reglas de hidratación (alert.value = litros anotados hoy). */
+        const val METRICA_AGUA = "AGUA_LITROS"
+        /** Fuente de los datos del check-in de bienestar psicológico. */
+        const val FUENTE_BIENESTAR = "BIENESTAR"
+        /** rule_id de la petición "Hablar con apoyo psicológico" (no está en reglas.json). */
+        const val REGLA_SOLICITUD_APOYO = "solicitud-apoyo"
         private val JSON = Json { encodeDefaults = true }
 
         /** Resumen legible guardado en alert.message (la app muestra los textos de strings.xml por rule_id). */
@@ -145,6 +202,8 @@ class AlertasRepository(
             "nback-tendencia" to "N-Back: 3 sesiones seguidas en Vigilar o Alerta",
             "fatiga-cognitiva-combinada" to "N-Back en Vigilar o Alerta y 3 noches durmiendo menos de lo habitual",
             "concentracion-sintomas" to "Prueba cognitiva en Alerta y síntomas de concentración o dolor de cabeza hoy",
+            "hidratacion-baja" to "Menos de 1,5 L de líquido dos días seguidos",
+            "bienestar-bajo" to "Ánimo bajo, estrés alto o aislamiento alto dos días seguidos",
         )
 
         fun leerExplicacion(texto: String?): ExplicacionAlerta? =
@@ -165,7 +224,11 @@ data class ExplicacionAlerta(
     val suenoHabitual: Double? = null,
     /** Síntomas del registro de hoy implicados, si los hay. */
     val sintomas: List<String> = emptyList(),
-    /** De dónde salen los datos: "STROOP", "NBACK", "REGISTRO_DIARIO". */
+    /** Líquido anotado en los días implicados (del más reciente al más antiguo), si los hay. */
+    val agua: List<DatoAgua> = emptyList(),
+    /** Check-ins de bienestar implicados (del más reciente al más antiguo), si los hay. */
+    val bienestar: List<DatoBienestar> = emptyList(),
+    /** De dónde salen los datos: "STROOP", "NBACK", "REGISTRO_DIARIO", "BIENESTAR". */
     val fuentes: List<String>,
 )
 
@@ -175,7 +238,20 @@ data class UmbralRegla(
     val sesionesSeguidas: Int = 0,
     val nochesBajoBase: Int = 0,
     val sintomas: List<String> = emptyList(),
+    val diasSeguidos: Int = 0,
+    /** Litros por debajo de los cuales cuenta un día (reglas de hidratación). */
+    val aguaMinLitros: Double? = null,
+    /** Reglas de bienestar (escalas 1–5). */
+    val animoMax: Int? = null,
+    val estresMin: Int? = null,
+    val aislamientoMin: Int? = null,
 )
+
+@Serializable
+data class DatoAgua(val fecha: String, val litros: Double?)
+
+@Serializable
+data class DatoBienestar(val fecha: String, val animo: Int?, val estres: Int?, val aislamiento: Int?)
 
 @Serializable
 data class DatoSesion(

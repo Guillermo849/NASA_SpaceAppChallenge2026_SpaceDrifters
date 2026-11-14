@@ -109,6 +109,10 @@ data class FilaSesionUi(
     /** Del registro diario de ese día. */
     val horasSueno: Double?,
     val somnolencia: Int?,
+    /** Hábitos del día anterior, anotados en el registro de ese día. */
+    val aguaLitros: Double? = null,
+    val ingesta: Int? = null,
+    val ejercicioMinutos: Int? = null,
 )
 
 /** Métrica principal de una sesión según su prueba. */
@@ -196,6 +200,9 @@ fun construirPerfil(
                 esLineaBase = s.esLineaBase,
                 horasSueno = registro?.horasSueno,
                 somnolencia = registro?.somnolencia,
+                aguaLitros = registro?.aguaLitros,
+                ingesta = registro?.ingestaPorcentaje,
+                ejercicioMinutos = registro?.ejercicioMinutos,
             )
         },
         pruebasPendientes = pendientes.map { it.tipo }.distinct(),

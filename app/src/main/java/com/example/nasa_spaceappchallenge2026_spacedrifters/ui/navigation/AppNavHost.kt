@@ -10,6 +10,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.InicioAstronautaScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.RegistroDiarioScreen
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.BienestarScreen
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.JuegoParejasScreen
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.RespiracionScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop.StroopScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.login.LoginScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.DetalleSesionScreen
@@ -78,6 +81,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onEmpezarStroop = { navController.navigate(RutaPruebaStroop) },
                 onEmpezarNBack = { navController.navigate(RutaPruebaNBack) },
                 onRegistro = { navController.navigate(RutaRegistroDiario) },
+                onBienestar = { navController.navigate(RutaBienestar) },
                 onCerrarSesion = {
                     navController.navigate(RutaLogin) {
                         popUpTo(0) { inclusive = true }
@@ -90,6 +94,21 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onAtras = { navController.popBackStack() },
                 onGuardado = { navController.popBackStack() },
             )
+        }
+
+        // ── Bienestar psicológico ─────────────────────────────────────────────
+        composable<RutaBienestar> {
+            BienestarScreen(
+                onAtras = { navController.popBackStack() },
+                onRespiracion = { navController.navigate(RutaRespiracion) },
+                onJuego = { navController.navigate(RutaJuegoParejas) },
+            )
+        }
+        composable<RutaRespiracion> {
+            RespiracionScreen(onAtras = { navController.popBackStack() })
+        }
+        composable<RutaJuegoParejas> {
+            JuegoParejasScreen(onAtras = { navController.popBackStack() })
         }
 
         // Las pruebas cognitivas van sin animaciones de transición.

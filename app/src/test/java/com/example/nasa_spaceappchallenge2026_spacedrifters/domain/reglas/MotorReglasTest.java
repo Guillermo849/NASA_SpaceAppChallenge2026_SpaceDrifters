@@ -7,6 +7,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.EstadoCognitivo;
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ReglasJson;
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.protocolos.Assets;
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.ContextoReglas.DiaAgua;
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.ContextoReglas.DiaBienestar;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.ContextoReglas.Noche;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.ContextoReglas.Sesion;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.MotorReglas.ReglaCumplida;
@@ -183,5 +187,158 @@ public class MotorReglasTest {
     @Test
     public void sinDatos_ningunaRegla() {
         assertTrue(MotorReglas.evaluar(TODAS, contexto(Collections.emptyList(), Collections.emptyList())).isEmpty());
+        assertTrue(MotorReglas.evaluar(Collections.singletonList(HIDRATACION), conAgua()).isEmpty());
+    }
+
+    // ---- hidratacion-baja ----
+
+    private static final Regla HIDRATACION = new Regla("hidratacion-baja", Regla.Tipo.HIDRATACION_BAJA,
+            Collections.emptyList(), Collections.emptySet(), 0, 0, Collections.emptySet(),
+            Regla.Prioridad.HOY, Arrays.asList("BEBER_MAS_LIQUIDO", "VIGILAR_MAREO"), null, 2, 1.5);
+
+    /** Litros anotados los últimos días, del más antiguo al de hoy. */
+    private static ContextoReglas conAgua(Double... litros) {
+        List<DiaAgua> lista = new ArrayList<>();
+        for (int i = 0; i < litros.length; i++) {
+            lista.add(new DiaAgua(HOY.minusDays(litros.length - 1 - i), litros[i]));
+        }
+        return new ContextoReglas(HOY, Collections.emptyList(), Collections.emptyList(), 7.5,
+                Collections.emptySet(), lista);
+    }
+
+    @Test
+    public void hidratacion_dosDiasSeguidosPorDebajo() {
+        List<ReglaCumplida> r = MotorReglas.evaluar(Collections.singletonList(HIDRATACION), conAgua(2.0, 1.25, 1.0));
+        assertEquals(Collections.singletonList("hidratacion-baja"), ids(r));
+        // Los dos días implicados, del más reciente al más antiguo; sin sesiones.
+        assertEquals(2, r.get(0).getAgua().size());
+        assertEquals(HOY, r.get(0).getAgua().get(0).getFecha());
+        assertEquals(1.0, r.get(0).getAgua().get(0).getLitros(), 1e-9);
+        assertTrue(r.get(0).getSesiones().isEmpty());
+    }
+
+    @Test
+    public void hidratacion_unSoloDiaNoBasta() {
+        assertTrue(MotorReglas.evaluar(Collections.singletonList(HIDRATACION), conAgua(2.0, 1.0)).isEmpty());
+        // Ayer bajo, hoy bien.
+        assertTrue(MotorReglas.evaluar(Collections.singletonList(HIDRATACION), conAgua(1.0, 2.0)).isEmpty());
+    }
+
+    @Test
+    public void hidratacion_justoEnElUmbralNoCuenta() {
+        assertTrue(MotorReglas.evaluar(Collections.singletonList(HIDRATACION), conAgua(1.5, 1.0)).isEmpty());
+    }
+
+    @Test
+    public void hidratacion_unDiaSinAnotarNoLaDispara() {
+        assertTrue(MotorReglas.evaluar(Collections.singletonList(HIDRATACION), conAgua(1.0, null)).isEmpty());
+        // Sin registro de hoy.
+        ContextoReglas sinHoy = new ContextoReglas(HOY, Collections.emptyList(), Collections.emptyList(), 7.5,
+                Collections.emptySet(), Arrays.asList(new DiaAgua(HOY.minusDays(1), 1.0), new DiaAgua(HOY.minusDays(2), 1.0)));
+        assertTrue(MotorReglas.evaluar(Collections.singletonList(HIDRATACION), sinHoy).isEmpty());
+    }
+
+    @Test
+    public void hidratacion_lasReglasCognitivasNoLaVen() {
+        // Mucho líquido bajo, sin pruebas: solo salta la de hidratación.
+        List<Regla> todas = new ArrayList<>(TODAS);
+        todas.add(HIDRATACION);
+        assertEquals(Collections.singletonList("hidratacion-baja"), ids(MotorReglas.evaluar(todas, conAgua(1.0, 1.0, 1.0))));
+    }
+
+    @Test
+    public void reglasJson_laDeHidratacionSeLeeDelAsset() {
+        List<Regla> reglas = ReglasJson.Companion.desdeTexto(Assets.leer("reglas.json"));
+        Regla h = null;
+        for (Regla r : reglas) if (r.getId().equals("hidratacion-baja")) h = r;
+        assertEquals(Regla.Tipo.HIDRATACION_BAJA, h.getTipo());
+        assertEquals(2, h.getDiasSeguidos());
+        assertEquals(1.5, h.getAguaMinLitros(), 1e-9);
+        assertEquals(6, reglas.size());
+    }
+
+    // ---- bienestar-bajo ----
+
+    private static final Regla BIENESTAR = new Regla("bienestar-bajo", Regla.Tipo.BIENESTAR_BAJO,
+            Collections.emptyList(), Collections.emptySet(), 0, 0, Collections.emptySet(),
+            Regla.Prioridad.HOY, Arrays.asList("HABLAR_APOYO_PSICOLOGICO", "PROBAR_RESPIRACION"), null,
+            2, 0.0, new UmbralesBienestar(2, 4, 4));
+
+    /** Check-ins {ánimo, estrés, aislamiento} de los últimos días, del más antiguo al de hoy. */
+    private static ContextoReglas conBienestar(Integer[]... dias) {
+        List<DiaBienestar> lista = new ArrayList<>();
+        for (int i = 0; i < dias.length; i++) {
+            lista.add(new DiaBienestar(HOY.minusDays(dias.length - 1 - i), dias[i][0], dias[i][1], dias[i][2]));
+        }
+        return new ContextoReglas(HOY, Collections.emptyList(), Collections.emptyList(), 7.5,
+                Collections.emptySet(), Collections.emptyList(), lista);
+    }
+
+    private static Integer[] dia(Integer animo, Integer estres, Integer aislamiento) {
+        return new Integer[]{animo, estres, aislamiento};
+    }
+
+    private static List<String> evaluarBienestar(ContextoReglas c) {
+        return ids(MotorReglas.evaluar(Collections.singletonList(BIENESTAR), c));
+    }
+
+    @Test
+    public void bienestar_dosDiasSeguidosConAlgunIndicadorFuera() {
+        // Ayer aislamiento alto, hoy ánimo bajo: cuentan los dos aunque sea por motivos distintos.
+        List<ReglaCumplida> r = MotorReglas.evaluar(Collections.singletonList(BIENESTAR),
+                conBienestar(dia(4, 2, 2), dia(3, 2, 4), dia(2, 2, 2)));
+        assertEquals(Collections.singletonList("bienestar-bajo"), ids(r));
+        assertEquals(2, r.get(0).getBienestar().size());
+        assertEquals(HOY, r.get(0).getBienestar().get(0).getFecha());
+        assertTrue(r.get(0).getSesiones().isEmpty());
+    }
+
+    @Test
+    public void bienestar_unSoloDiaNoBasta() {
+        assertTrue(evaluarBienestar(conBienestar(dia(4, 2, 2), dia(4, 5, 2))).isEmpty());
+        assertTrue(evaluarBienestar(conBienestar(dia(1, 5, 5), dia(4, 2, 2))).isEmpty());
+    }
+
+    @Test
+    public void bienestar_enElLimiteNoCuenta() {
+        // Ánimo 3, estrés 3, aislamiento 3: dentro de lo esperable.
+        assertTrue(evaluarBienestar(conBienestar(dia(3, 3, 3), dia(3, 3, 3))).isEmpty());
+        // Estrés 4 dos días: sí.
+        assertEquals(Collections.singletonList("bienestar-bajo"), evaluarBienestar(conBienestar(dia(3, 4, 1), dia(3, 4, 1))));
+    }
+
+    @Test
+    public void bienestar_unDiaSinCheckinNoLaDispara() {
+        ContextoReglas sinHoy = new ContextoReglas(HOY, Collections.emptyList(), Collections.emptyList(), 7.5,
+                Collections.emptySet(), Collections.emptyList(),
+                Arrays.asList(new DiaBienestar(HOY.minusDays(1), 1, 5, 5), new DiaBienestar(HOY.minusDays(2), 1, 5, 5)));
+        assertTrue(evaluarBienestar(sinHoy).isEmpty());
+        // Hoy sin respuestas (todo null) tampoco.
+        assertTrue(evaluarBienestar(conBienestar(dia(1, 5, 5), dia(null, null, null))).isEmpty());
+    }
+
+    @Test
+    public void reglasJson_laDeBienestarSeLeeDelAsset() {
+        Regla b = null;
+        for (Regla r : ReglasJson.Companion.desdeTexto(Assets.leer("reglas.json"))) {
+            if (r.getId().equals("bienestar-bajo")) b = r;
+        }
+        assertEquals(Regla.Tipo.BIENESTAR_BAJO, b.getTipo());
+        assertEquals(2, b.getDiasSeguidos());
+        assertEquals(Integer.valueOf(2), b.getBienestar().getAnimoMax());
+        assertEquals(Integer.valueOf(4), b.getBienestar().getEstresMin());
+        assertEquals(Integer.valueOf(4), b.getBienestar().getAislamientoMin());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void bienestar_sinUmbralesEsInvalida() {
+        new Regla("x", Regla.Tipo.BIENESTAR_BAJO, Collections.emptyList(), Collections.emptySet(), 0, 0,
+                Collections.emptySet(), Regla.Prioridad.HOY, Collections.emptyList(), null, 2, 0.0, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void hidratacion_sinUmbralEsInvalida() {
+        new Regla("x", Regla.Tipo.HIDRATACION_BAJA, Collections.emptyList(), Collections.emptySet(), 0, 0,
+                Collections.emptySet(), Regla.Prioridad.HOY, Collections.emptyList(), null, 2, 0.0);
     }
 }

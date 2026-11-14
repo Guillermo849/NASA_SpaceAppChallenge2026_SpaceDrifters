@@ -17,6 +17,9 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.Pe
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.FisiologicoMedicoViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.TripulacionViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.InicioAstronautaViewModel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.BienestarViewModel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.JuegoParejasViewModel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.RespiracionViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.emergencia.EmergenciaViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.RegistroDiarioViewModel
@@ -51,7 +54,21 @@ object AppViewModelProvider {
                 astronautaId = c.astronautaActualId,
                 retrasoMin = c.configMision.retrasoMisionMin,
                 fisiologico = c.fisiologicoRepository,
+                bienestar = c.bienestarRepository,
             )
+        }
+        // Bienestar psicológico
+        initializer {
+            val c = app().container
+            BienestarViewModel(c.bienestarRepository, c.alertasRepository, c.astronautaActualId, c.ambitoAplicacion)
+        }
+        initializer {
+            val c = app().container
+            RespiracionViewModel(c.bienestarRepository, c.astronautaActualId, c.ambitoAplicacion)
+        }
+        initializer {
+            val c = app().container
+            JuegoParejasViewModel(c.bienestarRepository, c.astronautaActualId, c.ambitoAplicacion)
         }
         initializer {
             val c = app().container
@@ -100,7 +117,12 @@ object AppViewModelProvider {
         }
         initializer {
             val c = app().container
-            RegistroDiarioViewModel(c.tripulacionRepository, c.alertasRepository, c.astronautaActualId)
+            RegistroDiarioViewModel(
+                c.tripulacionRepository,
+                c.alertasRepository,
+                c.astronautaActualId,
+                c.configMision.objetivosDiarios,
+            )
         }
     }
 }

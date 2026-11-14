@@ -28,6 +28,16 @@ data object RutaPruebaNBack
 @Serializable
 data object RutaRegistroDiario
 
+// Bienestar psicológico: check-in y herramientas
+@Serializable
+data object RutaBienestar
+
+@Serializable
+data object RutaRespiracion
+
+@Serializable
+data object RutaJuegoParejas
+
 // Médico: perfil de un astronauta y detalle de una sesión
 @Serializable
 data class RutaPerfilAstronauta(val astronautaId: Long)

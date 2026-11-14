@@ -72,12 +72,15 @@
     <string name="regla_nback_tendencia">Tu memoria de trabajo está por debajo de lo habitual</string>
     <string name="regla_fatiga_cognitiva">Signos de fatiga</string>
     <string name="regla_concentracion_sintomas">Concentración y síntomas</string>
+    <string name="regla_hidratacion_baja">Estás bebiendo poco líquido</string>
     <string name="regla_generica">Aviso de salud</string>
     <string name="paso_evitar_tareas_criticas_solo">Evita tareas críticas en solitario hoy</string>
     <string name="paso_repetir_prueba_manana">Repite la prueba mañana</string>
     <string name="paso_reducir_carga_trabajo">Reduce la carga de trabajo</string>
     <string name="paso_dormir_8_horas">Duerme al menos 8 h</string>
     <string name="paso_repetir_pruebas_manana">Repite las pruebas mañana</string>
+    <string name="paso_beber_mas_liquido">Bebe al menos 2 L hoy, repartidos a lo largo del día</string>
+    <string name="paso_vigilar_mareo">Si te mareas al levantarte, avisa a la oficial médico</string>
 
     <!-- Registro diario -->
     <string name="registro_titulo">Registro de hoy</string>
@@ -104,6 +107,36 @@
     <string name="sintoma_dificultad_concentracion">Dificultad para concentrarse</string>
     <string name="sintoma_fatiga">Fatiga</string>
     <string name="sintoma_nauseas">Náuseas</string>
+    <!-- Registro diario: hidratación, nutrición y actividad física (de ayer) -->
+    <string name="registro_habitos_titulo">Ayer: hidratación, nutrición y ejercicio</string>
+    <string name="registro_habitos_ayuda">Opcional. Lo que no anotes queda como «Sin datos».</string>
+    <string name="registro_agua_pregunta">¿Cuánto líquido bebiste ayer?</string>
+    <string name="registro_ingesta_pregunta">¿Qué parte del menú previsto comiste ayer?</string>
+    <string name="registro_ejercicio_pregunta">¿Cuánto ejercicio hiciste ayer?</string>
+    <string name="registro_sin_anotar">Sin anotar</string>
+    <string name="registro_litros">%1$s L</string>
+    <string name="registro_minutos">%1$d min</string>
+    <string name="registro_ingesta_valor">%1$d %% del menú</string>
+    <string name="registro_objetivo_agua">Objetivo diario: %1$s L</string>
+    <string name="registro_objetivo_ejercicio">Objetivo diario: %1$d min</string>
+    <string name="registro_objetivo_cumplido">Objetivo alcanzado</string>
+    <string name="registro_objetivo_bajo">Por debajo del objetivo</string>
+    <string name="registro_dato_agua">Líquido</string>
+    <string name="registro_dato_ingesta">Comida</string>
+    <string name="registro_dato_ejercicio">Ejercicio</string>
+    <string name="cd_menos_agua">Un cuarto de litro menos</string>
+    <string name="cd_mas_agua">Un cuarto de litro más</string>
+    <string name="cd_menos_ejercicio">Quince minutos menos</string>
+    <string name="cd_mas_ejercicio">Quince minutos más</string>
+    <string name="ingesta_nada">Nada</string>
+    <string name="ingesta_poco">Poco</string>
+    <string name="ingesta_mitad">La mitad</string>
+    <string name="ingesta_casi_todo">Casi todo</string>
+    <string name="ingesta_todo">Todo</string>
+    <string name="ejercicio_ninguno">No hice ejercicio</string>
+    <string name="ejercicio_cinta">Cinta de correr</string>
+    <string name="ejercicio_bicicleta">Bicicleta</string>
+    <string name="ejercicio_fuerza">Fuerza (resistencia)</string>
     <!-- Escala de somnolencia de Karolinska (KSS) -->
     <string name="kss_1">Extremadamente despierto</string>
     <string name="kss_2">Muy despierto</string>
@@ -233,6 +266,11 @@
         <item quantity="one">%1$d noche durmiendo menos de lo habitual</item>
         <item quantity="other">%1$d noches seguidas durmiendo menos de lo habitual</item>
     </plurals>
+    <plurals name="medico_umbral_agua">
+        <item quantity="one">%1$d día con menos de %2$s L de líquido</item>
+        <item quantity="other">%1$d días seguidos con menos de %2$s L de líquido</item>
+    </plurals>
+    <string name="medico_regla_hidratacion">Hidratación baja</string>
     <string name="medico_umbral_sintomas">síntomas: %1$s</string>
     <string name="medico_sueno_habitual">(habitual: %1$s h)</string>
     <string name="medico_fuente_registro">Registro diario</string>
@@ -255,6 +293,7 @@
     <string name="medico_valida_si">Válida: sí</string>
     <string name="medico_valida_no">Válida: no</string>
     <string name="medico_sueno_kss">Sueño %1$s h · KSS %2$s</string>
+    <string name="medico_habitos">Líquido %1$s L · Menú %2$s %% · Ejercicio %3$s min</string>
     <string name="medico_msg_alerta_confirmada">Alerta confirmada.</string>
     <string name="medico_msg_prueba_pedida">Prueba extra programada.</string>
     <string name="medico_msg_linea_base">Línea base recalculada.</string>
@@ -569,6 +608,40 @@
     <string name="hemo_o_a_mano">O elige el resultado a mano</string>
     <string name="hemo_resultado_muestra">muestra NASA %1$s %2$s</string>
     <string name="hemo_resultado_fuera">fuera de rango: %1$s</string>
+    <!-- Bioquímica real de NASA (OSDR LSDS-8, Inspiration4) -->
+    <string name="prueba_bioquimica">Bioquímica</string>
+    <string name="opcion_deshidratacion">Indica deshidratación</string>
+    <string name="hecho_bioquimica_alterada">Bioquímica alterada</string>
+    <string name="hecho_deshidratacion_analitica">La bioquímica indica deshidratación</string>
+    <string name="nodo_p2a_deshidratacion">¿La bioquímica indica deshidratación?</string>
+    <string name="nodo_p2a_rehidratar">Deshidratación: rehidratar y repetir la medición</string>
+    <string name="accion_pedir_bioquimica">Sacar sangre para una bioquímica (urea, creatinina, sodio, potasio…)</string>
+    <string name="accion_rehidratacion_oral">Rehidratación oral: beber agua con sales, a sorbos</string>
+    <string name="bq_titulo">Bioquímica real · NASA OSDR (LSDS-8)</string>
+    <string name="bq_explicacion">Muestras de suero reales del tripulante %1$s de Inspiration4, antes del vuelo (L) y tras el regreso (R). Elige una: los valores fuera de su rango se marcan y la urea, el cociente BUN/creatinina o el sodio altos indican deshidratación.</string>
+    <string name="bq_usar">Usar esta bioquímica</string>
+    <string name="bq_rango_min">Rango ≥ %1$s</string>
+    <string name="bq_rango_max">Rango ≤ %1$s</string>
+    <string name="bq_u_mg_dl">mg/dl</string>
+    <string name="bq_u_mmol_l">mmol/l</string>
+    <string name="bq_u_u_l">U/l</string>
+    <string name="bq_p_albumina">Albúmina</string>
+    <string name="bq_p_albumina_globulina">Cociente albúmina/globulina</string>
+    <string name="bq_p_fosfatasa_alcalina">Fosfatasa alcalina</string>
+    <string name="bq_p_alt">ALT (GPT)</string>
+    <string name="bq_p_ast">AST (GOT)</string>
+    <string name="bq_p_bilirrubina">Bilirrubina total</string>
+    <string name="bq_p_bun_creatinina">Cociente BUN/creatinina</string>
+    <string name="bq_p_calcio">Calcio</string>
+    <string name="bq_p_bicarbonato">Bicarbonato (CO₂)</string>
+    <string name="bq_p_cloro">Cloro</string>
+    <string name="bq_p_creatinina">Creatinina</string>
+    <string name="bq_p_globulina">Globulina</string>
+    <string name="bq_p_glucosa">Glucosa</string>
+    <string name="bq_p_potasio">Potasio</string>
+    <string name="bq_p_proteinas">Proteínas totales</string>
+    <string name="bq_p_sodio">Sodio</string>
+    <string name="bq_p_urea">Nitrógeno ureico (BUN)</string>
     <string name="hemo_p_basofilos_abs">Basófilos (absolutos)</string>
     <string name="hemo_p_eosinofilos_abs">Eosinófilos (absolutos)</string>
     <string name="hemo_p_linfocitos_abs">Linfocitos (absolutos)</string>
@@ -597,4 +670,103 @@
     <string name="hemo_u_miles_ul">×10³/µl</string>
     <string name="hemo_u_millones_ul">×10⁶/µl</string>
     <string name="hemo_u_vacia" translatable="false"></string>
+
+    <!-- Bienestar psicológico -->
+    <string name="bienestar_titulo">Bienestar</string>
+    <string name="bienestar_pendiente">Aún no has contado cómo te sientes hoy.</string>
+    <string name="bienestar_hacer_checkin">¿Cómo estás hoy?</string>
+    <string name="bienestar_abrir">Abrir Bienestar</string>
+    <string name="bienestar_dato_animo">Ánimo</string>
+    <string name="bienestar_dato_estres">Estrés</string>
+    <string name="bienestar_dato_aislamiento">Aislamiento</string>
+    <string name="bienestar_checkin_titulo">¿Cómo te sientes hoy?</string>
+    <string name="bienestar_checkin_ayuda">No es una prueba: no hay respuestas buenas ni malas. Solo lo ven tú y tu equipo médico.</string>
+    <string name="bienestar_animo_pregunta">¿Cómo está tu ánimo?</string>
+    <string name="bienestar_estres_pregunta">¿Cuánto estrés sientes?</string>
+    <string name="bienestar_aislamiento_pregunta">¿Sientes aislamiento o echas de menos a los tuyos?</string>
+    <string name="bienestar_faltan_respuestas">Responde las tres preguntas para guardar.</string>
+    <string name="bienestar_guardar">Guardar</string>
+    <string name="bienestar_actualizar">Actualizar</string>
+    <string name="bienestar_para_hoy">Para hoy</string>
+    <string name="bienestar_todo_bien">Gracias por contarlo. Las herramientas siguen aquí cuando las necesites.</string>
+    <string name="bienestar_herramientas">Herramientas</string>
+    <string name="bienestar_respiracion_titulo">Respiración guiada</string>
+    <string name="bienestar_respiracion_texto">Respiración en caja: inspira 4 s, mantén 4 s, espira 4 s y mantén 4 s. Ayuda a bajar el estrés en pocos minutos.</string>
+    <string name="bienestar_empezar">Empezar</string>
+    <string name="bienestar_empezar_respiracion">Hacer respiración guiada</string>
+    <string name="bienestar_juego_texto">Juego de memoria para desconectar unos minutos. Sin tiempo ni puntuación.</string>
+    <string name="bienestar_jugar">Jugar</string>
+    <string name="bienestar_conexion_titulo">Sentirte cerca de los tuyos</string>
+    <string name="bienestar_conexion_texto">Ideas que ayudan a otras tripulaciones a sobrellevar la distancia.</string>
+    <string name="bienestar_ver_ideas">Ver ideas</string>
+    <string name="bienestar_ocultar">Ocultar</string>
+    <string name="bienestar_apoyo_titulo">Hablar con apoyo psicológico</string>
+    <string name="bienestar_apoyo_texto">Pide una conversación privada con el equipo de apoyo psicológico en la Tierra. Tu médico recibe la petición con el retraso de la misión.</string>
+    <string name="bienestar_apoyo_boton">Pedir una conversación</string>
+    <string name="bienestar_apoyo_confirmar">Se enviará a tu médico una petición para hablar con el equipo de apoyo psicológico. Te contactarán en la próxima ventana de comunicación.</string>
+    <string name="bienestar_apoyo_enviar">Enviar petición</string>
+    <string name="bienestar_apoyo_pedido">Petición enviada. El equipo de apoyo psicológico te contactará en la próxima ventana de comunicación.</string>
+    <string name="bienestar_cancelar">Cancelar</string>
+    <string name="bienestar_semana">Esta semana: %1$d respiraciones guiadas · %2$d partidas</string>
+    <string name="bienestar_volver">Volver</string>
+    <string name="animo_1">Muy bajo</string>
+    <string name="animo_2">Bajo</string>
+    <string name="animo_3">Normal</string>
+    <string name="animo_4">Bueno</string>
+    <string name="animo_5">Muy bueno</string>
+    <string name="intensidad_1">Nada</string>
+    <string name="intensidad_2">Poco</string>
+    <string name="intensidad_3">Algo</string>
+    <string name="intensidad_4">Bastante</string>
+    <string name="intensidad_5">Mucho</string>
+    <string name="sugerencia_apoyo">Tu ánimo está bajo. Hablarlo ayuda: puedes pedir una conversación privada.</string>
+    <string name="sugerencia_respiracion">Hoy notas bastante estrés. Prueba 3 minutos de respiración guiada.</string>
+    <string name="sugerencia_conexion">Echar de menos a los tuyos es normal en una misión larga. Mira algunas ideas para sentirte más cerca.</string>
+    <string name="conexion_idea_1">Prepara un mensaje de vídeo o audio para tu familia para la próxima ventana de comunicación.</string>
+    <string name="conexion_idea_2">Comparte una comida con el resto de la tripulación sin hablar de trabajo.</string>
+    <string name="conexion_idea_3">Dedica unos minutos a mirar la Tierra por la ventana.</string>
+    <string name="conexion_idea_4">Mantén tus rutinas: horarios de sueño, comidas y ejercicio.</string>
+    <string name="conexion_idea_5">Cuenta a alguien de la tripulación cómo te sientes; seguramente le pase lo mismo.</string>
+    <!-- Respiración guiada -->
+    <string name="respiracion_explicacion">Sigue el círculo: crece mientras inspiras, se queda quieto mientras mantienes el aire y se encoge mientras espiras. Respira por la nariz, sin forzar.</string>
+    <string name="respiracion_duracion">Duración</string>
+    <string name="respiracion_minutos">%1$d min</string>
+    <string name="respiracion_inspira">Inspira</string>
+    <string name="respiracion_manten">Mantén</string>
+    <string name="respiracion_espira">Espira</string>
+    <string name="respiracion_ciclo">Ciclo %1$d de %2$d</string>
+    <string name="respiracion_terminar">Terminar</string>
+    <string name="respiracion_hecho">Bien hecho</string>
+    <string name="respiracion_hecho_texto">Tómate un momento antes de volver a lo que estabas haciendo.</string>
+    <string name="respiracion_otra">Hacer otra</string>
+    <!-- Juego "Parejas orbitales" -->
+    <string name="juego_titulo">Parejas orbitales</string>
+    <string name="juego_instrucciones">Da la vuelta a dos cartas. Si son el mismo cuerpo celeste, se quedan boca arriba. Encuentra las seis parejas.</string>
+    <string name="juego_marcador">Parejas: %1$d de %2$d · Intentos: %3$d</string>
+    <string name="juego_terminado">¡Todas las parejas! %1$d intentos</string>
+    <string name="juego_otra">Jugar otra vez</string>
+    <string name="cuerpo_tierra">Tierra</string>
+    <string name="cuerpo_luna">Luna</string>
+    <string name="cuerpo_marte">Marte</string>
+    <string name="cuerpo_saturno">Saturno</string>
+    <string name="cuerpo_sol">Sol</string>
+    <string name="cuerpo_cometa">Cometa</string>
+    <string name="cd_carta_boca_abajo">Carta %1$d, boca abajo</string>
+    <string name="cd_carta_boca_arriba">Carta %1$d: %2$s</string>
+    <string name="cd_carta_emparejada">Carta %1$d: %2$s, pareja encontrada</string>
+    <!-- Avisos de bienestar -->
+    <string name="regla_bienestar_bajo">Estos días no te sientes bien</string>
+    <string name="regla_solicitud_apoyo">Has pedido hablar con apoyo psicológico</string>
+    <string name="paso_hablar_apoyo">Puedes pedir una conversación privada con apoyo psicológico desde Bienestar</string>
+    <string name="paso_probar_respiracion">Prueba la respiración guiada (3 min)</string>
+    <string name="medico_regla_bienestar">Bienestar psicológico bajo</string>
+    <string name="medico_regla_solicitud_apoyo">Pide hablar con apoyo psicológico</string>
+    <string name="medico_fuente_bienestar">Check-in de bienestar</string>
+    <string name="medico_umbral_animo">ánimo ≤ %1$d/5</string>
+    <string name="medico_umbral_estres">estrés ≥ %1$d/5</string>
+    <string name="medico_umbral_aislamiento">aislamiento ≥ %1$d/5</string>
+    <plurals name="medico_umbral_bienestar">
+        <item quantity="one">%1$d día con %2$s</item>
+        <item quantity="other">%1$d días seguidos con %2$s</item>
+    </plurals>
 </resources>

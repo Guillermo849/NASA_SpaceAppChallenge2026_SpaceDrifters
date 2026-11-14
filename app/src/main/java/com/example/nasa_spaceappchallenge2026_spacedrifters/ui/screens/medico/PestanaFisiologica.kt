@@ -48,7 +48,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.fechaH
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreNivel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreNodo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreOpcionResultado
-import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreParametroHemograma
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreParametroAnalitica
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreProtocolo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombrePruebaClinica
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.numero
@@ -241,11 +241,11 @@ fun textoResultado(prueba: PruebaClinica): String {
     }
     val opcion = InterpretePruebas.opcionDe(prueba.tipo.name, valores) ?: return "–"
     val texto = textoDe(nombreOpcionResultado(opcion), opcion)
-    // Hemograma real de NASA: qué muestra es y qué parámetros salieron de rango.
+    // Analítica real de NASA (hemograma o bioquímica): qué muestra es y qué parámetros salieron de rango.
     val muestra = valores[InterpretePruebas.MUESTRA_NASA] as? String ?: return texto
-    val momento = muestra.substringAfter("_whole-blood_").substringBefore("_cbc")
+    val momento = Regex("_([LR][+-]\\d+)").find(muestra)?.groupValues?.get(1) ?: muestra
     val fuera = (valores[InterpretePruebas.FUERA_DE_RANGO] as? String).orEmpty().split(',').filter { it.isNotBlank() }
-        .map { textoDe(nombreParametroHemograma(it), it) }
+        .map { textoDe(nombreParametroAnalitica(it), it) }
     return listOfNotNull(
         texto,
         stringResource(R.string.hemo_resultado_muestra, muestra.substringBefore('_'), momento),

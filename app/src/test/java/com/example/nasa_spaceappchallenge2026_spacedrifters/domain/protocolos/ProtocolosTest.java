@@ -203,27 +203,48 @@ public class ProtocolosTest {
     }
 
     @Test
-    public void p2a_conMareo_nivel3BalanceHidricoYRepetir() {
+    public void p2a_conMareo_nivel3BalanceHidricoRepetirYBioquimica() {
         ResultadoProtocolo r = motor.iniciar(P2, ramaA("MAREO", true));
         esta(r, "p2a-repetir", 3, EstadoProtocolo.ESPERANDO_PRUEBA);
-        assertEquals(Collections.singletonList("REPETICION_CONSTANTES"), r.getPruebasPendientes());
+        assertEquals(Arrays.asList("REPETICION_CONSTANTES", "BIOQUIMICA"), r.getPruebasPendientes());
         assertTrue(r.getAcciones().contains("REVISAR_BALANCE_HIDRICO_24H"));
+        assertTrue(r.getAcciones().contains("PEDIR_BIOQUIMICA"));
+    }
+
+    @Test
+    public void p2a_conLaRepeticionPeroSinBioquimica_sigueEsperando() {
+        ResultadoProtocolo r = motor.avanzar(P2, "p2a-repetir", 3,
+                ramaA("REPETICION_CONSTANTES", true, "REPETICION_ALTERADA", true));
+        esta(r, "p2a-repetir", 3, EstadoProtocolo.ESPERANDO_PRUEBA);
+        assertEquals(Collections.singletonList("BIOQUIMICA"), r.getPruebasPendientes());
     }
 
     @Test
     public void p2a_repeticionMejora_proponeBajarA2() {
         ResultadoProtocolo r = motor.avanzar(P2, "p2a-repetir", 3,
-                ramaA("MAREO", true, "REPETICION_CONSTANTES", true, "REPETICION_ALTERADA", false));
+                ramaA("MAREO", true, "REPETICION_CONSTANTES", true, "REPETICION_ALTERADA", false,
+                        "BIOQUIMICA", "NORMAL"));
         esta(r, "p2a-mejora", 3, EstadoProtocolo.ABIERTO);
         assertEquals(Integer.valueOf(2), r.getNivelPropuesto());
     }
 
     @Test
-    public void p2a_repeticionIgualOPeor_pideEcocardio() {
+    public void p2a_repeticionIgualOPeorSinDeshidratacion_pideEcocardio() {
         ResultadoProtocolo r = motor.avanzar(P2, "p2a-repetir", 3,
-                ramaA("REPETICION_CONSTANTES", true, "REPETICION_ALTERADA", true));
+                ramaA("REPETICION_CONSTANTES", true, "REPETICION_ALTERADA", true,
+                        "BIOQUIMICA", "NORMAL", "DESHIDRATACION_ANALITICA", false));
         esta(r, "p2a-ecocardio", 3, EstadoProtocolo.ESPERANDO_PRUEBA);
         assertEquals(Collections.singletonList("ECOCARDIO"), r.getPruebasPendientes());
+    }
+
+    @Test
+    public void p2a_repeticionIgualOPeorConDeshidratacion_rehidratar() {
+        ResultadoProtocolo r = motor.avanzar(P2, "p2a-repetir", 3,
+                ramaA("REPETICION_CONSTANTES", true, "REPETICION_ALTERADA", true,
+                        "BIOQUIMICA", "DESHIDRATACION", "DESHIDRATACION_ANALITICA", true));
+        esta(r, "p2a-rehidratar", 3, EstadoProtocolo.ABIERTO);
+        assertTrue(r.getAcciones().contains("REHIDRATACION_ORAL"));
+        assertTrue(r.getPruebasPendientes().isEmpty());
     }
 
     @Test

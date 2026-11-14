@@ -5,9 +5,11 @@ import android.util.Log
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigMision
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ReglasJson
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.BienestarRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo.CargadorDatosEjemplo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPruebaClinica
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.MedicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigUmbrales
@@ -15,7 +17,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.Protocol
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoMedicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.UmbralesFisiologicos
-import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.HemogramasNasa
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.AnaliticasNasa
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.TripulacionRepository
 import kotlinx.coroutines.CoroutineScope
@@ -60,6 +62,11 @@ class AppContainer(context: Context) {
         TripulacionRepository(database, esperarDatos = { datosEjemplo.await() })
     }
 
+    /** Bienestar psicológico: check-in diario y herramientas usadas. */
+    val bienestarRepository: BienestarRepository by lazy {
+        BienestarRepository(database, esperarDatos = { datosEjemplo.await() })
+    }
+
     /** assets/reglas.json: reglas de alerta (tendencias, sueño, síntomas...). */
     val reglas: List<Regla> by lazy { ReglasJson.leer(appContext) }
 
@@ -92,19 +99,32 @@ class AppContainer(context: Context) {
     }
 
     /**
-     * Hemogramas reales de NASA (OSDR, estudio LSDS-7). Si el archivo falta o no se puede leer, la
-     * app sigue sin ellos (el hemograma se introduce a mano).
+     * Analíticas reales de NASA (OSDR, misión Inspiration4): hemogramas (LSDS-7) y bioquímicas
+     * (LSDS-8). Si un archivo falta o no se puede leer, la app sigue sin él (se introduce a mano).
      */
-    val hemogramasNasa: List<HemogramasNasa.Muestra> by lazy {
-        runCatching {
-            HemogramasNasa.leer(appContext.assets.open(ARCHIVO_HEMOGRAMAS_NASA).bufferedReader().use { it.readText() })
-        }.onFailure { Log.e("HemogramasNasa", "No se han podido leer los hemogramas de NASA", it) }
-            .getOrDefault(emptyList())
-    }
+    val hemogramasNasa: List<AnaliticasNasa.Muestra> by lazy { leerAnaliticaNasa(ARCHIVO_HEMOGRAMAS_NASA) }
+    val bioquimicasNasa: List<AnaliticasNasa.Muestra> by lazy { leerAnaliticaNasa(ARCHIVO_BIOQUIMICAS_NASA) }
 
-    /** Las muestras reales del tripulante NASA que corresponde a un astronauta de la demo (config_mision.json). */
-    fun hemogramasNasaDe(astronautaId: Long): List<HemogramasNasa.Muestra> =
-        configMision.hemogramaNasa[astronautaId.toString()]?.let { HemogramasNasa.de(hemogramasNasa, it) }.orEmpty()
+    private fun leerAnaliticaNasa(archivo: String): List<AnaliticasNasa.Muestra> = runCatching {
+        AnaliticasNasa.leer(
+            appContext.assets.open(archivo).bufferedReader().use { it.readText() },
+            configMision.parametrosNasaExcluidos,
+        )
+    }.onFailure { Log.e("AnaliticasNasa", "No se ha podido leer $archivo", it) }
+        .getOrDefault(emptyList())
+
+    /**
+     * Las muestras reales (hemograma o bioquímica) del tripulante NASA que corresponde a un
+     * astronauta de la demo (config_mision.json, "tripulanteNasa"); vacía para otras pruebas.
+     */
+    fun analiticasNasaDe(tipo: TipoPruebaClinica, astronautaId: Long): List<AnaliticasNasa.Muestra> {
+        val todas = when (tipo) {
+            TipoPruebaClinica.HEMOGRAMA -> hemogramasNasa
+            TipoPruebaClinica.BIOQUIMICA -> bioquimicasNasa
+            else -> return emptyList()
+        }
+        return configMision.tripulanteNasa[astronautaId.toString()]?.let { AnaliticasNasa.de(todas, it) }.orEmpty()
+    }
 
     val fisiologicoRepository: FisiologicoRepository by lazy {
         FisiologicoRepository(
@@ -113,7 +133,7 @@ class AppContainer(context: Context) {
             InterpretePruebas(umbrales),
             retrasoMisionMs = configMision.aConfigCognitiva().retrasoMisionMs,
             esperarDatos = { datosEjemplo.await() },
-            hemogramasNasa = ::hemogramasNasaDe,
+            analiticasNasa = ::analiticasNasaDe,
         )
     }
 
@@ -163,5 +183,6 @@ class AppContainer(context: Context) {
     private companion object {
         const val BASE_DATOS_ANTIGUA = "spacedrifters.db"
         const val ARCHIVO_HEMOGRAMAS_NASA = "LSDS-7_Complete_Blood_Count_CBC_TRANSFORMED.csv"
+        const val ARCHIVO_BIOQUIMICAS_NASA = "LSDS-8_Comprehensive_Metabolic_Panel_CMP_TRANSFORMED.csv"
     }
 }
