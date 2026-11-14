@@ -148,4 +148,19 @@ interface CognitivoDao {
             "WHERE s.astronautaId = :id AND s.tipo = :tipo AND s.esLineaBase = 1 AND s.valida = 1 AND s.esPractica = 0"
     )
     suspend fun resumenesLineaBase(id: Long, tipo: TipoPrueba): List<ResumenSesion>
+
+    // Sesiones de misión (sin las de línea base) desde un instante, de la más antigua a la más reciente
+    @Query(
+        "SELECT r.* FROM resumen_sesion r JOIN sesion_prueba s ON s.id = r.sesionId " +
+            "WHERE r.astronautaId = :id AND r.tipo = :tipo AND s.esLineaBase = 0 AND r.fechaEn >= :desde " +
+            "ORDER BY r.fechaEn"
+    )
+    fun resumenesMisionDesde(id: Long, tipo: TipoPrueba, desde: Long): Flow<List<ResumenSesion>>
+
+    // Primera sesión de misión (el día 1 de misión, mientras no haya una tabla de misión)
+    @Query(
+        "SELECT MIN(r.fechaEn) FROM resumen_sesion r JOIN sesion_prueba s ON s.id = r.sesionId " +
+            "WHERE r.astronautaId = :id AND s.esLineaBase = 0"
+    )
+    fun inicioMision(id: Long): Flow<Long?>
 }

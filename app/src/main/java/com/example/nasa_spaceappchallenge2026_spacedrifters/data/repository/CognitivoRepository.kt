@@ -65,6 +65,24 @@ class CognitivoRepository(
         emitAll(dao.tiposHechosDesde(astronautaId, desde).map { it.toSet() })
     }
 
+    /** Resúmenes de las sesiones de misión (sin línea base) desde [desde], de la más antigua a la más reciente. */
+    fun resumenesMisionDesde(astronautaId: Long, tipo: TipoPrueba, desde: Long): Flow<List<ResumenSesion>> = flow {
+        esperarDatos()
+        emitAll(dao.resumenesMisionDesde(astronautaId, tipo, desde))
+    }
+
+    /** Línea base de la métrica principal de la prueba (efecto Stroop o d′), o null si aún no hay. */
+    fun lineaBasePrincipal(astronautaId: Long, tipo: TipoPrueba): Flow<LineaBaseCognitiva?> = flow {
+        esperarDatos()
+        emitAll(dao.lineaBase(astronautaId).map { bases -> bases.firstOrNull { it.tipo == tipo && it.metrica == metricaPrincipal(tipo) } })
+    }
+
+    /** Instante de la primera sesión de misión (día 1), o null si aún no hay ninguna. */
+    fun inicioMision(astronautaId: Long): Flow<Long?> = flow {
+        esperarDatos()
+        emitAll(dao.inicioMision(astronautaId))
+    }
+
     /** Guarda una sesión Stroop. Devuelve el estado frente a la línea base, o null si no cuenta. */
     suspend fun guardarStroop(sesion: SesionNueva, resultados: List<ResultadoEnsayoStroop>): EstadoCognitivo? =
         db.withTransaction {

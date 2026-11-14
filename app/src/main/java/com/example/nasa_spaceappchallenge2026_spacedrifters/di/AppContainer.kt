@@ -6,6 +6,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigMi
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo.CargadorDatosEjemplo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.TripulacionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
@@ -40,6 +41,10 @@ class AppContainer(context: Context) {
 
     val cognitivoRepository: CognitivoRepository by lazy {
         CognitivoRepository(database, configMision.aConfigCognitiva(), esperarDatos = { datosEjemplo.await() })
+    }
+
+    val tripulacionRepository: TripulacionRepository by lazy {
+        TripulacionRepository(database, esperarDatos = { datosEjemplo.await() })
     }
 
     /**
