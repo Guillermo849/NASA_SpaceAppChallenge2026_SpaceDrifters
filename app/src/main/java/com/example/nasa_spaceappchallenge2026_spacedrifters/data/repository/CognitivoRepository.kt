@@ -17,6 +17,8 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.MetricasStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.ResultadoEnsayoStroop
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /** Datos de una sesión recién terminada (o interrumpida) que hay que guardar. */
@@ -40,6 +42,11 @@ data class SesionNueva(
 class CognitivoRepository(
     private val db: AppDatabase,
     private val config: ConfigCognitiva,
+    /**
+     * Las lecturas esperan a esto antes de consultar (la carga de los datos de ejemplo al primer
+     * arranque). Los guardados no esperan: la propia carga los usa.
+     */
+    private val esperarDatos: suspend () -> Unit = {},
 ) {
     private val dao = db.cognitivoDao()
 
@@ -47,12 +54,16 @@ class CognitivoRepository(
      * Si ya completó la práctica de esta prueba. El N-Back tiene dos prácticas (1-back y 2-back)
      * y cada una se guarda como una sesión, así que hacen falta dos válidas.
      */
-    suspend fun haHechoPractica(astronautaId: Long, tipo: TipoPrueba): Boolean =
-        dao.contarPracticasValidas(astronautaId, tipo) >= practicasNecesarias(tipo)
+    suspend fun haHechoPractica(astronautaId: Long, tipo: TipoPrueba): Boolean {
+        esperarDatos()
+        return dao.contarPracticasValidas(astronautaId, tipo) >= practicasNecesarias(tipo)
+    }
 
     /** Pruebas reales y válidas hechas desde [desde] (epoch ms). */
-    fun tiposHechosDesde(astronautaId: Long, desde: Long): Flow<Set<TipoPrueba>> =
-        dao.tiposHechosDesde(astronautaId, desde).map { it.toSet() }
+    fun tiposHechosDesde(astronautaId: Long, desde: Long): Flow<Set<TipoPrueba>> = flow {
+        esperarDatos()
+        emitAll(dao.tiposHechosDesde(astronautaId, desde).map { it.toSet() })
+    }
 
     /** Guarda una sesión Stroop. Devuelve el estado frente a la línea base, o null si no cuenta. */
     suspend fun guardarStroop(sesion: SesionNueva, resultados: List<ResultadoEnsayoStroop>): EstadoCognitivo? =

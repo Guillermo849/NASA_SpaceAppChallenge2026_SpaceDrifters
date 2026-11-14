@@ -18,12 +18,15 @@ import androidx.room.RoomDatabase
         EnsayoNBack::class,
         ResumenSesion::class,
         LineaBaseCognitiva::class,
+        Astronauta::class,
+        RegistroDiario::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun cognitivoDao(): CognitivoDao
+    abstract fun tripulacionDao(): TripulacionDao
 
     companion object {
         fun crear(context: Context): AppDatabase =
