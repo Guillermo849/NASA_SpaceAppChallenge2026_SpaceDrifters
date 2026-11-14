@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigMision
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo.CargadorDatosEjemplo
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabaseAntiguo
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.TripulacionRepository
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +34,7 @@ class AppContainer(context: Context) {
      */
     val ambitoAplicacion: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    val database: AppDatabaseAntiguo by lazy { AppDatabaseAntiguo.crear(appContext) }
+    val database: AppDatabase by lazy { AppDatabase.get(appContext) }
 
     /** assets/config_mision.json: retraso con la Tierra, umbrales de estado... */
     val configMision: ConfigMision by lazy { ConfigMision.leer(appContext) }
@@ -52,6 +52,8 @@ class AppContainer(context: Context) {
      * ([iniciar]); nunca falla hacia fuera (si algo va mal, se registra y la app sigue sin datos).
      */
     val datosEjemplo: Deferred<Unit> = ambitoAplicacion.async(start = CoroutineStart.LAZY) {
+        // Archivo de la base de datos anterior (antes de unificarla en AppDatabase): ya no se usa.
+        appContext.deleteDatabase(BASE_DATOS_ANTIGUA)
         runCatching {
             val json = appContext.assets.open(CargadorDatosEjemplo.ARCHIVO).bufferedReader().use { it.readText() }
             CargadorDatosEjemplo(database, cognitivoRepository).cargarSiVacia(json)
@@ -68,5 +70,9 @@ class AppContainer(context: Context) {
     /** Arranca lo que tiene que estar listo cuanto antes. Lo llama la Application. */
     fun iniciar() {
         datosEjemplo.start()
+    }
+
+    private companion object {
+        const val BASE_DATOS_ANTIGUA = "spacedrifters.db"
     }
 }

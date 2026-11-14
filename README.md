@@ -56,8 +56,8 @@ Todo el código está en `app/src/main/java/com/example/nasa_spaceappchallenge20
 │   ├── AppContainer.kt      Crea una sola vez la base de datos, los repositorios, etc.
 │   └── AppViewModelProvider.kt  Fábrica de todos los ViewModels
 ├── data/
-│   ├── local/               Room: entidades, DAOs y AppDatabase   (vacío)
-│   └── repository/          Repositorios: la UI solo habla con ellos (vacío)
+│   ├── local/               Room: AppDatabase (la única base de datos), entity/ y dao/
+│   └── repository/          Repositorios: la UI solo habla con ellos
 ├── domain/
 │   └── model/               Modelos y lógica pura sin Android (motor de reglas, etc.) (vacío)
 └── ui/
@@ -110,9 +110,17 @@ Las carpetas vacías tienen un `.gitkeep` para que existan en git; bórralo cuan
 
 ### Datos (Room)
 
-1. Entidades y DAOs en `data/local/`, y la clase `AppDatabaseAntiguo` también ahí.
-2. Un repositorio en `data/repository/` que use los DAOs.
-3. Crea la base de datos y el repositorio en `di/AppContainer.kt` con `by lazy`.
+Hay **una sola base de datos**: `data/local/AppDatabase.java` (archivo `astronaut_health.db`). Tiene:
+
+- Usuarios, misión y tripulación (`app_user`, `mission`, `astronaut`, con el cargo y las horas de sueño habituales), mediciones, ECG, tensión, pruebas clínicas y alertas (`entity/` y `dao/`).
+- Pruebas cognitivas Stroop y N-Back (`DatosCognitivos.kt`): sesiones, cada ensayo, resúmenes con el retraso con la Tierra y línea base.
+- Registro diario: sueño, somnolencia y síntomas (`DatosTripulacion.kt`).
+
+Para añadir algo:
+
+1. La entidad y su DAO en `data/local/` (entidades en `entity/`, DAOs en `dao/`).
+2. Añade la entidad a la lista de `@Database` y el DAO como método en `AppDatabase.java`, y **sube `version`** (no hay migraciones: Room borra y recrea la base de datos, y se vuelven a cargar los datos de ejemplo).
+3. Un repositorio en `data/repository/` que use los DAOs, creado en `di/AppContainer.kt` con `by lazy`. La base de datos se obtiene con `AppDatabase.get(context)`.
 
 ### Textos
 

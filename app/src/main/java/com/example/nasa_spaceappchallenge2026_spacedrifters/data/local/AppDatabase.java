@@ -19,9 +19,6 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.dao.Blood
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.dao.ClinicalParameterDao;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.dao.ClinicalTestDao;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.dao.ClinicalResultDao;
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.dao.NeuroTestTypeDao;
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.dao.NeuroTestDao;
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.dao.NeuroResultDao;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.dao.AlertThresholdDao;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.dao.AlertDao;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.AppUserEntity;
@@ -34,12 +31,21 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.Bl
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.ClinicalParameterEntity;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.ClinicalTestEntity;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.ClinicalResultEntity;
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.NeuroTestTypeEntity;
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.NeuroTestEntity;
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.NeuroResultEntity;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.AlertThresholdEntity;
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.AlertEntity;
 
+/**
+ * Única base de datos de la app (astronauta y médico comparten los mismos datos).
+ *
+ * Pruebas cognitivas (Stroop, N-Back): tablas sesion_prueba, ensayo_stroop, ensayo_nback,
+ * resumen_sesion y linea_base_cognitiva (DatosCognitivos.kt, CognitivoDao). Guardan cada ensayo,
+ * el retraso con la Tierra (llegaTierraEn), la línea base y el estado frente a ella.
+ * Registro diario (sueño, somnolencia, síntomas): registro_diario (DatosTripulacion.kt).
+ * Esas tablas usan astronautaId = astronaut.id.
+ *
+ * Prototipo: no hay migraciones. Si cambias una entidad, sube `version` y Room borra y
+ * recrea la base de datos al arrancar (los datos de ejemplo se vuelven a cargar).
+ */
 @Database(
     entities = {
         AppUserEntity.class,
@@ -52,13 +58,18 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.Al
         ClinicalParameterEntity.class,
         ClinicalTestEntity.class,
         ClinicalResultEntity.class,
-        NeuroTestTypeEntity.class,
-        NeuroTestEntity.class,
-        NeuroResultEntity.class,
         AlertThresholdEntity.class,
-        AlertEntity.class
+        AlertEntity.class,
+        // Pruebas cognitivas
+        SesionPrueba.class,
+        EnsayoStroop.class,
+        EnsayoNBack.class,
+        ResumenSesion.class,
+        LineaBaseCognitiva.class,
+        // Registro diario
+        RegistroDiario.class
     },
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -73,11 +84,10 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ClinicalParameterDao clinicalParameterDao();
     public abstract ClinicalTestDao clinicalTestDao();
     public abstract ClinicalResultDao clinicalResultDao();
-    public abstract NeuroTestTypeDao neuroTestTypeDao();
-    public abstract NeuroTestDao neuroTestDao();
-    public abstract NeuroResultDao neuroResultDao();
     public abstract AlertThresholdDao alertThresholdDao();
     public abstract AlertDao alertDao();
+    public abstract CognitivoDao cognitivoDao();
+    public abstract TripulacionDao tripulacionDao();
 
     private static volatile AppDatabase INSTANCE;
 

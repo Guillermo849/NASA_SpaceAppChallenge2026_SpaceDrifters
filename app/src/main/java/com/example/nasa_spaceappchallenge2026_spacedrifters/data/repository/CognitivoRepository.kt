@@ -1,7 +1,7 @@
 package com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository
 
 import androidx.room.withTransaction
-import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabaseAntiguo
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EnsayoNBack
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EnsayoStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.LineaBaseCognitiva
@@ -40,7 +40,7 @@ data class SesionNueva(
  * Las métricas y el estado se calculan en domain/cognitivo (Java).
  */
 class CognitivoRepository(
-    private val db: AppDatabaseAntiguo,
+    private val db: AppDatabase,
     private val config: ConfigCognitiva,
     /**
      * Las lecturas esperan a esto antes de consultar (la carga de los datos de ejemplo al primer
@@ -75,12 +75,6 @@ class CognitivoRepository(
     fun lineaBasePrincipal(astronautaId: Long, tipo: TipoPrueba): Flow<LineaBaseCognitiva?> = flow {
         esperarDatos()
         emitAll(dao.lineaBase(astronautaId).map { bases -> bases.firstOrNull { it.tipo == tipo && it.metrica == metricaPrincipal(tipo) } })
-    }
-
-    /** Instante de la primera sesión de misión (día 1), o null si aún no hay ninguna. */
-    fun inicioMision(astronautaId: Long): Flow<Long?> = flow {
-        esperarDatos()
-        emitAll(dao.inicioMision(astronautaId))
     }
 
     /** Guarda una sesión Stroop. Devuelve el estado frente a la línea base, o null si no cuenta. */

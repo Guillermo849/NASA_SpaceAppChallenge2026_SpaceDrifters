@@ -52,4 +52,15 @@ public class AstronautEntity {
 
     @ColumnInfo(name = "base_weight_kg")
     public Double baseWeightKg;
+
+    /**
+     * Cargo a bordo: nombre de CargoTripulante (COMANDANTE, INGENIERIA_VUELO, OFICIAL_MEDICO,
+     * ESPECIALISTA_MISION). Las reglas cognitivas asignan alertas a la oficial médico de a bordo.
+     */
+    @ColumnInfo(name = "crew_role")
+    public String crewRole;
+
+    /** Horas de sueño habituales: su base para las reglas de sueño del registro diario. */
+    @ColumnInfo(name = "usual_sleep_hours")
+    public Double usualSleepHours;
 }
