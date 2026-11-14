@@ -77,4 +77,8 @@ interface TripulacionDao {
 
     @Query("SELECT * FROM registro_diario WHERE astronautaId = :id AND fecha = :fecha")
     suspend fun registroDe(id: Long, fecha: String): RegistroDiario?
+
+    // El mismo registro como flujo: se actualiza solo al guardar
+    @Query("SELECT * FROM registro_diario WHERE astronautaId = :id AND fecha = :fecha")
+    fun registroDelDia(id: Long, fecha: String): Flow<RegistroDiario?>
 }

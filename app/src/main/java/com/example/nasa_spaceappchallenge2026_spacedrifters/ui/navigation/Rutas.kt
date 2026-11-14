@@ -21,3 +21,6 @@ data object RutaPruebaStroop
 
 @Serializable
 data object RutaPruebaNBack
+
+@Serializable
+data object RutaRegistroDiario

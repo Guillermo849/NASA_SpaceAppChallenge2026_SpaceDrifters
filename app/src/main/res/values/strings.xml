@@ -60,6 +60,42 @@
     <string name="estado_alerta">Alerta</string>
     <string name="estado_sin_datos">Sin datos</string>
     <string name="estado_sin_linea_base">Sin línea base</string>
+
+    <!-- Registro diario -->
+    <string name="registro_titulo">Registro de hoy</string>
+    <string name="registro_pendiente">Aún no has hecho el registro de hoy.</string>
+    <string name="registro_hacer">Hacer registro</string>
+    <string name="registro_editar">Editar</string>
+    <string name="registro_dato_sueno">Sueño</string>
+    <string name="registro_dato_somnolencia">Somnolencia</string>
+    <string name="registro_dato_sintomas">Síntomas</string>
+    <string name="registro_horas">%1$s h</string>
+    <string name="registro_kss_valor">%1$d de 9</string>
+    <string name="registro_sueno_pregunta">¿Cuántas horas dormiste anoche?</string>
+    <string name="registro_somnolencia_pregunta">¿Cómo de somnoliento te sientes ahora?</string>
+    <string name="registro_sintomas_pregunta">¿Tienes alguno de estos síntomas?</string>
+    <string name="registro_kss_extremos">1 = muy despierto · 9 = muy somnoliento</string>
+    <string name="registro_falta_somnolencia">Elige tu nivel de somnolencia para poder guardar.</string>
+    <string name="registro_guardar">Guardar registro</string>
+    <string name="registro_guardar_cambios">Guardar cambios</string>
+    <string name="registro_error">No se ha podido guardar. Inténtalo de nuevo.</string>
+    <string name="cd_menos_sueno">Media hora menos</string>
+    <string name="cd_mas_sueno">Media hora más</string>
+    <string name="sintomas_ninguno">Ninguno</string>
+    <string name="sintoma_dolor_cabeza">Dolor de cabeza</string>
+    <string name="sintoma_dificultad_concentracion">Dificultad para concentrarse</string>
+    <string name="sintoma_fatiga">Fatiga</string>
+    <string name="sintoma_nauseas">Náuseas</string>
+    <!-- Escala de somnolencia de Karolinska (KSS) -->
+    <string name="kss_1">Extremadamente despierto</string>
+    <string name="kss_2">Muy despierto</string>
+    <string name="kss_3">Despierto</string>
+    <string name="kss_4">Bastante despierto</string>
+    <string name="kss_5">Ni despierto ni somnoliento</string>
+    <string name="kss_6">Algunos signos de somnolencia</string>
+    <string name="kss_7">Somnoliento, sin esfuerzo para seguir despierto</string>
+    <string name="kss_8">Somnoliento, con algo de esfuerzo para seguir despierto</string>
+    <string name="kss_9">Muy somnoliento, con mucho esfuerzo para seguir despierto</string>
     <string name="empezar">Empezar</string>
     <string name="repetir">Repetir</string>
     <string name="prueba_hecha_hoy">Hecha hoy</string>

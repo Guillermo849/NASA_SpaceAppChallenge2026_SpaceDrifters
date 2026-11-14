@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.InicioAstronautaScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackScreen
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.RegistroDiarioScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop.StroopScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.TripulacionScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.rol.SelectorRolScreen
@@ -31,6 +32,13 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onAtras = { navController.popBackStack() },
                 onEmpezarStroop = { navController.navigate(RutaPruebaStroop) },
                 onEmpezarNBack = { navController.navigate(RutaPruebaNBack) },
+                onRegistro = { navController.navigate(RutaRegistroDiario) },
+            )
+        }
+        composable<RutaRegistroDiario> {
+            RegistroDiarioScreen(
+                onAtras = { navController.popBackStack() },
+                onGuardado = { navController.popBackStack() },
             )
         }
         // Las pruebas cognitivas van sin animaciones de transición.

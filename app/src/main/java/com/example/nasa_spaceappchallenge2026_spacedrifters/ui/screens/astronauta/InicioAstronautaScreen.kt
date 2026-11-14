@@ -49,6 +49,9 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.Pantal
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.etiquetaEstado
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.LocalEstadoColores
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDriftersTheme
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.nombreSintoma
+import java.text.NumberFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -61,6 +64,7 @@ fun InicioAstronautaScreen(
     onAtras: () -> Unit,
     onEmpezarStroop: () -> Unit,
     onEmpezarNBack: () -> Unit,
+    onRegistro: () -> Unit,
     viewModel: InicioAstronautaViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val panel by viewModel.panel.collectAsStateWithLifecycle()
@@ -69,6 +73,7 @@ fun InicioAstronautaScreen(
         onAtras = onAtras,
         onEmpezarStroop = onEmpezarStroop,
         onEmpezarNBack = onEmpezarNBack,
+        onRegistro = onRegistro,
     )
 }
 
@@ -78,6 +83,7 @@ private fun PanelAstronautaContenido(
     onAtras: () -> Unit,
     onEmpezarStroop: () -> Unit,
     onEmpezarNBack: () -> Unit,
+    onRegistro: () -> Unit,
     ahora: Long = remember { System.currentTimeMillis() },
 ) {
     var periodo by rememberSaveable { mutableStateOf(Periodo.SEMANA) }
@@ -94,6 +100,7 @@ private fun PanelAstronautaContenido(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             CabeceraPanel(panel)
+            TarjetaRegistroHoy(panel.registroHoy, onRegistro)
             TarjetaPruebasDeHoy(
                 hechasHoy = panel.hechasHoy,
                 onEmpezarStroop = onEmpezarStroop,
@@ -156,6 +163,70 @@ private fun nombreCargo(cargo: CargoTripulante): Int = when (cargo) {
     CargoTripulante.INGENIERIA_VUELO -> R.string.cargo_ingenieria_vuelo
     CargoTripulante.OFICIAL_MEDICO -> R.string.cargo_oficial_medico
     CargoTripulante.ESPECIALISTA_MISION -> R.string.cargo_especialista_mision
+}
+
+// ---- Registro de hoy ----
+
+@Composable
+private fun TarjetaRegistroHoy(registro: RegistroHoyUi?, onRegistro: () -> Unit) {
+    val sinDatos = stringResource(R.string.estado_sin_datos)
+    Card(
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(text = stringResource(R.string.registro_titulo), style = MaterialTheme.typography.titleLarge)
+            if (registro == null) {
+                Text(
+                    text = stringResource(R.string.registro_pendiente),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Button(onClick = onRegistro, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(stringResource(R.string.registro_hacer))
+                }
+            } else {
+                val formato = remember {
+                    NumberFormat.getNumberInstance().apply { maximumFractionDigits = 1 }
+                }
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.registro_dato_sueno),
+                    valor = registro.horasSueno?.let { stringResource(R.string.registro_horas, formato.format(it)) } ?: sinDatos,
+                )
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.registro_dato_somnolencia),
+                    valor = registro.somnolencia?.let { stringResource(R.string.registro_kss_valor, it) } ?: sinDatos,
+                )
+                DatoRegistro(
+                    etiqueta = stringResource(R.string.registro_dato_sintomas),
+                    valor = if (registro.sintomas.isEmpty()) {
+                        stringResource(R.string.sintomas_ninguno)
+                    } else {
+                        registro.sintomas.map { stringResource(nombreSintoma(it)) }.joinToString(", ")
+                    },
+                )
+                OutlinedButton(onClick = onRegistro, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(stringResource(R.string.registro_editar))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DatoRegistro(etiqueta: String, valor: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = etiqueta,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(0.4f),
+        )
+        Text(text = valor, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(0.6f))
+    }
 }
 
 // ---- Pruebas de hoy ----
@@ -368,6 +439,7 @@ private fun PanelAstronautaPreview() {
                 diaMision = 14,
                 retrasoMin = 18,
                 hechasHoy = setOf(TipoPrueba.STROOP),
+                registroHoy = RegistroHoyUi(horasSueno = 5.0, somnolencia = 8, sintomas = listOf(Sintoma.FATIGA)),
                 rendimiento = listOf(
                     RendimientoUi(TipoPrueba.STROOP, true, puntos(0.3, -0.4, 0.1, -0.5, 0.2, 0.0, -0.4, 0.5, -0.2, 0.0, -0.3, -0.5, -0.7, -0.6)),
                     RendimientoUi(TipoPrueba.NBACK, true, puntos(0.2, -0.3, 0.4, 0.0, -0.5, 0.3, 0.1, -0.2, 0.4, 0.0, -1.5, -2.0, -2.3, -2.6)),
@@ -376,6 +448,7 @@ private fun PanelAstronautaPreview() {
             onAtras = {},
             onEmpezarStroop = {},
             onEmpezarNBack = {},
+            onRegistro = {},
             ahora = ahora,
         )
     }

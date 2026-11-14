@@ -58,6 +58,42 @@
     <string name="estado_alerta">Alert</string>
     <string name="estado_sin_datos">No data</string>
     <string name="estado_sin_linea_base">No baseline</string>
+
+    <!-- Daily log -->
+    <string name="registro_titulo">Today\'s log</string>
+    <string name="registro_pendiente">You haven\'t done today\'s log yet.</string>
+    <string name="registro_hacer">Do my log</string>
+    <string name="registro_editar">Edit</string>
+    <string name="registro_dato_sueno">Sleep</string>
+    <string name="registro_dato_somnolencia">Sleepiness</string>
+    <string name="registro_dato_sintomas">Symptoms</string>
+    <string name="registro_horas">%1$s h</string>
+    <string name="registro_kss_valor">%1$d of 9</string>
+    <string name="registro_sueno_pregunta">How many hours did you sleep last night?</string>
+    <string name="registro_somnolencia_pregunta">How sleepy do you feel right now?</string>
+    <string name="registro_sintomas_pregunta">Do you have any of these symptoms?</string>
+    <string name="registro_kss_extremos">1 = very alert · 9 = very sleepy</string>
+    <string name="registro_falta_somnolencia">Choose your sleepiness level to be able to save.</string>
+    <string name="registro_guardar">Save log</string>
+    <string name="registro_guardar_cambios">Save changes</string>
+    <string name="registro_error">It couldn\'t be saved. Please try again.</string>
+    <string name="cd_menos_sueno">Half an hour less</string>
+    <string name="cd_mas_sueno">Half an hour more</string>
+    <string name="sintomas_ninguno">None</string>
+    <string name="sintoma_dolor_cabeza">Headache</string>
+    <string name="sintoma_dificultad_concentracion">Difficulty concentrating</string>
+    <string name="sintoma_fatiga">Fatigue</string>
+    <string name="sintoma_nauseas">Nausea</string>
+    <!-- Karolinska Sleepiness Scale (KSS) -->
+    <string name="kss_1">Extremely alert</string>
+    <string name="kss_2">Very alert</string>
+    <string name="kss_3">Alert</string>
+    <string name="kss_4">Rather alert</string>
+    <string name="kss_5">Neither alert nor sleepy</string>
+    <string name="kss_6">Some signs of sleepiness</string>
+    <string name="kss_7">Sleepy, but no effort to keep awake</string>
+    <string name="kss_8">Sleepy, some effort to keep awake</string>
+    <string name="kss_9">Very sleepy, great effort to keep awake</string>
     <string name="empezar">Start</string>
     <string name="repetir">Retake</string>
     <string name="prueba_hecha_hoy">Done today</string>
