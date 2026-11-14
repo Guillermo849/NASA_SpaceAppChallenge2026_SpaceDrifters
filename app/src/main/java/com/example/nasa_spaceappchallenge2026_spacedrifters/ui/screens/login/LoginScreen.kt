@@ -7,7 +7,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.ejemplo.CargadorDatosEjemplo
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -219,6 +223,68 @@ private fun LoginContent(
                 } else {
                     Text(stringResource(R.string.login_entrar), style = MaterialTheme.typography.labelLarge)
                 }
+            }
+
+            // ── Cuentas de demostración (para la presentación) ────────────────
+            Spacer(Modifier.height(8.dp))
+            CuentasDemo(
+                onElegir = { cuenta ->
+                    onUsuarioCambiado(cuenta.usuario)
+                    onContrasenaCambiada(cuenta.contrasena)
+                },
+            )
+        }
+    }
+}
+
+/** Una cuenta de los datos de ejemplo. */
+private class CuentaDemo(@StringRes val rol: Int, val nombre: String?, val usuario: String, val contrasena: String)
+
+/** Las cuentas que crean los datos de ejemplo (CargadorDatosEjemplo): el médico y un usuario por astronauta. */
+private val CUENTAS_DEMO = listOf(
+    CuentaDemo(R.string.login_demo_medico, null, CargadorDatosEjemplo.USUARIO_ADMIN, CargadorDatosEjemplo.CONTRASENA_ADMIN),
+    CuentaDemo(R.string.login_demo_astronauta, "Maya Okafor", "maya.okafor", "maya.okafor"),
+    CuentaDemo(R.string.login_demo_astronauta, "Leo Martín", "leo.martin", "leo.martin"),
+    CuentaDemo(R.string.login_demo_astronauta, "Ane Etxeberria", "ane.etxeberria", "ane.etxeberria"),
+    CuentaDemo(R.string.login_demo_astronauta, "Ilan Novak", "ilan.novak", "ilan.novak"),
+)
+
+/**
+ * Recuadro informativo con las credenciales de la demo, para quien vea la app en la presentación.
+ * Pulsar una cuenta rellena el formulario.
+ */
+@Composable
+private fun CuentasDemo(onElegir: (CuentaDemo) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Text(stringResource(R.string.login_demo_titulo), style = MaterialTheme.typography.titleSmall)
+        Text(
+            stringResource(R.string.login_demo_explicacion),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        CUENTAS_DEMO.forEach { c ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp)
+                    .clickable { onElegir(c) }
+                    .padding(vertical = 6.dp),
+            ) {
+                Text(
+                    listOfNotNull(stringResource(c.rol), c.nombre).joinToString(" · "),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    stringResource(R.string.login_demo_credenciales, c.usuario, c.contrasena),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
             }
         }
     }
