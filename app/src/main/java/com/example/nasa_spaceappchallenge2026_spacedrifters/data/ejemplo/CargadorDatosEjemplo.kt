@@ -6,12 +6,22 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.CargoTrip
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.AppUserEntity
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.AstronautEntity
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.MissionEntity
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.BloodPressureEntity
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.entity.ContinuousMeasurementEntity
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.model.BloodPressureStatus
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.model.MeasurementType
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.model.Role
 import java.text.Normalizer
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.RegistroDiario
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.BalanceHidrico
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPruebaClinica
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.protocolos.Hechos
+import kotlinx.coroutines.flow.first
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.SesionNueva
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.ejemplo.GeneradorEnsayosEjemplo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.ConfigNBack
@@ -60,6 +70,15 @@ data class TripulanteEjemplo(
     val somnolencia: List<Int?>,
     /** Día de misión ("1".."14") → síntomas de ese día. */
     val sintomas: Map<String, List<Sintoma>> = emptyMap(),
+    /** Constantes vitales simuladas (FC, PAS, PAD, SPO2, FR); null = sin constantes. */
+    val constantes: ConstantesEjemplo? = null,
+)
+
+/** Constantes de un tripulante: su valor habitual y, por día de misión ("13"), los que cambian. */
+@Serializable
+data class ConstantesEjemplo(
+    val base: Map<String, Double>,
+    val dias: Map<String, Map<String, Double>> = emptyMap(),
 )
 
 /**
@@ -75,6 +94,11 @@ class CargadorDatosEjemplo(
     private val repositorio: CognitivoRepository,
     /** Si se pasa, al terminar evalúa las reglas para cada tripulante (alertas de la demo). */
     private val alertas: AlertasRepository? = null,
+    /**
+     * Si se pasa, abre los protocolos fisiológicos de la demo (ver [protocolosDemo]). Tiene que ser
+     * un repositorio que no espere a estos mismos datos de ejemplo.
+     */
+    private val fisiologico: FisiologicoRepository? = null,
 ) {
     private val configStroop = ConfigStroop()
     private val configNBack = ConfigNBack()
@@ -90,6 +114,9 @@ class CargadorDatosEjemplo(
         val hoy = Instant.ofEpochMilli(ahora).atZone(zona).toLocalDate()
         val lanzamiento = hoy.minusDays(datos.diasMision - 1L)
         db.withTransaction {
+            // Insertar el usuario administrador la primera vez (prototipo: contraseña en texto plano).
+            insertarAdmin(ahora)
+
             // Una misión para toda la tripulación: empieza el día 1 (hoy es el último día).
             val misionId = db.tripulacionDao().insertarMision(
                 MissionEntity().apply {
@@ -105,7 +132,88 @@ class CargadorDatosEjemplo(
             // así llega a la Tierra con esos datos (la de Maya, aún de camino; la de Leo, ya recibida).
             alertas?.let { a -> ultimaSesion.forEach { (id, instante) -> a.evaluar(id, instante, zona) } }
         }
+        fisiologico?.let { protocolosDemo(it, ahora, zona) }
         return true
+    }
+
+    /**
+     * Protocolos fisiológicos de la demo (el paso 7 del plan los completará):
+     * - Leo: edema facial + cefalea → eco doppler con flujo retrógrado sin trombo → analítica
+     *   pendiente (protocolo 1, nivel 3).
+     * - Maya: FC alta y PA baja con mareo y balance hídrico negativo → repitiendo las mediciones
+     *   (protocolo 2, nivel 3).
+     */
+    private suspend fun protocolosDemo(f: FisiologicoRepository, ahora: Long, zona: ZoneId) {
+        val hora = 3_600_000L
+        f.evaluar(LEO, Hechos().con("EDEMA_FACIAL_CERVICAL", true).con("CEFALEA", true), ahora - 3 * hora)
+        db.fisiologicoDao().pendientes().first()
+            .firstOrNull { it.astronautaId == LEO && it.tipo == TipoPruebaClinica.ECO_DOPPLER_YUGULAR }
+            ?.let { doppler ->
+                f.guardarResultado(
+                    doppler.id,
+                    InterpretePruebas.resultadoCerrado(InterpretePruebas.ECO_DOPPLER_YUGULAR, "RETROGRADO"),
+                    realizadaPor = ANE,
+                    ahora = ahora - 2 * hora,
+                )
+            }
+
+        f.evaluar(
+            MAYA,
+            Hechos().con("FC_ALTA", true).con("PAS_BAJA", true).con("PAS_ALTA", false).con("MAREO", true),
+            ahora - 40 * 60_000L,
+        )
+        val hoy = Instant.ofEpochMilli(ahora).atZone(zona).toLocalDate()
+        db.fisiologicoDao().guardarBalance(BalanceHidrico(MAYA, hoy.toString(), ingeridoMl = 1500, eliminadoMl = 2100))
+        db.fisiologicoDao().guardarBalance(BalanceHidrico(MAYA, hoy.minusDays(1).toString(), ingeridoMl = 1800, eliminadoMl = 2250))
+    }
+
+    /**
+     * Constantes de los [dias] de misión: 4 medidas al día (7, 12, 17 y 22 h; hoy, solo las que ya
+     * han pasado) con algo de ruido. FC, SpO2 y FR van a continuous_measurement (HR, SPO2, RR) y la
+     * tensión a blood_pressure. Con su propio generador para no cambiar los ensayos cognitivos.
+     */
+    private suspend fun constantes(id: Long, c: ConstantesEjemplo, semilla: Long, dias: Int, ahora: Long, zona: ZoneId) {
+        val random = Random(semilla + 1_000)
+        val hoy = Instant.ofEpochMilli(ahora).atZone(zona).toLocalDate()
+        val lanzamiento = hoy.minusDays(dias - 1L)
+        val medidas = mutableListOf<ContinuousMeasurementEntity>()
+        val tensiones = mutableListOf<BloodPressureEntity>()
+        for (dia in 1..dias) {
+            val delDia = c.base + c.dias[dia.toString()].orEmpty()
+            fun valor(metrica: String, ruido: Double) = delDia[metrica]?.let { it + random.nextGaussian() * ruido }
+            for (hora in HORAS_CONSTANTES) {
+                val instante = lanzamiento.plusDays(dia - 1L).atTime(hora, 0).atZone(zona).toInstant().toEpochMilli()
+                if (instante > ahora) continue
+                val fc = valor("FC", 2.5)
+                fun medida(tipo: MeasurementType, v: Double?) = v?.let {
+                    medidas += ContinuousMeasurementEntity().apply {
+                        astronautId = id
+                        type = tipo.name
+                        value = Math.round(it * 10) / 10.0
+                        timestamp = instante
+                        source = FUENTE_SIMULADA
+                    }
+                }
+                medida(MeasurementType.HR, fc)
+                medida(MeasurementType.SPO2, valor("SPO2", 0.5)?.coerceAtMost(100.0))
+                medida(MeasurementType.RR, valor("FR", 0.8))
+                val pas = valor("PAS", 3.0)
+                val pad = valor("PAD", 2.0)
+                if (pas != null && pad != null) {
+                    tensiones += BloodPressureEntity().apply {
+                        astronautId = id
+                        scheduledFor = instante
+                        takenAt = instante
+                        systolic = pas.roundToInt()
+                        diastolic = pad.roundToInt()
+                        pulse = fc?.roundToInt()
+                        status = BloodPressureStatus.DONE.name
+                    }
+                }
+            }
+        }
+        db.fisiologicoDao().insertarMedidas(medidas)
+        db.fisiologicoDao().insertarTensiones(tensiones)
     }
 
     /** Carga un tripulante y devuelve el inicio de su última sesión de misión. */
@@ -114,6 +222,7 @@ class CargadorDatosEjemplo(
             require(it.size == dias) { "${t.nombre}: se esperaban $dias días y hay ${it.size}" }
         }
         insertarTripulante(t, misionId, ahora)
+        t.constantes?.let { constantes(t.id, it, t.semilla, dias, ahora, zona) }
 
         val random = Random(t.semilla)
         val hoy = Instant.ofEpochMilli(ahora).atZone(zona).toLocalDate()
@@ -196,14 +305,32 @@ class CargadorDatosEjemplo(
         repositorio.guardarNBack(sesion(t, inicio, esPractica = true, esLineaBase = false), resultados, secuencia.nivel)
     }
 
+    /**
+     * Usuario de tipo ADMIN para acceso al panel médico.
+     * Prototipo: contraseña guardada en texto plano.
+     */
+    private suspend fun insertarAdmin(ahora: Long) {
+        // No insertar si ya existe (por si se llama dos veces).
+        if (db.appUserDao().findByUsername(USUARIO_ADMIN) != null) return
+        db.appUserDao().insert(
+            AppUserEntity().apply {
+                username = USUARIO_ADMIN
+                passwordHash = CONTRASENA_ADMIN
+                role = Role.ADMIN.name
+                createdAt = ahora
+            },
+        )
+    }
+
     /** Usuario (rol ASTRONAUT) + astronauta en las tablas del equipo, con el id del JSON. */
     private suspend fun insertarTripulante(t: TripulanteEjemplo, misionId: Long, ahora: Long) {
         val dao = db.tripulacionDao()
+        val usuario = nombreUsuario(t.nombre)
         val usuarioId = dao.insertarUsuario(
             AppUserEntity().apply {
-                username = nombreUsuario(t.nombre)
-                // Prototipo sin inicio de sesión: no hay contraseñas.
-                passwordHash = ""
+                username = usuario
+                // Prototipo: la contraseña es el mismo nombre de usuario.
+                passwordHash = usuario
                 role = Role.ASTRONAUT.name
                 createdAt = ahora
             },
@@ -240,6 +367,15 @@ class CargadorDatosEjemplo(
     companion object {
         const val ARCHIVO = "datos_ejemplo.json"
         const val NOMBRE_MISION = "SpaceDrifters"
+        // ids de assets/datos_ejemplo.json
+        private val HORAS_CONSTANTES = listOf(7, 12, 17, 22)
+        const val FUENTE_SIMULADA = "SIMULADO"
+        private const val MAYA = 1L
+        private const val LEO = 2L
+        private const val ANE = 3L
+        /** Credenciales del admin por defecto (prototipo). */
+        const val USUARIO_ADMIN = "admin"
+        const val CONTRASENA_ADMIN = "admin1234"
         private const val MINUTO = 60_000L
         private val JSON = Json { ignoreUnknownKeys = true }
     }

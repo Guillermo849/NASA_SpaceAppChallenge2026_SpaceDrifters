@@ -24,7 +24,7 @@ class EmergenciaFlujoTest {
 
     @Test
     fun sintomaDeAlarma_abreLaEmergenciaYSeCierraAlAtenderla() {
-        compose.onNodeWithText(texto(R.string.rol_astronauta)).performClick()
+        compose.entrarComoAstronauta()
         compose.onNodeWithText(texto(R.string.alarma_boton)).performClick()
 
         // Sin marcar nada no se puede activar.

@@ -28,7 +28,7 @@ class RegistroDiarioFlujoTest {
 
     @Test
     fun hacerRegistro_seGuardaYSeVeEnElPanel() {
-        compose.onNodeWithText(texto(R.string.rol_astronauta)).performClick()
+        compose.entrarComoAstronauta()
         compose.waitUntil(5_000) { hay(texto(R.string.registro_pendiente)) }
         compose.onNodeWithText(texto(R.string.registro_hacer)).performClick()
 

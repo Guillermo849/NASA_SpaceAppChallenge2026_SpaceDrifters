@@ -13,7 +13,9 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.Medi
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigUmbrales
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ProtocolosJson
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoMedicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.UmbralesFisiologicos
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.TripulacionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -43,6 +45,8 @@ class AppContainer(context: Context) {
     val ambitoAplicacion: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val database: AppDatabase by lazy { AppDatabase.get(appContext) }
+
+    val userDao get() = database.appUserDao()
 
     /** assets/config_mision.json: retraso con la Tierra, umbrales de estado... */
     val configMision: ConfigMision by lazy { ConfigMision.leer(appContext) }
@@ -77,14 +81,40 @@ class AppContainer(context: Context) {
     /** assets/config_umbrales.json: cuándo FC, PA, SpO2, FR, VS y GC se consideran alterados. */
     val umbrales: UmbralesFisiologicos by lazy { ConfigUmbrales.leer(appContext) }
 
-    val fisiologicoRepository: FisiologicoRepository by lazy {
-        FisiologicoRepository(
+    /** Pestaña "Fisiológico" del médico: protocolos, historial, pruebas y constantes recibidas. */
+    val fisiologicoMedicoRepository: FisiologicoMedicoRepository by lazy {
+        FisiologicoMedicoRepository(
             database,
-            protocolos.motor(),
             retrasoMisionMs = configMision.aConfigCognitiva().retrasoMisionMs,
             esperarDatos = { datosEjemplo.await() },
         )
     }
+
+    val fisiologicoRepository: FisiologicoRepository by lazy {
+        FisiologicoRepository(
+            database,
+            protocolos.motor(),
+            InterpretePruebas(umbrales),
+            retrasoMisionMs = configMision.aConfigCognitiva().retrasoMisionMs,
+            esperarDatos = { datosEjemplo.await() },
+        )
+    }
+
+    /**
+     * Cargador de assets/datos_ejemplo.json. Su repositorio fisiológico no espera a [datosEjemplo]
+     * (si no, la carga se esperaría a sí misma).
+     */
+    fun cargadorDatosEjemplo() = CargadorDatosEjemplo(
+        database,
+        cognitivoRepository,
+        alertasRepository,
+        FisiologicoRepository(
+            database,
+            protocolos.motor(),
+            InterpretePruebas(umbrales),
+            retrasoMisionMs = configMision.aConfigCognitiva().retrasoMisionMs,
+        ),
+    )
 
     /**
      * Carga de assets/datos_ejemplo.json si la base de datos está vacía. Se lanza al arrancar
@@ -95,16 +125,18 @@ class AppContainer(context: Context) {
         appContext.deleteDatabase(BASE_DATOS_ANTIGUA)
         runCatching {
             val json = appContext.assets.open(CargadorDatosEjemplo.ARCHIVO).bufferedReader().use { it.readText() }
-            CargadorDatosEjemplo(database, cognitivoRepository, alertasRepository).cargarSiVacia(json)
+            cargadorDatosEjemplo().cargarSiVacia(json)
         }.onFailure { Log.e("DatosEjemplo", "No se han podido cargar los datos de ejemplo", it) }
         Unit
     }
 
     /**
-     * Astronauta que usa la app en el rol de astronauta (Maya Okafor en los datos de ejemplo).
-     * Provisional hasta que haya un selector de tripulante.
+     * Astronauta que usa la app: lo fija el inicio de sesión (el astronaut enlazado a su app_user).
+     * Por defecto, Maya Okafor (id 1 en los datos de ejemplo). Los ViewModels lo leen al crearse,
+     * es decir, después de entrar.
      */
-    val astronautaActualId: Long = 1L
+    @Volatile
+    var astronautaActualId: Long = 1L
 
     /** Arranca lo que tiene que estar listo cuanto antes. Lo llama la Application. */
     fun iniciar() {

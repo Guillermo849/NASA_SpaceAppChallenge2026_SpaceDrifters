@@ -65,7 +65,8 @@ Todo el código está en `app/src/main/java/com/example/nasa_spaceappchallenge20
     ├── navigation/          Rutas.kt (rutas) y AppNavHost.kt (grafo de navegación)
     ├── components/          Piezas reutilizables: PantallaBase, AvisoPrototipo...
     └── screens/
-        ├── rol/             Selector de rol (pantalla inicial)
+        ├── login/           Inicio de sesión (pantalla inicial): astronauta → su panel, admin → médico
+        ├── rol/             Selector de rol (ya no es la inicial; se conserva)
         ├── astronauta/      Pantallas del astronauta
         └── medico/          Pantallas del médico de vuelo
 ```

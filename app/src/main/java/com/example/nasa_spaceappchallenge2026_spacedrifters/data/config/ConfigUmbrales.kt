@@ -8,9 +8,13 @@ import kotlinx.serialization.json.Json
 
 /** Formato de assets/config_umbrales.json. Los umbrales se cambian ahí, no en el código. */
 @Serializable
-data class ConfigUmbrales(val umbrales: List<UmbralJson>) {
+data class ConfigUmbrales(
+    val umbrales: List<UmbralJson>,
+    /** Referencia por métrica para quien aún no tiene línea base propia (p. ej. VS, GC). */
+    val referencias: Map<String, Double> = emptyMap(),
+) {
 
-    fun aUmbrales() = UmbralesFisiologicos(umbrales.map { it.aUmbral() })
+    fun aUmbrales() = UmbralesFisiologicos(umbrales.map { it.aUmbral() }, referencias)
 
     companion object {
         const val ARCHIVO = "config_umbrales.json"

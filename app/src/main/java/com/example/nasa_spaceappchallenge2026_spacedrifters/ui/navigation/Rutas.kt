@@ -8,6 +8,9 @@ import kotlinx.serialization.Serializable
 //     @Serializable data class RutaPerfil(val astronautaId: String)
 
 @Serializable
+data object RutaLogin
+
+@Serializable
 data object RutaSelectorRol
 
 @Serializable
@@ -31,3 +34,10 @@ data class RutaPerfilAstronauta(val astronautaId: Long)
 
 @Serializable
 data class RutaDetalleSesion(val sesionId: Long)
+
+// Oficial médico de a bordo: protocolos de la tripulación y resultado de una prueba
+@Serializable
+data object RutaOficialMedico
+
+@Serializable
+data class RutaResultadoPrueba(val pruebaId: Long)

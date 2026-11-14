@@ -8,5 +8,7 @@
     { "hecho": "TAQUIPNEA", "metrica": "FR",   "sentido": "SUBE", "desviacionPorcentaje": 30, "absoluto": 20 },
     { "hecho": "VS_BAJO",   "metrica": "VS",   "sentido": "BAJA", "desviacionPorcentaje": 15 },
     { "hecho": "GC_BAJO",   "metrica": "GC",   "sentido": "BAJA", "desviacionPorcentaje": 15 }
-  ]
+  ],
+  "_referencias": "Para comparar VS (ml) y GC (l/min) mientras el astronauta no tiene un ecocardio anterior propio.",
+  "referencias": { "VS": 70, "GC": 5.0 }
 }

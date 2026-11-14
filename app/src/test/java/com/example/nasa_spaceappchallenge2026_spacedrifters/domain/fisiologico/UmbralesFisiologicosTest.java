@@ -94,6 +94,32 @@ public class UmbralesFisiologicosTest {
     }
 
     @Test
+    public void franjaAlrededorDeLaBase() {
+        // FC solo tiene umbral hacia arriba (+20 %): la franja es simétrica, 56–84 con base 70.
+        double[] fc = umbrales.franja("FC", 70);
+        assertEquals(56, fc[0], 1e-9);
+        assertEquals(84, fc[1], 1e-9);
+        // PAS tiene umbral por los dos lados (±15 %).
+        double[] pas = umbrales.franja("PAS", 120);
+        assertEquals(102, pas[0], 1e-9);
+        assertEquals(138, pas[1], 1e-9);
+        // SpO2: 3 puntos por debajo.
+        double[] spo2 = umbrales.franja("SPO2", 98);
+        assertEquals(95, spo2[0], 1e-9);
+        assertNull(umbrales.franja("TEMPERATURA", 36.5));
+    }
+
+    @Test
+    public void lineaBase_mediaDeLaPrimeraVentana() {
+        long dia = 86_400_000L;
+        long[] t = {0, dia, 2 * dia, 8 * dia};
+        double[] v = {60, 62, 64, 95};
+        // Solo cuentan los 7 primeros días: (60 + 62 + 64) / 3.
+        assertEquals(62, UmbralesFisiologicos.lineaBase(t, v, 7 * dia), 1e-9);
+        assertNull(UmbralesFisiologicos.lineaBase(new long[0], new double[0], dia));
+    }
+
+    @Test
     public void losUmbralesSeLeenDeLaConfiguracion() {
         // Con un 50 % en vez de un 20 %, 85 lpm sobre una base de 70 ya no es FC alta.
         String json = Assets.leer("config_umbrales.json")

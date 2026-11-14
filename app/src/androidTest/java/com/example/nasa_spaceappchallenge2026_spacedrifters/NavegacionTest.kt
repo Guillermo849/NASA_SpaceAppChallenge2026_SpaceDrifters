@@ -8,7 +8,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Test instrumentado de ejemplo: el selector de rol navega a la pantalla del médico. */
+/** Test instrumentado de ejemplo: al entrar como médico se abre la tripulación. */
 @RunWith(AndroidJUnit4::class)
 class NavegacionTest {
 
@@ -16,9 +16,9 @@ class NavegacionTest {
     val compose = createAndroidComposeRule<MainActivity>()
 
     @Test
-    fun selectorRol_navegaATripulacion() {
+    fun login_medicoVaATripulacion() {
         val actividad = compose.activity
-        compose.onNodeWithText(actividad.getString(R.string.rol_medico)).performClick()
+        compose.entrarComoMedico()
         compose.onNodeWithText(actividad.getString(R.string.medico_tripulacion_titulo)).assertExists()
     }
 }

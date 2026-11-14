@@ -25,12 +25,14 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.R
  * [onAtras] no es null), el contenido, y el aviso de prototipo abajo.
  * Con [titulo] null no hay barra superior (para pantallas con su propia cabecera, como el
  * selector de rol); el aviso de prototipo sigue siempre.
+ * [onCerrarSesion] muestra un icono de logout en el extremo derecho de la barra.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaBase(
     titulo: String?,
     onAtras: (() -> Unit)? = null,
+    onCerrarSesion: (() -> Unit)? = null,
     contenido: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -44,6 +46,17 @@ fun PantallaBase(
                             Icon(
                                 painter = painterResource(R.drawable.ic_atras),
                                 contentDescription = stringResource(R.string.cd_atras),
+                            )
+                        }
+                    }
+                },
+                actions = {
+                    if (onCerrarSesion != null) {
+                        IconButton(onClick = onCerrarSesion) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_cerrar_sesion),
+                                contentDescription = stringResource(R.string.cd_cerrar_sesion),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }

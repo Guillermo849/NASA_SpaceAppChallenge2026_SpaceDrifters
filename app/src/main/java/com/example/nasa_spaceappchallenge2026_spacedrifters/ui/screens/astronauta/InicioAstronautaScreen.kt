@@ -55,6 +55,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.nombreSintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.emergencia.BotonAlarma
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.ProtocoloEnCurso
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.emergencia.EmergenciaViewModel
 import java.text.NumberFormat
 import java.time.Instant
@@ -70,18 +71,22 @@ fun InicioAstronautaScreen(
     onEmpezarStroop: () -> Unit,
     onEmpezarNBack: () -> Unit,
     onRegistro: () -> Unit,
+    onCerrarSesion: () -> Unit = {},
     viewModel: InicioAstronautaViewModel = viewModel(factory = AppViewModelProvider.Factory),
     emergencia: EmergenciaViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val panel by viewModel.panel.collectAsStateWithLifecycle()
+    val protocolos by viewModel.protocolos.collectAsStateWithLifecycle()
     PanelAstronautaContenido(
         panel = panel,
         onAtras = onAtras,
         onEmpezarStroop = onEmpezarStroop,
         onEmpezarNBack = onEmpezarNBack,
         onRegistro = onRegistro,
+        protocolos = protocolos,
         signosAlarma = emergencia.signosAlarma,
         onAlarma = emergencia::activar,
+        onCerrarSesion = onCerrarSesion,
     )
 }
 
@@ -92,14 +97,17 @@ private fun PanelAstronautaContenido(
     onEmpezarStroop: () -> Unit,
     onEmpezarNBack: () -> Unit,
     onRegistro: () -> Unit,
+    protocolos: List<ProtocoloEnCurso> = emptyList(),
     signosAlarma: List<String> = emptyList(),
     onAlarma: (Set<String>) -> Unit = {},
+    onCerrarSesion: () -> Unit = {},
     ahora: Long = remember { System.currentTimeMillis() },
 ) {
     var periodo by rememberSaveable { mutableStateOf(Periodo.SEMANA) }
     PantallaBase(
         titulo = stringResource(R.string.astronauta_inicio_titulo),
         onAtras = onAtras,
+        onCerrarSesion = onCerrarSesion,
     ) { padding ->
         Column(
             modifier = Modifier
@@ -114,6 +122,8 @@ private fun PanelAstronautaContenido(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 CabeceraPanel(panel)
+                // Protocolos fisiológicos abiertos: arriba, el más grave primero.
+                protocolos.forEach { TarjetaProtocoloAstronauta(it) }
                 if (panel.avisos.isNotEmpty()) TarjetaAvisos(panel.avisos)
                 TarjetaRegistroHoy(panel.registroHoy, onRegistro)
                 TarjetaPruebasDeHoy(
@@ -529,6 +539,7 @@ private fun PanelAstronautaPreview() {
     }
     SpaceDriftersTheme {
         PanelAstronautaContenido(
+            onCerrarSesion = {},
             panel = PanelAstronautaUi(
                 nombre = "Maya Okafor",
                 cargo = CargoTripulante.COMANDANTE,
