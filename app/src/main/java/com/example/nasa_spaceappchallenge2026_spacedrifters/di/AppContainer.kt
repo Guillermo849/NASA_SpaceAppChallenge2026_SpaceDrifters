@@ -14,6 +14,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigUm
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ProtocolosJson
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.UmbralesFisiologicos
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.TripulacionRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -81,10 +82,27 @@ class AppContainer(context: Context) {
         FisiologicoRepository(
             database,
             protocolos.motor(),
+            InterpretePruebas(umbrales),
             retrasoMisionMs = configMision.aConfigCognitiva().retrasoMisionMs,
             esperarDatos = { datosEjemplo.await() },
         )
     }
+
+    /**
+     * Cargador de assets/datos_ejemplo.json. Su repositorio fisiológico no espera a [datosEjemplo]
+     * (si no, la carga se esperaría a sí misma).
+     */
+    fun cargadorDatosEjemplo() = CargadorDatosEjemplo(
+        database,
+        cognitivoRepository,
+        alertasRepository,
+        FisiologicoRepository(
+            database,
+            protocolos.motor(),
+            InterpretePruebas(umbrales),
+            retrasoMisionMs = configMision.aConfigCognitiva().retrasoMisionMs,
+        ),
+    )
 
     /**
      * Carga de assets/datos_ejemplo.json si la base de datos está vacía. Se lanza al arrancar
@@ -95,7 +113,7 @@ class AppContainer(context: Context) {
         appContext.deleteDatabase(BASE_DATOS_ANTIGUA)
         runCatching {
             val json = appContext.assets.open(CargadorDatosEjemplo.ARCHIVO).bufferedReader().use { it.readText() }
-            CargadorDatosEjemplo(database, cognitivoRepository, alertasRepository).cargarSiVacia(json)
+            cargadorDatosEjemplo().cargarSiVacia(json)
         }.onFailure { Log.e("DatosEjemplo", "No se han podido cargar los datos de ejemplo", it) }
         Unit
     }

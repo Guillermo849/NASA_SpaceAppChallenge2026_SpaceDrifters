@@ -20,7 +20,7 @@ class ConDatosEjemplo : ExternalResource() {
             c.datosEjemplo.await()
             withContext(Dispatchers.IO) { c.database.clearAllTables() }
             val json = app.assets.open(CargadorDatosEjemplo.ARCHIVO).bufferedReader().use { it.readText() }
-            CargadorDatosEjemplo(c.database, c.cognitivoRepository, c.alertasRepository).cargarSiVacia(json)
+            c.cargadorDatosEjemplo().cargarSiVacia(json)
         }
     }
 }

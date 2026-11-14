@@ -15,6 +15,8 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.De
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.PerfilAstronautaScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.TripulacionScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.rol.SelectorRolScreen
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.oficial.OficialMedicoScreen
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.oficial.ResultadoPruebaScreen
 
 /**
  * Grafo de navegación de toda la app.
@@ -27,6 +29,21 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             SelectorRolScreen(
                 onAstronauta = { navController.navigate(RutaInicioAstronauta) },
                 onMedico = { navController.navigate(RutaTripulacion) },
+                onOficial = { navController.navigate(RutaOficialMedico) },
+            )
+        }
+        // Oficial médico de a bordo
+        composable<RutaOficialMedico> {
+            OficialMedicoScreen(
+                onAtras = { navController.popBackStack() },
+                onPrueba = { id -> navController.navigate(RutaResultadoPrueba(id)) },
+            )
+        }
+        // El ViewModel lee el id de la prueba de la ruta (ver AppViewModelProvider).
+        composable<RutaResultadoPrueba> {
+            ResultadoPruebaScreen(
+                onAtras = { navController.popBackStack() },
+                onGuardado = { navController.popBackStack() },
             )
         }
         composable<RutaInicioAstronauta> {

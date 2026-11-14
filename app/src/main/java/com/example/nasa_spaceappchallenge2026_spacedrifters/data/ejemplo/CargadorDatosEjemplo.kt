@@ -12,6 +12,12 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.RegistroD
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.BalanceHidrico
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPruebaClinica
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.protocolos.Hechos
+import kotlinx.coroutines.flow.first
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.SesionNueva
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.ejemplo.GeneradorEnsayosEjemplo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.ConfigNBack
@@ -75,6 +81,11 @@ class CargadorDatosEjemplo(
     private val repositorio: CognitivoRepository,
     /** Si se pasa, al terminar evalúa las reglas para cada tripulante (alertas de la demo). */
     private val alertas: AlertasRepository? = null,
+    /**
+     * Si se pasa, abre los protocolos fisiológicos de la demo (ver [protocolosDemo]). Tiene que ser
+     * un repositorio que no espere a estos mismos datos de ejemplo.
+     */
+    private val fisiologico: FisiologicoRepository? = null,
 ) {
     private val configStroop = ConfigStroop()
     private val configNBack = ConfigNBack()
@@ -105,7 +116,39 @@ class CargadorDatosEjemplo(
             // así llega a la Tierra con esos datos (la de Maya, aún de camino; la de Leo, ya recibida).
             alertas?.let { a -> ultimaSesion.forEach { (id, instante) -> a.evaluar(id, instante, zona) } }
         }
+        fisiologico?.let { protocolosDemo(it, ahora, zona) }
         return true
+    }
+
+    /**
+     * Protocolos fisiológicos de la demo (el paso 7 del plan los completará):
+     * - Leo: edema facial + cefalea → eco doppler con flujo retrógrado sin trombo → analítica
+     *   pendiente (protocolo 1, nivel 3).
+     * - Maya: FC alta y PA baja con mareo y balance hídrico negativo → repitiendo las mediciones
+     *   (protocolo 2, nivel 3).
+     */
+    private suspend fun protocolosDemo(f: FisiologicoRepository, ahora: Long, zona: ZoneId) {
+        val hora = 3_600_000L
+        f.evaluar(LEO, Hechos().con("EDEMA_FACIAL_CERVICAL", true).con("CEFALEA", true), ahora - 3 * hora)
+        db.fisiologicoDao().pendientes().first()
+            .firstOrNull { it.astronautaId == LEO && it.tipo == TipoPruebaClinica.ECO_DOPPLER_YUGULAR }
+            ?.let { doppler ->
+                f.guardarResultado(
+                    doppler.id,
+                    InterpretePruebas.resultadoCerrado(InterpretePruebas.ECO_DOPPLER_YUGULAR, "RETROGRADO"),
+                    realizadaPor = ANE,
+                    ahora = ahora - 2 * hora,
+                )
+            }
+
+        f.evaluar(
+            MAYA,
+            Hechos().con("FC_ALTA", true).con("PAS_BAJA", true).con("PAS_ALTA", false).con("MAREO", true),
+            ahora - 40 * 60_000L,
+        )
+        val hoy = Instant.ofEpochMilli(ahora).atZone(zona).toLocalDate()
+        db.fisiologicoDao().guardarBalance(BalanceHidrico(MAYA, hoy.toString(), ingeridoMl = 1500, eliminadoMl = 2100))
+        db.fisiologicoDao().guardarBalance(BalanceHidrico(MAYA, hoy.minusDays(1).toString(), ingeridoMl = 1800, eliminadoMl = 2250))
     }
 
     /** Carga un tripulante y devuelve el inicio de su última sesión de misión. */
@@ -240,6 +283,10 @@ class CargadorDatosEjemplo(
     companion object {
         const val ARCHIVO = "datos_ejemplo.json"
         const val NOMBRE_MISION = "SpaceDrifters"
+        // ids de assets/datos_ejemplo.json
+        private const val MAYA = 1L
+        private const val LEO = 2L
+        private const val ANE = 3L
         private const val MINUTO = 60_000L
         private val JSON = Json { ignoreUnknownKeys = true }
     }

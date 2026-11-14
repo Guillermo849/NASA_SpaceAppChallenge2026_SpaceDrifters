@@ -9,6 +9,9 @@ import androidx.navigation.toRoute
 import com.example.nasa_spaceappchallenge2026_spacedrifters.SpaceDriftersApp
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.navigation.RutaDetalleSesion
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.navigation.RutaPerfilAstronauta
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.navigation.RutaResultadoPrueba
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.oficial.OficialMedicoViewModel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.oficial.ResultadoPruebaViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.DetalleSesionViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.PerfilAstronautaViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.TripulacionViewModel
@@ -42,6 +45,16 @@ object AppViewModelProvider {
         initializer {
             val c = app().container
             EmergenciaViewModel(c.fisiologicoRepository, c.astronautaActualId, c.ambitoAplicacion)
+        }
+        // Oficial médico de a bordo
+        initializer { OficialMedicoViewModel(app().container.fisiologicoRepository) }
+        initializer {
+            val c = app().container
+            ResultadoPruebaViewModel(
+                c.fisiologicoRepository,
+                createSavedStateHandle().toRoute<RutaResultadoPrueba>().pruebaId,
+                c.ambitoAplicacion,
+            )
         }
         // Médico
         initializer { TripulacionViewModel(app().container.medicoRepository) }

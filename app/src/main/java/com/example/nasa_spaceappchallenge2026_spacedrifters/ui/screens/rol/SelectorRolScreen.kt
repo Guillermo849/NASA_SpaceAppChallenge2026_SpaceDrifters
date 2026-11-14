@@ -40,6 +40,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.SpaceDrifte
 fun SelectorRolScreen(
     onAstronauta: () -> Unit,
     onMedico: () -> Unit,
+    onOficial: () -> Unit = {},
 ) {
     // Sin barra superior: la cabecera con el logo hace de título.
     PantallaBase(titulo = null) { padding ->
@@ -64,6 +65,13 @@ fun SelectorRolScreen(
                 titulo = stringResource(R.string.rol_astronauta),
                 descripcion = stringResource(R.string.rol_astronauta_desc),
                 onClick = onAstronauta,
+            )
+            TarjetaRol(
+                icono = R.drawable.ic_medico,
+                descripcionIcono = stringResource(R.string.cd_oficial),
+                titulo = stringResource(R.string.rol_oficial),
+                descripcion = stringResource(R.string.rol_oficial_desc),
+                onClick = onOficial,
             )
             TarjetaRol(
                 icono = R.drawable.ic_medico,

@@ -31,3 +31,10 @@ data class RutaPerfilAstronauta(val astronautaId: Long)
 
 @Serializable
 data class RutaDetalleSesion(val sesionId: Long)
+
+// Oficial médico de a bordo: protocolos de la tripulación y resultado de una prueba
+@Serializable
+data object RutaOficialMedico
+
+@Serializable
+data class RutaResultadoPrueba(val pruebaId: Long)

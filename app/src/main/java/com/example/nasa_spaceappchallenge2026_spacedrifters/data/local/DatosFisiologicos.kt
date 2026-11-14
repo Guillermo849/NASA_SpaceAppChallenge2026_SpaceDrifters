@@ -47,7 +47,13 @@ data class ProtocoloActivo(
      * que lo confirme la oficial médico o el médico; null = no hay bajada pendiente.
      */
     val nivelPropuesto: Int? = null,
-)
+    /** Hechos que ya se sabían (JSON: {"EDEMA_FACIAL_CERVICAL": true, ...}); se suman a los nuevos al avanzar. */
+    val hechos: String = "{}",
+    /** Nodos por los que ha pasado, en orden y separados por comas (para dibujar los pasos). */
+    val recorrido: String = "",
+) {
+    val pasosRecorridos: List<String> get() = recorrido.split(',').filter { it.isNotBlank() }
+}
 
 /** Historial de un protocolo: cada cambio de nivel con su hora, el dato que lo provocó y quién lo confirmó. */
 @Entity(tableName = "evento_protocolo", indices = [Index("protocoloActivoId")])
@@ -176,6 +182,10 @@ interface FisiologicoDao {
 
     @Query("SELECT * FROM prueba_clinica WHERE protocoloActivoId = :protocoloActivoId ORDER BY pedidaEn")
     suspend fun pruebasDeProtocolo(protocoloActivoId: Long): List<PruebaClinica>
+
+    /** Todas las pruebas ya hechas por un astronauta (para comparar con las anteriores). */
+    @Query("SELECT * FROM prueba_clinica WHERE astronautaId = :astronautaId AND realizadaEn IS NOT NULL ORDER BY realizadaEn")
+    suspend fun realizadasDe(astronautaId: Long): List<PruebaClinica>
 
     /** Resultados de un tipo de prueba, el más reciente primero (para comparar con el anterior). */
     @Query("SELECT * FROM prueba_clinica WHERE astronautaId = :astronautaId AND tipo = :tipo AND realizadaEn IS NOT NULL ORDER BY realizadaEn DESC")

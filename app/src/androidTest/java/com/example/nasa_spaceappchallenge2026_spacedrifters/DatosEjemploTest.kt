@@ -11,6 +11,12 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueb
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ReglasJson
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.CognitivoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.FisiologicoRepository
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ConfigUmbrales
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.config.ProtocolosJson
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPruebaClinica
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.fisiologico.InterpretePruebas
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.protocolos.EstadoProtocolo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.ConfigCognitiva
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -33,6 +39,7 @@ class DatosEjemploTest {
     private lateinit var db: AppDatabase
     private lateinit var repo: CognitivoRepository
     private lateinit var alertas: AlertasRepository
+    private lateinit var fisiologico: FisiologicoRepository
     private val dao get() = db.cognitivoDao()
 
     private val zona = ZoneId.of("Europe/Madrid")
@@ -53,7 +60,13 @@ class DatosEjemploTest {
         // Las mismas reglas que la app (assets/reglas.json) y el retraso de 18 min.
         alertas = AlertasRepository(db, ReglasJson.leer(contexto), retrasoMisionMs = ConfigCognitiva().retrasoMisionMs)
         val json = contexto.assets.open(CargadorDatosEjemplo.ARCHIVO).bufferedReader().use { it.readText() }
-        assertTrue(CargadorDatosEjemplo(db, repo, alertas).cargarSiVacia(json, ahora, zona))
+        fisiologico = FisiologicoRepository(
+            db,
+            ProtocolosJson.leer(contexto).motor(),
+            InterpretePruebas(ConfigUmbrales.leer(contexto)),
+            retrasoMisionMs = ConfigCognitiva().retrasoMisionMs,
+        )
+        assertTrue(CargadorDatosEjemplo(db, repo, alertas, fisiologico).cargarSiVacia(json, ahora, zona))
     }
 
     // ---- Alertas por reglas ----
@@ -101,6 +114,57 @@ class DatosEjemploTest {
         // Volver a evaluar no duplica las alertas activas.
         assertTrue(alertas.evaluar(maya, ahora, zona).isEmpty())
         assertEquals(2, db.alertasDao().deAstronauta(maya).size)
+    }
+
+    // ---- Protocolos fisiológicos de la demo ----
+
+    @Test
+    fun fisiologico_leoTrombosisConLaAnaliticaPendiente() = runBlocking {
+        val p = db.fisiologicoDao().abiertosAhora(leo).single()
+        assertEquals("trombosis-yugular", p.protocoloId)
+        assertEquals("p1-flujo-alterado", p.nodoActual)
+        assertEquals(3, p.nivel)
+        assertEquals(EstadoProtocolo.ESPERANDO_PRUEBA, p.estado)
+        val pruebas = db.fisiologicoDao().pruebasDeProtocolo(p.id)
+        // El eco doppler (retrógrado) ya está hecho, por Ane; la analítica, pendiente.
+        val doppler = pruebas.single { it.tipo == TipoPruebaClinica.ECO_DOPPLER_YUGULAR }
+        assertEquals(ane, doppler.realizadaPor)
+        assertTrue(doppler.resultado!!.contains("RETROGRADO"))
+        assertEquals(
+            setOf(TipoPruebaClinica.DIMERO_D, TipoPruebaClinica.HEMOGRAMA, TipoPruebaClinica.COAGULACION),
+            pruebas.filter { it.realizadaEn == null }.map { it.tipo }.toSet(),
+        )
+        // Historial: 1→2 (edema), 2→3 (cefalea).
+        assertEquals(listOf(2, 3), db.fisiologicoDao().eventosDe(p.id).first().map { it.nivelDespues })
+        assertEquals(listOf("p1-cefalea", "p1-doppler", "p1-resultado-doppler", "p1-flujo-alterado"), p.pasosRecorridos)
+    }
+
+    @Test
+    fun fisiologico_mayaHemodinamicoRepitiendoMediciones() = runBlocking {
+        val p = db.fisiologicoDao().abiertosAhora(maya).single()
+        assertEquals("hemodinamico", p.protocoloId)
+        assertEquals("p2a-repetir", p.nodoActual)
+        assertEquals(3, p.nivel)
+        assertEquals(TipoPruebaClinica.REPETICION_CONSTANTES, db.fisiologicoDao().pruebasDeProtocolo(p.id).single().tipo)
+        assertTrue(db.fisiologicoDao().balancesDesde(maya, "2000-01-01").all { it.balanceMl < 0 })
+        assertTrue(db.fisiologicoDao().abiertosAhora(ane).isEmpty())
+    }
+
+    @Test
+    fun fisiologico_alIntroducirLaAnaliticaElProtocoloSigue() = runBlocking {
+        val p = db.fisiologicoDao().abiertosAhora(leo).single()
+        val pendientes = db.fisiologicoDao().pruebasDeProtocolo(p.id).filter { it.realizadaEn == null }
+        // Dímero D elevado: con eso basta para subir a nivel 4, pero el nodo espera las tres.
+        val dimero = pendientes.single { it.tipo == TipoPruebaClinica.DIMERO_D }
+        val r = fisiologico.guardarResultado(dimero.id, InterpretePruebas.resultadoCerrado("DIMERO_D", "ELEVADO"), ane, ahora)
+        assertEquals("p1-flujo-alterado", r!!.nodo)
+        for (otra in pendientes.filter { it.id != dimero.id }) {
+            fisiologico.guardarResultado(otra.id, InterpretePruebas.resultadoCerrado(otra.tipo.name, "NORMAL"), ane, ahora)
+        }
+        val despues = db.fisiologicoDao().protocolo(p.id)!!
+        assertEquals("p1-empeora", despues.nodoActual)
+        assertEquals(4, despues.nivel)
+        assertEquals("ANALITICA_ALTERADA", db.fisiologicoDao().eventosDe(p.id).first().last().motivo)
     }
 
     @After
