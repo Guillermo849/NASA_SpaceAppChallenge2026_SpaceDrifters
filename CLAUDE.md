@@ -12,7 +12,8 @@ Current state: only the shared skeleton exists (Gradle, theme, navigation, empty
 
 Gradle wrapper (`./gradlew` in Bash, `.\gradlew` / `gradlew.bat` on Windows):
 
-- Build: `./gradlew assembleDebug`
+- Build: `./gradlew assembleDebug` · install on device/emulator: `./gradlew installDebug`
+- Minimum check before pushing (per README): `./gradlew assembleDebug testDebugUnitTest`
 - Unit tests (JVM, `app/src/test`): `./gradlew testDebugUnitTest`
 - Single test: `./gradlew testDebugUnitTest --tests "com.example.nasa_spaceappchallenge2026_spacedrifters.ExampleUnitTest.suma_esCorrecta"`
 - Instrumented tests (`app/src/androidTest`, needs device/emulator): `./gradlew connectedDebugAndroidTest`
@@ -21,6 +22,7 @@ Gradle wrapper (`./gradlew` in Bash, `.\gradlew` / `gradlew.bat` on Windows):
 ## Build setup (non-obvious bits)
 
 - AGP 9.2.1 with **built-in Kotlin**: do not apply `org.jetbrains.kotlin.android`. The Kotlin version is set by the `kotlin` entry in `gradle/libs.versions.toml` (compose + serialization compiler plugins).
+- Gradle runs on JDK 21 (`gradle/gradle-daemon-jvm.properties`); bytecode targets Java 17.
 - `compileSdk` 37 is required by Compose 1.12 / Lifecycle 2.11; `targetSdk` 36, `minSdk` 26 (java.time without desugaring).
 - Room uses KSP (`ksp(libs.androidx.room.compiler)`), not kapt.
 - All versions live in `gradle/libs.versions.toml`; repositories only in `settings.gradle.kts` (`FAIL_ON_PROJECT_REPOS`).
@@ -32,9 +34,11 @@ Package root `com.example.nasa_spaceappchallenge2026_spacedrifters`:
 
 - Single Activity (`MainActivity`) → `SpaceDriftersTheme` → `ui/navigation/AppNavHost`.
 - Navigation Compose with **type-safe routes** (`@Serializable` objects/data classes in `ui/navigation/Rutas.kt`). Screens never receive the `NavController`; they get lambdas (`onAtras`, `onMedico`, ...) wired in `AppNavHost`.
-- MVVM (ViewModel + StateFlow) with **manual DI**: `SpaceDriftersApp` owns an `di/AppContainer` (create DB/repositories there with `by lazy`); every ViewModel is registered as an `initializer { ... }` in `di/AppViewModelProvider.Factory`, using `CreationExtras.app()` to reach the container. No Hilt.
+- MVVM (ViewModel + StateFlow) with **manual DI**: `SpaceDriftersApp` owns an `di/AppContainer` (create DB/repositories there with `by lazy`); every ViewModel is registered as an `initializer { ... }` in `di/AppViewModelProvider.Factory`, using `CreationExtras.app()` to reach the container. No Hilt. A ViewModel lives next to its screen (`ui/screens/<zona>/XViewModel.kt`); the screen gets it with `viewModel<X>(factory = AppViewModelProvider.Factory)` and reads state via `collectAsStateWithLifecycle()`. Route arguments reach a ViewModel through `createSavedStateHandle().toRoute<Ruta>()` inside the initializer.
 - Layers: `data/local` (Room entities/DAOs/AppDatabase) → `data/repository` → `ui/screens/<rol|astronauta|medico>`. Pure logic without Android (e.g. the planned JSON-driven rule engine) goes in `domain/` so it can be unit-tested on the JVM.
-- Every screen wraps its content in `ui/components/PantallaBase`, which provides the top bar (back button when `onAtras != null`) and the mandatory "Prototipo, no es un dispositivo médico · Datos simulados" footer (`AvisoPrototipo`).
+- Every screen wraps its content in `ui/components/PantallaBase`, which provides the top bar (back button when `onAtras != null`) and the mandatory "Prototipo, no es un dispositivo médico · Datos simulados" footer (`AvisoPrototipo`). Unfinished screens use `EnConstruccion(padding)` from the same file as placeholder content.
+- Tests: instrumented UI tests (`androidTest/NavegacionTest.kt`) use `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule<MainActivity>()` and look up nodes via `activity.getString(R.string.…)`, never hard-coded text, so they pass in either locale.
+- Empty folders hold a `.gitkeep`; delete it when adding the first real file there.
 
 ## Conventions
 
