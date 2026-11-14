@@ -277,4 +277,38 @@
     <string name="medico_respuesta">Answer: %1$s</string>
     <string name="medico_pulso">Tapped</string>
     <string name="medico_no_pulso">Didn\'t tap</string>
+
+    <!-- Physiological: alarm signs and emergency (level 5) -->
+    <string name="alarma_boton">I have an alarm symptom</string>
+    <string name="alarma_titulo">What is happening?</string>
+    <string name="alarma_explicacion">Tick what you have. The emergency will start for the whole crew right away.</string>
+    <string name="alarma_activar">Start emergency</string>
+    <string name="signo_dolor_toracico">Chest pain</string>
+    <string name="signo_sincope">Fainting or loss of consciousness</string>
+    <string name="signo_disnea_grave">Severe shortness of breath</string>
+    <string name="signo_alteracion_lenguaje">Difficulty speaking</string>
+    <string name="signo_disnea">Shortness of breath</string>
+    <string name="signo_deterioro_cognitivo_brusco">Sudden cognitive decline</string>
+    <string name="signo_mareo_intenso">Severe dizziness</string>
+    <string name="emergencia_titulo">Emergency</string>
+    <string name="emergencia_nivel">Level 5 · Whole crew</string>
+    <string name="emergencia_astronauta_desconocido">Astronaut</string>
+    <string name="emergencia_motivo">Reason: %1$s</string>
+    <string name="emergencia_desde">Since %1$s</string>
+    <string name="emergencia_pasos_titulo">Emergency protocol</string>
+    <string name="emergencia_paso_1">Alert the medical officer and go to the astronaut.</string>
+    <string name="emergencia_paso_2">Check whether they respond and breathe. If they are not breathing, start CPR.</string>
+    <string name="emergencia_paso_3">Bring the emergency medical kit and the defibrillator.</string>
+    <string name="emergencia_paso_4">Measure HR, BP and SpO₂ and give oxygen if needed.</string>
+    <string name="emergencia_paso_5">Do not wait for Earth to act.</string>
+    <string name="emergencia_tierra">The flight surgeon on Earth will get the alert at %1$s, with top priority.</string>
+    <string name="emergencia_tierra_sin_hora">The flight surgeon on Earth has been alerted with top priority.</string>
+    <plurals name="emergencia_otras">
+        <item quantity="one">There is %d more unattended emergency.</item>
+        <item quantity="other">There are %d more unattended emergencies.</item>
+    </plurals>
+    <string name="emergencia_atendida">Emergency handled</string>
+    <string name="emergencia_atendida_confirmar_titulo">Has it been handled?</string>
+    <string name="emergencia_atendida_confirmar_texto">The emergency screen will close on every device. The history will record that the crew confirmed it.</string>
+    <string name="emergencia_atendida_si">Yes, it has been handled</string>
 </resources>
