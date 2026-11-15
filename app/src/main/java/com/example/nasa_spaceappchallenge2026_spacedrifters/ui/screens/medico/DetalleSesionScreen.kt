@@ -19,6 +19,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.EtiquetasUi
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,7 +55,8 @@ fun DetalleSesionScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
+                .testTag(EtiquetasUi.LISTA_DETALLE),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
@@ -78,7 +81,10 @@ fun DetalleSesionScreen(
 @Composable
 private fun TarjetaMetricas(s: SesionConResumen) {
     val estado = EstadoCognitivo.entries.firstOrNull { it.name == s.estado }
-    Card(border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline), modifier = Modifier.fillMaxWidth()) {
+    Card(
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        modifier = Modifier.fillMaxWidth().testTag(EtiquetasUi.METRICAS_SESION),
+    ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(fechaHora(s.inicioEn), style = MaterialTheme.typography.titleMedium)
             if (!s.valida) {

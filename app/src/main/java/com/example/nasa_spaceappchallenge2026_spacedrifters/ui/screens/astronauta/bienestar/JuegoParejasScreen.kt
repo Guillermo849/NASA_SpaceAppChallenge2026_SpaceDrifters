@@ -24,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.EtiquetasUi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
@@ -98,15 +100,20 @@ private fun JuegoParejasContenido(ui: JuegoUi, onAtras: () -> Unit, onCarta: (In
                 color = MaterialTheme.colorScheme.primary,
             )
             // 3 columnas × 4 filas.
-            ui.cartas.chunked(COLUMNAS).forEachIndexed { fila, cartas ->
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    cartas.forEachIndexed { col, carta ->
-                        Carta(
-                            numero = fila * COLUMNAS + col + 1,
-                            carta = carta,
-                            onClick = { onCarta(fila * COLUMNAS + col) },
-                            modifier = Modifier.weight(1f),
-                        )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.testTag(EtiquetasUi.TABLERO_PAREJAS),
+            ) {
+                ui.cartas.chunked(COLUMNAS).forEachIndexed { fila, cartas ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                        cartas.forEachIndexed { col, carta ->
+                            Carta(
+                                numero = fila * COLUMNAS + col + 1,
+                                carta = carta,
+                                onClick = { onCarta(fila * COLUMNAS + col) },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
                     }
                 }
             }
