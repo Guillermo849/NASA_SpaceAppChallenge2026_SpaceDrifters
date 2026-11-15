@@ -7,9 +7,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -51,6 +54,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.Est
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.MarcaEstado
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.colorNivel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreNivel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.ANCHO_PANEL
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.PantallaBase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.colorEstado
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.etiquetaEstado
@@ -92,6 +96,7 @@ private fun TripulacionContenido(
         titulo = stringResource(R.string.medico_tripulacion_titulo),
         onAtras = onAtras,
         onCerrarSesion = onCerrarSesion,
+        anchoMaximo = ANCHO_PANEL,
     ) { padding ->
         Column(
             modifier = Modifier
@@ -110,8 +115,26 @@ private fun TripulacionContenido(
             if (panel != null && panel.tripulacion.isEmpty()) {
                 Text(stringResource(R.string.medico_sin_tripulacion), style = MaterialTheme.typography.bodyLarge)
             }
-            panel?.tripulacion.orEmpty().forEach { fila ->
-                TarjetaTripulante(fila, onClick = { onAstronauta(fila.id) })
+            // En tablet (ancho ≥ 800 dp) dos tarjetas por fila, en el mismo orden de urgencia.
+            BoxWithConstraints {
+                val columnas = if (maxWidth >= 800.dp) 2 else 1
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    panel?.tripulacion.orEmpty().chunked(columnas).forEach { fila ->
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                        ) {
+                            fila.forEach { t ->
+                                TarjetaTripulante(
+                                    t,
+                                    onClick = { onAstronauta(t.id) },
+                                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                                )
+                            }
+                            repeat(columnas - fila.size) { Spacer(Modifier.weight(1f)) }
+                        }
+                    }
+                }
             }
         }
     }
@@ -272,13 +295,12 @@ private fun TarjetaProtocolosABordo(conProtocolo: Int, onAbrir: () -> Unit) {
 // ---- Tarjeta de cada tripulante ----
 
 @Composable
-private fun TarjetaTripulante(fila: FilaTripulanteUi, onClick: () -> Unit) {
+private fun TarjetaTripulante(fila: FilaTripulanteUi, onClick: () -> Unit, modifier: Modifier = Modifier.fillMaxWidth()) {
     val general = fila.estadoGeneral
     Card(
         onClick = onClick,
         border = BorderStroke(if (general == EstadoCognitivo.ALERTA) 2.dp else 1.dp, colorEstado(general).copy(alpha = 0.7f)),
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .testTag(EtiquetasUi.TARJETA_TRIPULANTE)
             .heightIn(min = 48.dp),
     ) {

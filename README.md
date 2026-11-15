@@ -139,6 +139,8 @@ Usa `MaterialTheme.colorScheme` y `MaterialTheme.typography`. Para los estados (
 
 **Pantallas sin barra superior**: `PantallaBase(titulo = null)` quita la barra (para pantallas con su propia cabecera, como el selector de rol). El aviso de prototipo sigue saliendo.
 
+**Tablet**: `PantallaBase` centra el contenido con un ancho máximo (`anchoMaximo`, por defecto `ANCHO_CONTENIDO` = 840 dp) para que en tablet no se estire la interfaz del móvil. El centro de control médico usa `ANCHO_PANEL` (1200 dp) y pone las tarjetas de la tripulación en 2 columnas si hay 800 dp o más. En móvil no cambia nada.
+
 ## Reglas de diseño que todos seguimos
 
 - Tema oscuro tipo control de misión (paleta en `ui/theme/Color.kt`).

@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -112,6 +114,9 @@ private fun LoginContent(
                 .padding(padding)
                 .imePadding()
                 .verticalScroll(rememberScrollState())
+                // En tablet, formulario centrado y estrecho en vez de a todo el ancho.
+                .wrapContentWidth(Alignment.CenterHorizontally)
+                .widthIn(max = 480.dp)
                 .padding(horizontal = 24.dp, vertical = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

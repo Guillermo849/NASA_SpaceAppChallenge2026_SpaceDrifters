@@ -2,9 +2,11 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.example.nasa_spaceappchallenge2026_spacedrifters.R
 
 /**
@@ -33,6 +37,8 @@ fun PantallaBase(
     titulo: String?,
     onAtras: (() -> Unit)? = null,
     onCerrarSesion: (() -> Unit)? = null,
+    /** En pantallas anchas (tablet) el contenido se centra con este ancho como máximo. */
+    anchoMaximo: Dp = ANCHO_CONTENIDO,
     contenido: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -68,9 +74,21 @@ fun PantallaBase(
         },
         bottomBar = { AvisoPrototipo(Modifier.navigationBarsPadding()) },
         containerColor = MaterialTheme.colorScheme.background,
-        content = contenido,
-    )
+    ) { padding ->
+        // En tablet no estiramos la interfaz del móvil a todo el ancho: columna centrada.
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+            Box(Modifier.fillMaxHeight().widthIn(max = anchoMaximo)) {
+                contenido(padding)
+            }
+        }
+    }
 }
+
+/** Ancho máximo del contenido de una pantalla normal (formularios, perfiles...) en tablet. */
+val ANCHO_CONTENIDO = 840.dp
+
+/** Ancho máximo de los paneles que aprovechan más espacio (centro de control médico). */
+val ANCHO_PANEL = 1200.dp
 
 /** Contenido provisional para pantallas que aún no están hechas. */
 @Composable
