@@ -32,6 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.EtiquetasUi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalView
@@ -149,6 +151,7 @@ private fun EnCurso(guia: RespiracionGuiada, transcurrido: Long, onParar: () -> 
     Box(
         modifier = Modifier
             .fillMaxWidth(0.85f)
+            .testTag(EtiquetasUi.CIRCULO_RESPIRACION)
             .aspectRatio(1f),
         contentAlignment = Alignment.Center,
     ) {

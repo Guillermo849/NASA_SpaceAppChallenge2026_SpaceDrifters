@@ -54,6 +54,8 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.TipoPrueb
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.DatoNoche
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.DatoAgua
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.EtiquetasUi
+import androidx.compose.ui.platform.testTag
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.DatoBienestar
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.etiquetaAnimo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.etiquetaIntensidad
@@ -200,6 +202,7 @@ private fun PestanaPruebasCognitivas(
         }
     }
     LazyColumn(
+        modifier = Modifier.testTag(EtiquetasUi.LISTA_PERFIL),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -248,7 +251,10 @@ private fun TarjetaPrueba(p: PruebaMedicoUi, ahora: Long) {
     }
     val nombre = stringResource(nombrePrueba(p.tipo))
     val sinDatos = stringResource(R.string.estado_sin_datos)
-    Card(border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline), modifier = Modifier.fillMaxWidth()) {
+    Card(
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        modifier = Modifier.fillMaxWidth().testTag(EtiquetasUi.TARJETA_PRUEBA_MEDICO),
+    ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(nombre, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
@@ -387,6 +393,7 @@ private fun PorQueHaSaltado(reglaId: String, e: ExplicacionAlerta) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .testTag(EtiquetasUi.POR_QUE)
             .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.small)
             .padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),

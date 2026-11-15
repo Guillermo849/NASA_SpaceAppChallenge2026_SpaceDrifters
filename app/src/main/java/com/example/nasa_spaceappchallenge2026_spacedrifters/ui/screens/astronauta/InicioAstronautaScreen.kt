@@ -55,6 +55,8 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Sintoma
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.reglas.Regla
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.AlertasRepository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository.UltimasConstantes
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.EtiquetasUi
+import androidx.compose.ui.platform.testTag
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.etiquetaAnimo
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.etiquetaIntensidad
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.nombreEjercicio
@@ -360,7 +362,7 @@ private fun TarjetaConstantes(ultimas: UltimasConstantes?, onConstantes: () -> U
     fun entero(v: Double?) = v?.let { Math.round(it).toString() }
     Card(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().testTag(EtiquetasUi.MIS_CONSTANTES),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -557,7 +559,7 @@ private fun MiRendimiento(
         Instant.ofEpochMilli(ahora).atZone(zona).toLocalDate()
             .minusDays(periodo.dias - 1L).atStartOfDay(zona).toInstant().toEpochMilli()
     }
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.testTag(EtiquetasUi.RENDIMIENTO)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

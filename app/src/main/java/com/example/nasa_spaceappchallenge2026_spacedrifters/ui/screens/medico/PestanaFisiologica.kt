@@ -31,6 +31,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.EtiquetasUi
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -134,7 +136,7 @@ fun PestanaFisiologica(
 private fun TarjetaProtocoloMedico(p: ProtocoloMedicoUi, acciones: AccionesFisiologico) {
     var bajar by rememberSaveable { mutableStateOf(false) }
     var pedir by rememberSaveable { mutableStateOf(false) }
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth().testTag(EtiquetasUi.PROTOCOLO_MEDICO)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(
                 textoDe(nombreProtocolo(p.protocolo.protocoloId), p.protocolo.protocoloId),
@@ -272,7 +274,7 @@ private fun nombreMetrica(m: MetricaConstante) = when (m) {
 
 @Composable
 private fun TarjetaConstante(s: SerieConstanteUi) {
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth().testTag(EtiquetasUi.CONSTANTE_MEDICO)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(stringResource(nombreMetrica(s.metrica)), style = MaterialTheme.typography.titleMedium)
             val ultimo = s.ultimo
@@ -321,7 +323,7 @@ private fun TarjetaConstante(s: SerieConstanteUi) {
 
 @Composable
 private fun TarjetaComparacion(c: ComparacionUi) {
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth().testTag(EtiquetasUi.COMPARACION)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(stringResource(nombrePruebaClinica(c.tipo)), style = MaterialTheme.typography.titleMedium)
             Text(

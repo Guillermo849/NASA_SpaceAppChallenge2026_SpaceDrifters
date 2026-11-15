@@ -28,6 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.EtiquetasUi
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -153,7 +155,7 @@ private fun CabeceraMision(panel: PanelMedicoUi) {
 @Composable
 private fun ResumenTripulacion(panel: PanelMedicoUi) {
     val estados = listOf(EstadoCognitivo.ALERTA, EstadoCognitivo.VIGILAR, EstadoCognitivo.NORMAL)
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.testTag(EtiquetasUi.RESUMEN_TRIPULACION)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             estados.forEach { e ->
                 FichaNumero(
@@ -277,6 +279,7 @@ private fun TarjetaTripulante(fila: FilaTripulanteUi, onClick: () -> Unit) {
         border = BorderStroke(if (general == EstadoCognitivo.ALERTA) 2.dp else 1.dp, colorEstado(general).copy(alpha = 0.7f)),
         modifier = Modifier
             .fillMaxWidth()
+            .testTag(EtiquetasUi.TARJETA_TRIPULANTE)
             .heightIn(min = 48.dp),
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
