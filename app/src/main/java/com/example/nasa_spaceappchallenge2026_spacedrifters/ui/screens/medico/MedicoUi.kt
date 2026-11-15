@@ -188,6 +188,7 @@ data class FilaSesionUi(
 fun valorPrincipal(s: SesionConResumen): Double? = when (s.tipo) {
     TipoPrueba.STROOP -> s.efectoStroopMs
     TipoPrueba.NBACK -> s.dPrima
+    TipoPrueba.PVT -> s.pvtTrMedioMs
 }
 
 private fun estadoDe(texto: String?): EstadoCognitivo? = EstadoCognitivo.entries.firstOrNull { it.name == texto }
@@ -294,7 +295,11 @@ fun construirPerfil(
                 tipo = s.tipo,
                 fechaEn = s.inicioEn,
                 valor = valorPrincipal(s),
-                aciertos = if (s.tipo == TipoPrueba.STROOP) s.porcentajeAciertos else s.aciertosCoincidencias,
+                aciertos = when (s.tipo) {
+                    TipoPrueba.STROOP -> s.porcentajeAciertos
+                    TipoPrueba.NBACK -> s.aciertosCoincidencias
+                    TipoPrueba.PVT -> null
+                },
                 estado = estadoDe(s.estado),
                 valida = s.valida,
                 esLineaBase = s.esLineaBase,

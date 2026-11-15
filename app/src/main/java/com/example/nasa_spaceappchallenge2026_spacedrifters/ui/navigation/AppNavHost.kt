@@ -15,6 +15,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronaut
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.BienestarScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.JuegoParejasScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.RespiracionScreen
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.pvt.PvtScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop.StroopScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.login.LoginScreen
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico.DetalleSesionScreen
@@ -82,6 +83,7 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
                 onAtras = { navController.popBackStack() },
                 onEmpezarStroop = { navController.navigate(RutaPruebaStroop) },
                 onEmpezarNBack = { navController.navigate(RutaPruebaNBack) },
+                onEmpezarPvt = { navController.navigate(RutaPruebaPvt) },
                 onRegistro = { navController.navigate(RutaRegistroDiario) },
                 onBienestar = { navController.navigate(RutaBienestar) },
                 onConstantes = { navController.navigate(RutaConstantes()) },
@@ -135,6 +137,14 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             popExitTransition = { ExitTransition.None },
         ) {
             NBackScreen(onVolver = { navController.popBackStack() })
+        }
+        composable<RutaPruebaPvt>(
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None },
+        ) {
+            PvtScreen(onVolver = { navController.popBackStack() })
         }
 
         // ── Panel del médico / admin ──────────────────────────────────────────

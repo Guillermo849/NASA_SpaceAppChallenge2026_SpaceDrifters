@@ -23,10 +23,12 @@ fun fraseResultado(tipo: TipoPrueba, estado: EstadoCognitivo?): Int = when (esta
     EstadoCognitivo.VIGILAR -> when (tipo) {
         TipoPrueba.STROOP -> R.string.stroop_resultado_vigilar
         TipoPrueba.NBACK -> R.string.nback_resultado_vigilar
+        TipoPrueba.PVT -> R.string.pvt_resultado_vigilar
     }
     EstadoCognitivo.ALERTA -> when (tipo) {
         TipoPrueba.STROOP -> R.string.stroop_resultado_alerta
         TipoPrueba.NBACK -> R.string.nback_resultado_alerta
+        TipoPrueba.PVT -> R.string.pvt_resultado_alerta
     }
 }
 

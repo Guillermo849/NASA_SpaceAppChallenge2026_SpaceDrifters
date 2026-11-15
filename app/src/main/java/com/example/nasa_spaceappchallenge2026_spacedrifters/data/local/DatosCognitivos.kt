@@ -15,7 +15,7 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 // Room guarda los enum como texto (su nombre) sin necesidad de TypeConverter.
-enum class TipoPrueba { STROOP, NBACK }
+enum class TipoPrueba { STROOP, NBACK, PVT }
 
 // Una sesión = una vez que el astronauta hace una prueba
 @Entity(
@@ -68,6 +68,21 @@ data class EnsayoNBack(
     val tiempoMs: Long?          // solo si ha pulsado
 )
 
+// Cada ensayo del PVT, uno a uno
+@Entity(
+    tableName = "ensayo_pvt",
+    foreignKeys = [ForeignKey(entity = SesionPrueba::class, parentColumns = ["id"], childColumns = ["sesionId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("sesionId")]
+)
+data class EnsayoPvt(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val sesionId: Long,
+    val numero: Int,
+    val tiempoMs: Long?,      // null = lapso
+    val lapso: Boolean,       // TR >= 500 ms o sin respuesta
+    val anticipacion: Boolean // TR < 100 ms
+)
+
 // Resumen calculado al terminar la sesión (lo que se pinta en gráficas y tablas)
 @Entity(tableName = "resumen_sesion")
 data class ResumenSesion(
@@ -86,6 +101,11 @@ data class ResumenSesion(
     val falsasAlarmas: Int? = null,
     val dPrima: Double? = null,              // métrica principal N-Back
     val tiempoAciertosMs: Double? = null,
+    // PVT
+    val pvtTrMedioMs: Double? = null,        // métrica principal PVT
+    val pvtTrP90Ms: Double? = null,
+    val pvtLapsos: Int? = null,
+    val pvtAnticipaciones: Int? = null,
     // Comparación con su línea base
     val estado: String                        // NORMAL | VIGILAR | ALERTA | SIN_LINEA_BASE
 )
@@ -106,6 +126,7 @@ interface CognitivoDao {
     @Insert suspend fun insertarSesion(s: SesionPrueba): Long
     @Insert suspend fun insertarEnsayosStroop(e: List<EnsayoStroop>)
     @Insert suspend fun insertarEnsayosNBack(e: List<EnsayoNBack>)
+    @Insert suspend fun insertarEnsayosPvt(e: List<EnsayoPvt>)
     @Upsert suspend fun guardarResumen(r: ResumenSesion)
     @Upsert suspend fun guardarLineaBase(b: LineaBaseCognitiva)
 
@@ -130,6 +151,9 @@ interface CognitivoDao {
 
     @Query("SELECT * FROM ensayo_nback WHERE sesionId = :sesionId ORDER BY numero")
     suspend fun ensayosNBack(sesionId: Long): List<EnsayoNBack>
+
+    @Query("SELECT * FROM ensayo_pvt WHERE sesionId = :sesionId ORDER BY numero")
+    suspend fun ensayosPvt(sesionId: Long): List<EnsayoPvt>
 
     // Prácticas completadas (para no repetir la práctica cada vez)
     @Query("SELECT COUNT(*) FROM sesion_prueba WHERE astronautaId = :id AND tipo = :tipo AND esPractica = 1 AND valida = 1")

@@ -39,12 +39,14 @@ fun nombreCargo(cargo: CargoTripulante): Int = when (cargo) {
 fun nombrePrueba(tipo: TipoPrueba): Int = when (tipo) {
     TipoPrueba.STROOP -> R.string.stroop_nombre
     TipoPrueba.NBACK -> R.string.nback_nombre
+    TipoPrueba.PVT -> R.string.pvt_nombre
 }
 
-/** Métrica principal con su unidad: "85 ms" (efecto Stroop) o "d′ 2,24". */
+/** Métrica principal con su unidad: "85 ms" (efecto Stroop), "d′ 2,24" o "245 ms" (TR medio PVT). */
 fun formatoMetrica(tipo: TipoPrueba, valor: Double): String = when (tipo) {
     TipoPrueba.STROOP -> "${numero(valor, 0)} ms"
     TipoPrueba.NBACK -> "d′ ${numero(valor, 2)}"
+    TipoPrueba.PVT -> "${numero(valor, 0)} ms"
 }
 
 /** Número con los decimales indicados y el separador del idioma del móvil. */

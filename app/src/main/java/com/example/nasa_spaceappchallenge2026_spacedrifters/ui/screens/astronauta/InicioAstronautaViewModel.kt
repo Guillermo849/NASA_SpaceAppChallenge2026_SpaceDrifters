@@ -89,15 +89,20 @@ class InicioAstronautaViewModel(
         )
     }
 
-    val panel: StateFlow<PanelAstronautaUi> = combine(
-        hoyUi,
+    private val rendimientosFlow: Flow<List<RendimientoUi>> = combine(
         rendimiento(cognitivo, astronautaId, TipoPrueba.STROOP),
         rendimiento(cognitivo, astronautaId, TipoPrueba.NBACK),
+        rendimiento(cognitivo, astronautaId, TipoPrueba.PVT),
+    ) { stroop, nback, pvt -> listOf(stroop, nback, pvt) }
+
+    val panel: StateFlow<PanelAstronautaUi> = combine(
+        hoyUi,
+        rendimientosFlow,
         bienestar?.delDia(astronautaId, hoy) ?: flowOf(null),
         constantes?.ultimas(astronautaId) ?: flowOf(null),
-    ) { base, stroop, nback, checkin, ultimas ->
+    ) { base, rendimientos, checkin, ultimas ->
         base.copy(
-            rendimiento = listOf(stroop, nback),
+            rendimiento = rendimientos,
             bienestarHoy = checkin?.let { BienestarHoyUi(it.animo, it.estres, it.aislamiento) },
             constantes = ultimas,
         )
@@ -137,6 +142,7 @@ class InicioAstronautaViewModel(
                 val valor = when (tipo) {
                     TipoPrueba.STROOP -> r.efectoStroopMs
                     TipoPrueba.NBACK -> r.dPrima
+                    TipoPrueba.PVT -> r.pvtTrMedioMs
                 } ?: return@mapNotNull null
                 val puntuacion = if (base != null) {
                     Rendimiento.puntuacion(valor, base.media, base.desviacion, direccion)

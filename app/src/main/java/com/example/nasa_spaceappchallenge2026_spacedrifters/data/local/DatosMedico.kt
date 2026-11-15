@@ -51,6 +51,10 @@ data class SesionConResumen(
     val aciertosCoincidencias: Double?,
     val falsasAlarmas: Int?,
     val tiempoAciertosMs: Double?,
+    val pvtTrMedioMs: Double? = null,
+    val pvtTrP90Ms: Double? = null,
+    val pvtLapsos: Int? = null,
+    val pvtAnticipaciones: Int? = null,
 )
 
 @Dao
@@ -59,7 +63,8 @@ interface MedicoDao {
     @Query(
         "SELECT s.id AS sesionId, s.astronautaId, s.tipo, s.inicioEn, s.valida, s.esLineaBase, s.llegaTierraEn, " +
             "r.estado, r.efectoStroopMs, r.porcentajeAciertos, r.tiempoMedioMs, r.erroresNoCoincidentes, " +
-            "r.dPrima, r.aciertosCoincidencias, r.falsasAlarmas, r.tiempoAciertosMs " +
+            "r.dPrima, r.aciertosCoincidencias, r.falsasAlarmas, r.tiempoAciertosMs, " +
+            "r.pvtTrMedioMs, r.pvtTrP90Ms, r.pvtLapsos, r.pvtAnticipaciones " +
             "FROM sesion_prueba s LEFT JOIN resumen_sesion r ON r.sesionId = s.id " +
             "WHERE s.astronautaId = :id AND s.esPractica = 0 AND s.llegaTierraEn <= :ahora " +
             "ORDER BY s.inicioEn DESC"
@@ -69,7 +74,8 @@ interface MedicoDao {
     @Query(
         "SELECT s.id AS sesionId, s.astronautaId, s.tipo, s.inicioEn, s.valida, s.esLineaBase, s.llegaTierraEn, " +
             "r.estado, r.efectoStroopMs, r.porcentajeAciertos, r.tiempoMedioMs, r.erroresNoCoincidentes, " +
-            "r.dPrima, r.aciertosCoincidencias, r.falsasAlarmas, r.tiempoAciertosMs " +
+            "r.dPrima, r.aciertosCoincidencias, r.falsasAlarmas, r.tiempoAciertosMs, " +
+            "r.pvtTrMedioMs, r.pvtTrP90Ms, r.pvtLapsos, r.pvtAnticipaciones " +
             "FROM sesion_prueba s LEFT JOIN resumen_sesion r ON r.sesionId = s.id WHERE s.id = :sesionId"
     )
     suspend fun sesion(sesionId: Long): SesionConResumen?

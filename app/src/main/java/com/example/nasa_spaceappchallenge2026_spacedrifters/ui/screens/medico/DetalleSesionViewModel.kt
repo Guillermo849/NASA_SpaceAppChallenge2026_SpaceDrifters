@@ -53,6 +53,18 @@ class DetalleSesionViewModel(
                     TipoPrueba.NBACK -> repositorio.ensayosNBack(sesionId).map {
                         FilaEnsayoUi(it.numero, it.estimulo, null, it.esCoincidencia, null, it.pulsado, it.esCoincidencia == it.pulsado, it.tiempoMs)
                     }
+                    TipoPrueba.PVT -> repositorio.ensayosPvt(sesionId).map {
+                        FilaEnsayoUi(
+                            it.numero,
+                            "PVT",
+                            null,
+                            false,
+                            if (it.anticipacion) "ANTICIPACION" else if (it.lapso) "LAPSO" else "VALIDO",
+                            !it.lapso,
+                            !it.anticipacion && !it.lapso,
+                            it.tiempoMs,
+                        )
+                    }
                     null -> emptyList()
                 }
                 DetalleSesionUi(cargando = false, sesion = sesion, ensayos = ensayos)

@@ -327,6 +327,7 @@ private fun Dato(@StringRes etiqueta: Int, valor: String) {
 private fun etiquetaMetrica(tipo: TipoPrueba) = when (tipo) {
     TipoPrueba.STROOP -> R.string.medico_metrica_stroop
     TipoPrueba.NBACK -> R.string.medico_metrica_nback
+    TipoPrueba.PVT -> R.string.medico_metrica_pvt
 }
 
 @StringRes
@@ -341,6 +342,7 @@ private fun textoTendencia(t: Tendencia.Sentido) = when (t) {
 private fun rangoTexto(tipo: TipoPrueba, media: Double, desviacion: Double): String = when (tipo) {
     TipoPrueba.STROOP -> "${numero(media, 0)} ± ${numero(desviacion, 0)} ms"
     TipoPrueba.NBACK -> "d′ ${numero(media, 2)} ± ${numero(desviacion, 2)}"
+    TipoPrueba.PVT -> "${numero(media, 0)} ± ${numero(desviacion, 0)} ms"
 }
 
 private fun fechaCorta(instante: Long): String =
@@ -488,6 +490,7 @@ private fun nombresSintomas(codigos: List<String>): String =
 private fun nombreFuente(codigo: String): String = when (codigo) {
     TipoPrueba.STROOP.name -> stringResource(R.string.stroop_nombre)
     TipoPrueba.NBACK.name -> stringResource(R.string.nback_nombre)
+    TipoPrueba.PVT.name -> stringResource(R.string.pvt_nombre)
     AlertasRepository.FUENTE_REGISTRO -> stringResource(R.string.medico_fuente_registro)
     AlertasRepository.FUENTE_BIENESTAR -> stringResource(R.string.medico_fuente_bienestar)
     else -> codigo

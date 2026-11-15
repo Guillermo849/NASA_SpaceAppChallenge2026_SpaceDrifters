@@ -106,6 +106,12 @@ private fun TarjetaMetricas(s: SesionConResumen) {
                     Metrica(R.string.metrica_falsas_alarmas, s.falsasAlarmas?.toString())
                     Metrica(R.string.metrica_tiempo_aciertos, s.tiempoAciertosMs?.let { "${numero(it, 0)} ms" })
                 }
+                TipoPrueba.PVT -> {
+                    Metrica(R.string.medico_metrica_pvt, s.pvtTrMedioMs?.let { formatoMetrica(TipoPrueba.PVT, it) })
+                    Metrica(R.string.metrica_pvt_p90, s.pvtTrP90Ms?.let { "${numero(it, 0)} ms" })
+                    Metrica(R.string.metrica_pvt_lapsos, s.pvtLapsos?.toString())
+                    Metrica(R.string.metrica_pvt_anticipaciones, s.pvtAnticipaciones?.toString())
+                }
             }
         }
     }
@@ -130,14 +136,17 @@ private fun FilaEnsayo(e: FilaEnsayoUi, tipo: TipoPrueba) {
                 val estimulo = when (tipo) {
                     TipoPrueba.STROOP -> stringResource(R.string.medico_estimulo_stroop, nombreColor(e.estimulo), nombreColor(e.tinta.orEmpty()))
                     TipoPrueba.NBACK -> nombreForma(e.estimulo)
+                    TipoPrueba.PVT -> stringResource(R.string.pvt_nombre)
                 }
                 val clase = when (tipo) {
                     TipoPrueba.STROOP -> stringResource(if (e.coincidente) R.string.medico_coincidente else R.string.medico_no_coincidente)
                     TipoPrueba.NBACK -> stringResource(if (e.coincidente) R.string.medico_era_coincidencia else R.string.medico_no_era_coincidencia)
+                    TipoPrueba.PVT -> if (e.respuesta == "ANTICIPACION") stringResource(R.string.pvt_feedback_anticipacion) else if (e.respuesta == "LAPSO") stringResource(R.string.pvt_feedback_lapso) else stringResource(R.string.pvt_valido)
                 }
                 val respuesta = when (tipo) {
                     TipoPrueba.STROOP -> e.respuesta?.let { stringResource(R.string.medico_respuesta, nombreColor(it)) } ?: stringResource(R.string.feedback_sin_respuesta)
                     TipoPrueba.NBACK -> stringResource(if (e.pulsado) R.string.medico_pulso else R.string.medico_no_pulso)
+                    TipoPrueba.PVT -> e.tiempoMs?.let { "$it ms" } ?: stringResource(R.string.feedback_sin_respuesta)
                 }
                 Text("$estimulo · $clase", style = MaterialTheme.typography.bodyMedium)
                 Text(

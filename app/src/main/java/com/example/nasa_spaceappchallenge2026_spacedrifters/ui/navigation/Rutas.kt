@@ -26,6 +26,9 @@ data object RutaPruebaStroop
 data object RutaPruebaNBack
 
 @Serializable
+data object RutaPruebaPvt
+
+@Serializable
 data object RutaRegistroDiario
 
 // Tomar constantes (FC, tensión, SpO2, FR). Sin id: el astronauta que ha iniciado sesión.

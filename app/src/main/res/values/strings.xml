@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">SpaceDrifters · Monitor de salud</string>
+    <string name="app_name">Panacea · Monitor de salud</string>
     <!-- Nombre propio: igual en todos los idiomas. -->
-    <string name="nombre_app" translatable="false">SpaceDrifters</string>
+    <string name="nombre_app" translatable="false">Panacea</string>
 
     <!-- Comunes -->
     <string name="aviso_prototipo">Prototipo, no es un dispositivo médico · Datos simulados</string>
@@ -170,6 +170,8 @@
     <string name="stroop_resultado_alerta">Hoy has tardado bastante más de lo normal.</string>
     <string name="nback_resultado_vigilar">Hoy te ha costado algo más de lo normal recordar las formas.</string>
     <string name="nback_resultado_alerta">Hoy te ha costado bastante más de lo normal recordar las formas.</string>
+    <string name="pvt_resultado_vigilar">Hoy tus tiempos de reacción han sido algo más lentos de lo habitual.</string>
+    <string name="pvt_resultado_alerta">Hoy tus tiempos de reacción han sido notablemente más lentos de lo habitual.</string>
     <string name="prueba_interrumpida_titulo">Prueba interrumpida</string>
     <string name="prueba_interrumpida_texto">Esta sesión no cuenta. Puedes repetirla desde tu panel.</string>
     <string name="volver_panel">Volver al panel</string>
@@ -212,6 +214,21 @@
     <string name="forma_hexagono">Hexágono</string>
     <string name="forma_cruz">Cruz</string>
     <string name="forma_media_luna">Media luna</string>
+
+    <!-- PVT (Psychomotor Vigilance Task) -->
+    <string name="pvt_nombre">PVT</string>
+    <string name="pvt_descripcion_corta">Vigilancia y reacción · 3 min</string>
+    <string name="pvt_instrucciones">Toca la pantalla en cuanto aparezca el cronómetro.</string>
+    <string name="pvt_como_funciona">Aparecerá un contador en milisegundos tras una espera variable. Pulsa tan rápido como puedas cuando lo veas, pero evita anticiparte.</string>
+    <string name="pvt_practica_aviso">Primero harás unos ensayos de práctica para acostumbrarte al ritmo.</string>
+    <string name="pvt_duracion">Dura 3 minutos. Mantén la concentración durante toda la prueba.</string>
+    <string name="pvt_fin_practica_texto">Ahora empieza la prueba real de 3 minutos. Ya no verás el aviso tras cada respuesta.</string>
+    <string name="pvt_toca_ahora">¡TOCA AHORA!</string>
+    <string name="pvt_espera">Espera al estímulo…</string>
+    <string name="pvt_feedback_anticipacion">¡Demasiado pronto! (Anticipación)</string>
+    <string name="pvt_feedback_lapso">Tiempo agotado (Lapso)</string>
+    <string name="pvt_feedback_valido">%1$d ms</string>
+    <string name="pvt_valido">Válido</string>
 
     <!-- Médico -->
     <string name="medico_tripulacion_titulo">Tripulación</string>
@@ -262,6 +279,7 @@
     <string name="medico_ultima_sesion">Última sesión</string>
     <string name="medico_metrica_stroop">Efecto Stroop</string>
     <string name="medico_metrica_nback">d′ (sensibilidad)</string>
+    <string name="medico_metrica_pvt">TR medio (vigilancia)</string>
     <string name="medico_tendencia">Tendencia (3 últimas)</string>
     <string name="medico_linea_base">Línea base</string>
     <string name="tendencia_mejorando">Mejorando</string>
@@ -347,6 +365,9 @@
     <string name="medico_respuesta">Respuesta: %1$s</string>
     <string name="medico_pulso">Pulsó</string>
     <string name="medico_no_pulso">No pulsó</string>
+    <string name="metrica_pvt_p90">Percentil 90 (10% más lentos)</string>
+    <string name="metrica_pvt_lapsos">Lapsos (TR ≥ 500 ms)</string>
+    <string name="metrica_pvt_anticipaciones">Anticipaciones (TR &lt; 100 ms)</string>
 
     <!-- Fisiológico: signos de alarma y emergencia (nivel 5) -->
     <string name="alarma_boton">Tengo un síntoma de alarma</string>

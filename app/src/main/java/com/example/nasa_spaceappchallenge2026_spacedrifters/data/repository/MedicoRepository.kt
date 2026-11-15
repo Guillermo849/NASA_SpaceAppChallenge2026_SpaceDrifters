@@ -3,6 +3,7 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.Astronauta
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EnsayoNBack
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EnsayoPvt
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EnsayoStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.LineaBaseCognitiva
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.NotaMedica
@@ -64,6 +65,8 @@ class MedicoRepository(
     suspend fun ensayosStroop(sesionId: Long): List<EnsayoStroop> = db.cognitivoDao().ensayosStroop(sesionId)
 
     suspend fun ensayosNBack(sesionId: Long): List<EnsayoNBack> = db.cognitivoDao().ensayosNBack(sesionId)
+
+    suspend fun ensayosPvt(sesionId: Long): List<EnsayoPvt> = db.cognitivoDao().ensayosPvt(sesionId)
 
     // ---- Acciones ----
 

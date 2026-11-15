@@ -47,6 +47,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.Est
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.MarcaEstado
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.MarcaPrioridad
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombreCargo
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.nombrePrueba
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.PantallaBase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.components.etiquetaEstado
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.theme.LocalEstadoColores
@@ -78,6 +79,7 @@ fun InicioAstronautaScreen(
     onAtras: () -> Unit,
     onEmpezarStroop: () -> Unit,
     onEmpezarNBack: () -> Unit,
+    onEmpezarPvt: () -> Unit = {},
     onRegistro: () -> Unit,
     onCerrarSesion: () -> Unit = {},
     onBienestar: () -> Unit = {},
@@ -92,6 +94,7 @@ fun InicioAstronautaScreen(
         onAtras = onAtras,
         onEmpezarStroop = onEmpezarStroop,
         onEmpezarNBack = onEmpezarNBack,
+        onEmpezarPvt = onEmpezarPvt,
         onRegistro = onRegistro,
         protocolos = protocolos,
         signosAlarma = emergencia.signosAlarma,
@@ -108,6 +111,7 @@ private fun PanelAstronautaContenido(
     onAtras: () -> Unit,
     onEmpezarStroop: () -> Unit,
     onEmpezarNBack: () -> Unit,
+    onEmpezarPvt: () -> Unit = {},
     onRegistro: () -> Unit,
     protocolos: List<ProtocoloEnCurso> = emptyList(),
     signosAlarma: List<String> = emptyList(),
@@ -147,6 +151,7 @@ private fun PanelAstronautaContenido(
                     pruebasExtra = panel.pruebasExtra,
                     onEmpezarStroop = onEmpezarStroop,
                     onEmpezarNBack = onEmpezarNBack,
+                    onEmpezarPvt = onEmpezarPvt,
                 )
                 MiRendimiento(panel.rendimiento, periodo, onPeriodo = { periodo = it }, ahora = ahora)
             }
@@ -476,6 +481,7 @@ private fun TarjetaPruebasDeHoy(
     pruebasExtra: Set<TipoPrueba>,
     onEmpezarStroop: () -> Unit,
     onEmpezarNBack: () -> Unit,
+    onEmpezarPvt: () -> Unit = {},
 ) {
     Card(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
@@ -500,6 +506,14 @@ private fun TarjetaPruebasDeHoy(
                 hecha = TipoPrueba.NBACK in hechasHoy,
                 extra = TipoPrueba.NBACK in pruebasExtra,
                 onEmpezar = onEmpezarNBack,
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            FilaPrueba(
+                nombre = stringResource(R.string.pvt_nombre),
+                descripcion = stringResource(R.string.pvt_descripcion_corta),
+                hecha = TipoPrueba.PVT in hechasHoy,
+                extra = TipoPrueba.PVT in pruebasExtra,
+                onEmpezar = onEmpezarPvt,
             )
         }
     }
@@ -587,7 +601,7 @@ private fun MiRendimiento(
 
 @Composable
 private fun TarjetaRendimiento(r: RendimientoUi, puntos: List<PuntoRendimiento>, periodo: Periodo, desde: Long, hasta: Long) {
-    val nombre = stringResource(if (r.tipo == TipoPrueba.STROOP) R.string.stroop_nombre else R.string.nback_nombre)
+    val nombre = stringResource(nombrePrueba(r.tipo))
     val resumen = resumenRendimiento(r.tieneLineaBase, puntos)
     Card(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),

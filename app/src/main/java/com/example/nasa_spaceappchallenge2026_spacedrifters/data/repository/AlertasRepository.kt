@@ -69,7 +69,11 @@ class AlertasRepository(
                 Instant.ofEpochMilli(r.fechaEn).atZone(zona).toLocalDate(),
                 estado,
                 CognitivoRepository.metricaPrincipal(r.tipo),
-                if (r.tipo == TipoPrueba.STROOP) r.efectoStroopMs else r.dPrima,
+                when (r.tipo) {
+                    TipoPrueba.STROOP -> r.efectoStroopMs
+                    TipoPrueba.NBACK -> r.dPrima
+                    TipoPrueba.PVT -> r.pvtTrMedioMs
+                },
             )
         }
         val trip = db.tripulacionDao()

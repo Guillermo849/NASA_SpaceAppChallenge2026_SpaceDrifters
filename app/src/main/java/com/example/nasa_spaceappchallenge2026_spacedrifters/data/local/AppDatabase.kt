@@ -68,6 +68,7 @@ import java.util.concurrent.Executors
         SesionPrueba::class,
         EnsayoStroop::class,
         EnsayoNBack::class,
+        EnsayoPvt::class,
         ResumenSesion::class,
         LineaBaseCognitiva::class,
         // Registro diario
@@ -84,7 +85,7 @@ import java.util.concurrent.Executors
         BienestarDiario::class,
         ActividadBienestar::class,
     ],
-    version = 8,
+    version = 9,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {

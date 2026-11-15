@@ -3,6 +3,7 @@ package com.example.nasa_spaceappchallenge2026_spacedrifters.data.repository
 import androidx.room.withTransaction
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.AppDatabase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EnsayoNBack
+import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EnsayoPvt
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.EnsayoStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.LineaBaseCognitiva
 import com.example.nasa_spaceappchallenge2026_spacedrifters.data.local.ResumenSesion
@@ -14,6 +15,8 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.Eva
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.LineaBase
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.MetricasNBack
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.nback.ResultadoEnsayoNBack
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.pvt.MetricasPvt
+import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.pvt.ResultadoEnsayoPvt
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.MetricasStroop
 import com.example.nasa_spaceappchallenge2026_spacedrifters.domain.cognitivo.stroop.ResultadoEnsayoStroop
 import kotlinx.coroutines.flow.Flow
@@ -119,6 +122,44 @@ class CognitivoRepository(
             estado
         }
 
+    /** Guarda una sesión PVT. Devuelve el estado frente a la línea base, o null si no cuenta. */
+    suspend fun guardarPvt(sesion: SesionNueva, resultados: List<ResultadoEnsayoPvt>): EstadoCognitivo? =
+        db.withTransaction {
+            val sesionId = dao.insertarSesion(sesion.aEntidad(TipoPrueba.PVT))
+            dao.insertarEnsayosPvt(
+                resultados.map { r ->
+                    EnsayoPvt(
+                        sesionId = sesionId,
+                        numero = r.numero,
+                        tiempoMs = r.tiempoMs,
+                        lapso = r.esLapso(),
+                        anticipacion = r.isAnticipacion(),
+                    )
+                },
+            )
+            if (!sesion.cuenta) return@withTransaction null
+            db.medicoDao().marcarHechas(sesion.astronautaId, TipoPrueba.PVT, sesion.inicioEn)
+
+            val m = MetricasPvt.calcular(resultados)
+            val estado = estadoFrenteALineaBase(sesion.astronautaId, TipoPrueba.PVT, m.trMedioMs)
+            dao.guardarResumen(
+                ResumenSesion(
+                    sesionId = sesionId,
+                    astronautaId = sesion.astronautaId,
+                    tipo = TipoPrueba.PVT,
+                    fechaEn = sesion.inicioEn,
+                    llegaTierraEn = llegaTierraEn(sesion),
+                    pvtTrMedioMs = m.trMedioMs,
+                    pvtTrP90Ms = m.trP90Ms,
+                    pvtLapsos = m.lapsos,
+                    pvtAnticipaciones = m.anticipaciones,
+                    estado = estado.name,
+                ),
+            )
+            if (sesion.esLineaBase) recalcularLineaBaseSinTransaccion(sesion.astronautaId, TipoPrueba.PVT)
+            estado
+        }
+
     /** Guarda una sesión N-Back de nivel [nivel]. Devuelve el estado, o null si no cuenta. */
     suspend fun guardarNBack(
         sesion: SesionNueva,
@@ -206,21 +247,25 @@ class CognitivoRepository(
     companion object {
         const val METRICA_EFECTO_STROOP = "efectoStroopMs"
         const val METRICA_D_PRIMA = "dPrima"
+        const val METRICA_TR_MEDIO = "pvtTrMedioMs"
 
         fun metricaPrincipal(tipo: TipoPrueba) = when (tipo) {
             TipoPrueba.STROOP -> METRICA_EFECTO_STROOP
             TipoPrueba.NBACK -> METRICA_D_PRIMA
+            TipoPrueba.PVT -> METRICA_TR_MEDIO
         }
 
-        /** Para el efecto Stroop más alto es peor; para d′, más bajo. */
+        /** Para el efecto Stroop más alto es peor; para d′, más bajo; para TR medio del PVT, mayor es peor. */
         fun direccion(tipo: TipoPrueba) = when (tipo) {
             TipoPrueba.STROOP -> EvaluadorEstado.Direccion.MAYOR_ES_PEOR
             TipoPrueba.NBACK -> EvaluadorEstado.Direccion.MENOR_ES_PEOR
+            TipoPrueba.PVT -> EvaluadorEstado.Direccion.MAYOR_ES_PEOR
         }
 
         private fun practicasNecesarias(tipo: TipoPrueba) = when (tipo) {
             TipoPrueba.STROOP -> 1
             TipoPrueba.NBACK -> 2
+            TipoPrueba.PVT -> 1
         }
 
         /** Métricas con línea base de cada prueba (nombre → cómo sacarla del resumen). */
@@ -236,6 +281,11 @@ class CognitivoRepository(
                 "falsasAlarmas" to { r -> r.falsasAlarmas?.toDouble() },
                 METRICA_D_PRIMA to { r -> r.dPrima },
                 "tiempoAciertosMs" to { r -> r.tiempoAciertosMs },
+            ),
+            TipoPrueba.PVT to listOf(
+                METRICA_TR_MEDIO to { r -> r.pvtTrMedioMs },
+                "pvtTrP90Ms" to { r -> r.pvtTrP90Ms },
+                "pvtLapsos" to { r -> r.pvtLapsos?.toDouble() },
             ),
         )
     }

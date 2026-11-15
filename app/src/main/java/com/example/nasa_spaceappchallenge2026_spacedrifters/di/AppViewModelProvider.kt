@@ -24,6 +24,7 @@ import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronaut
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.bienestar.RespiracionViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.emergencia.EmergenciaViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.nback.NBackViewModel
+import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.pvt.PvtViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.registro.RegistroDiarioViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.astronauta.stroop.StroopViewModel
 import com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.login.LoginViewModel
@@ -135,6 +136,10 @@ object AppViewModelProvider {
         initializer {
             val c = app().container
             NBackViewModel(c.cognitivoRepository, c.astronautaActualId, c.ambitoAplicacion, c.alertasRepository)
+        }
+        initializer {
+            val c = app().container
+            PvtViewModel(c.cognitivoRepository, c.astronautaActualId, c.ambitoAplicacion, c.alertasRepository)
         }
         initializer {
             val c = app().container
