@@ -28,7 +28,7 @@ class MedicoFisiologicoFlujoTest {
     private fun abrirFisiologicoDe(nombre: String) {
         compose.entrarComoMedico()
         compose.waitUntil(5_000) { hay(nombre) }
-        compose.onNodeWithText(nombre).performClick()
+        compose.onNodeWithText(nombre).performScrollTo().performClick()
         compose.waitUntil(5_000) { hay(texto(R.string.medico_pestana_fisiologico)) }
         compose.onNodeWithText(texto(R.string.medico_pestana_fisiologico)).performClick()
     }

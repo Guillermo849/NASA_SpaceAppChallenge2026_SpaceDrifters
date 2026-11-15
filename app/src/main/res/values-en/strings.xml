@@ -214,6 +214,35 @@
     <!-- Doctor -->
     <string name="medico_tripulacion_titulo">Crew</string>
     <string name="medico_tripulacion_subtitulo">Data received on Earth, with the mission\'s communication delay.</string>
+    <!-- Doctor dashboard (mission control) -->
+    <string name="medico_panel_titulo">Medical mission control</string>
+    <string name="medico_panel_dia">Mission day %1$d</string>
+    <string name="medico_panel_retraso">Earth delay: %1$d min</string>
+    <string name="medico_panel_actualizado">Data received up to %1$s</string>
+    <string name="medico_panel_en_alerta">On alert</string>
+    <string name="medico_panel_a_vigilar">To watch</string>
+    <string name="medico_panel_normal">Normal</string>
+    <string name="medico_panel_avisos">Active alerts</string>
+    <string name="medico_panel_con_protocolo">With an open protocol</string>
+    <plurals name="medico_panel_protocolos_abiertos">
+        <item quantity="one">%1$d crew member with an open protocol: pending tests and results</item>
+        <item quantity="other">%1$d crew members with an open protocol: pending tests and results</item>
+    </plurals>
+    <string name="medico_panel_tripulacion">Crew · most urgent first</string>
+    <string name="medico_panel_cognitivo">Cognitive</string>
+    <string name="medico_panel_fisiologico">Protocol</string>
+    <string name="medico_panel_avisos_corto">Alerts</string>
+    <string name="medico_panel_sin_protocolos">No protocols</string>
+    <string name="medico_panel_sin_constantes">No vital signs received</string>
+    <string name="medico_panel_en_rango">In range</string>
+    <string name="medico_panel_alta">↑ High</string>
+    <string name="medico_panel_baja">↓ Low</string>
+    <string name="medico_panel_sin_referencia">No reference</string>
+    <string name="medico_corto_fc">HR</string>
+    <string name="medico_corto_pas">Sys. BP</string>
+    <string name="medico_corto_spo2">SpO₂</string>
+    <string name="medico_corto_fr">RR</string>
+    <string name="medico_corto_unidad_fr">/min</string>
     <string name="medico_sin_tripulacion">There is no crew.</string>
     <string name="medico_sin_alertas">No active alerts</string>
     <plurals name="medico_alertas_activas">

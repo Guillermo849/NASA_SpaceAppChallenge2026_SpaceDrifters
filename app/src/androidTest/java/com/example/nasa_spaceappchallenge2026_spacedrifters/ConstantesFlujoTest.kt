@@ -99,7 +99,7 @@ class ConstantesFlujoTest {
     fun medico_anadeConstantesDesdeElPerfil() {
         compose.entrarComoMedico()
         compose.waitUntil(5_000) { hay("Leo Martín") }
-        compose.onNodeWithText("Leo Martín").performClick()
+        compose.onNodeWithText("Leo Martín").performScrollTo().performClick()
         compose.waitUntil(5_000) { hay(texto(R.string.medico_pestana_fisiologico)) }
         compose.onNodeWithText(texto(R.string.medico_pestana_fisiologico)).performClick()
         compose.waitUntil(5_000) { hay(texto(R.string.constantes_anadir)) }
