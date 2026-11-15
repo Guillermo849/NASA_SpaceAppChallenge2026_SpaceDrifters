@@ -4,6 +4,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.hasScrollAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -27,7 +28,7 @@ class MedicoFlujoTest {
     private fun abrirPerfil(nombre: String) {
         compose.entrarComoMedico()
         compose.waitUntil(5_000) { hay(nombre) }
-        compose.onNodeWithText(nombre).performClick()
+        compose.onNodeWithText(nombre).performScrollTo().performClick()
         compose.waitUntil(5_000) { hay(texto(R.string.medico_pestana_cognitivas)) && hay(texto(R.string.medico_ultima_sesion)) }
     }
 

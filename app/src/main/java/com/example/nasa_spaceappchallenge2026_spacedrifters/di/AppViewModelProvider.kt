@@ -98,7 +98,15 @@ object AppViewModelProvider {
             )
         }
         // Médico
-        initializer { TripulacionViewModel(app().container.medicoRepository) }
+        initializer {
+            val c = app().container
+            TripulacionViewModel(
+                c.medicoRepository,
+                c.fisiologicoMedicoRepository,
+                c.umbrales,
+                retrasoMin = c.configMision.retrasoMisionMin,
+            )
+        }
         initializer {
             PerfilAstronautaViewModel(
                 app().container.medicoRepository,

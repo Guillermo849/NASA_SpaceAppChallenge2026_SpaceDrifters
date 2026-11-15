@@ -31,7 +31,21 @@ fun relojCada(cadaMs: Long): Flow<Long> = flow {
     }
 }
 
-// ---- Lista de tripulación ----
+// ---- Panel del médico: tripulación ----
+
+/** Una constante en miniatura: los últimos días recibidos y si el último valor sale de su franja. */
+data class ConstanteMiniUi(
+    val metrica: MetricaConstante,
+    /** (instante, valor) de los últimos [DIAS_MINIATURA] días, del más antiguo al más reciente. */
+    val puntos: List<Pair<Long, Double>>,
+    val ultimo: Double?,
+    /** El último valor está fuera de su franja (frente a su línea base). */
+    val fuera: Boolean,
+    /** Fuera por arriba (true) o por abajo (false); solo tiene sentido si [fuera]. */
+    val alto: Boolean,
+    /** Tiene línea base y franja con la que comparar; si no, no se dice "en rango". */
+    val conReferencia: Boolean = true,
+)
 
 data class FilaTripulanteUi(
     val id: Long,
@@ -42,7 +56,62 @@ data class FilaTripulanteUi(
     /** Estado de la última sesión recibida de cada prueba (null = sin sesiones). */
     val ultimoStroop: EstadoCognitivo?,
     val ultimoNBack: EstadoCognitivo?,
-)
+    /** Nivel más alto de sus protocolos fisiológicos recibidos; null = ninguno abierto. */
+    val nivelFisiologico: Int? = null,
+    /** FC, PAS, SpO2 y FR recibidas (las que tenga). */
+    val constantes: List<ConstanteMiniUi> = emptyList(),
+) {
+    val estadoGeneral: EstadoCognitivo get() = estadoGeneral(this)
+}
+
+/** Lo que pinta el panel del médico. */
+data class PanelMedicoUi(
+    /** Ordenada de la situación más urgente a la menos. */
+    val tripulacion: List<FilaTripulanteUi>,
+    /** Día de misión (1 = primer día), o null si no se sabe. */
+    val diaMision: Int?,
+    val retrasoMin: Long,
+    /** Cuándo se ha calculado (lo recibido hasta entonces). */
+    val actualizadoEn: Long,
+) {
+    fun cuantos(estado: EstadoCognitivo) = tripulacion.count { it.estadoGeneral == estado }
+    val avisos: Int get() = tripulacion.sumOf { it.alertasActivas }
+    val conProtocolo: Int get() = tripulacion.count { it.nivelFisiologico != null }
+}
+
+/** Días que se dibujan en las miniaturas de constantes del panel. */
+const val DIAS_MINIATURA = 7
+
+/**
+ * Situación general de un tripulante, para ordenar y colorear el panel (siempre con su texto):
+ * Alerta = algún protocolo en nivel 4–5 o alguna prueba cognitiva en Alerta; Vigilar = nivel 2–3,
+ * alguna prueba en Vigilar, avisos activos o alguna constante fuera de su franja; Normal si hay
+ * datos y nada de lo anterior; Sin datos si no ha llegado nada (nunca se da por "bien").
+ */
+fun estadoGeneral(f: FilaTripulanteUi): EstadoCognitivo {
+    val cognitivo = listOfNotNull(f.ultimoStroop, f.ultimoNBack)
+    val nivel = f.nivelFisiologico ?: 0
+    val hayDatos = cognitivo.any { it != EstadoCognitivo.SIN_DATOS } || f.nivelFisiologico != null ||
+        f.constantes.any { it.ultimo != null } || f.alertasActivas > 0
+    return when {
+        nivel >= 4 || EstadoCognitivo.ALERTA in cognitivo -> EstadoCognitivo.ALERTA
+        nivel >= 2 || EstadoCognitivo.VIGILAR in cognitivo || f.alertasActivas > 0 || f.constantes.any { it.fuera } ->
+            EstadoCognitivo.VIGILAR
+        hayDatos -> EstadoCognitivo.NORMAL
+        else -> EstadoCognitivo.SIN_DATOS
+    }
+}
+
+/** Primero Alerta, luego Vigilar, Normal y Sin datos; a igualdad, más avisos y nivel más alto primero. */
+fun ordenarPorUrgencia(filas: List<FilaTripulanteUi>): List<FilaTripulanteUi> {
+    val orden = listOf(EstadoCognitivo.ALERTA, EstadoCognitivo.VIGILAR, EstadoCognitivo.NORMAL, EstadoCognitivo.SIN_DATOS)
+    return filas.sortedWith(
+        compareBy<FilaTripulanteUi> { orden.indexOf(it.estadoGeneral) }
+            .thenByDescending { it.alertasActivas }
+            .thenByDescending { it.nivelFisiologico ?: 0 }
+            .thenBy { it.nombre },
+    )
+}
 
 // ---- Perfil: pestaña "Pruebas cognitivas" ----
 
@@ -123,10 +192,41 @@ fun valorPrincipal(s: SesionConResumen): Double? = when (s.tipo) {
 
 private fun estadoDe(texto: String?): EstadoCognitivo? = EstadoCognitivo.entries.firstOrNull { it.name == texto }
 
-fun aFilaTripulante(a: Astronauta, alertas: Int, sesiones: List<SesionConResumen>): FilaTripulanteUi {
+/**
+ * Un tripulante en el panel del médico.
+ * @param fisiologico su pestaña "Fisiológico" ya construida con lo recibido (nivel y constantes), o null
+ */
+fun aFilaTripulante(
+    a: Astronauta,
+    alertas: Int,
+    sesiones: List<SesionConResumen>,
+    fisiologico: FisiologicoMedicoUi? = null,
+    ahora: Long = System.currentTimeMillis(),
+): FilaTripulanteUi {
     fun ultimo(tipo: TipoPrueba) =
         sesiones.firstOrNull { it.tipo == tipo && !it.esLineaBase && it.estado != null }?.let { estadoDe(it.estado) }
-    return FilaTripulanteUi(a.id, a.nombre, a.cargo, alertas, ultimo(TipoPrueba.STROOP), ultimo(TipoPrueba.NBACK))
+    val desde = ahora - DIAS_MINIATURA * 86_400_000L
+    val constantes = fisiologico?.series.orEmpty().filter { it.puntos.isNotEmpty() }.map { s ->
+        val ultimo = s.ultimo
+        ConstanteMiniUi(
+            metrica = s.metrica,
+            puntos = s.puntos.filter { it.first >= desde },
+            ultimo = ultimo,
+            fuera = ultimo != null && s.fuera(ultimo),
+            alto = ultimo != null && s.base != null && ultimo > s.base,
+            conReferencia = s.franja != null,
+        )
+    }
+    return FilaTripulanteUi(
+        id = a.id,
+        nombre = a.nombre,
+        cargo = a.cargo,
+        alertasActivas = alertas,
+        ultimoStroop = ultimo(TipoPrueba.STROOP),
+        ultimoNBack = ultimo(TipoPrueba.NBACK),
+        nivelFisiologico = fisiologico?.nivelActual,
+        constantes = constantes,
+    )
 }
 
 /** Junta todo lo recibido en la Tierra en lo que pinta la pestaña "Pruebas cognitivas". */

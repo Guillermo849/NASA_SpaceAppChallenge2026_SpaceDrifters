@@ -216,6 +216,35 @@
     <!-- Médico -->
     <string name="medico_tripulacion_titulo">Tripulación</string>
     <string name="medico_tripulacion_subtitulo">Datos recibidos en la Tierra, con el retraso de la misión.</string>
+    <!-- Panel del médico (centro de control) -->
+    <string name="medico_panel_titulo">Centro de control médico</string>
+    <string name="medico_panel_dia">Día %1$d de misión</string>
+    <string name="medico_panel_retraso">Retraso con la Tierra: %1$d min</string>
+    <string name="medico_panel_actualizado">Datos recibidos hasta las %1$s</string>
+    <string name="medico_panel_en_alerta">En alerta</string>
+    <string name="medico_panel_a_vigilar">A vigilar</string>
+    <string name="medico_panel_normal">Normal</string>
+    <string name="medico_panel_avisos">Avisos activos</string>
+    <string name="medico_panel_con_protocolo">Con protocolo abierto</string>
+    <plurals name="medico_panel_protocolos_abiertos">
+        <item quantity="one">%1$d tripulante con protocolo abierto: pruebas pendientes y resultados</item>
+        <item quantity="other">%1$d tripulantes con protocolo abierto: pruebas pendientes y resultados</item>
+    </plurals>
+    <string name="medico_panel_tripulacion">Tripulación · lo más urgente primero</string>
+    <string name="medico_panel_cognitivo">Cognitivo</string>
+    <string name="medico_panel_fisiologico">Protocolo</string>
+    <string name="medico_panel_avisos_corto">Avisos</string>
+    <string name="medico_panel_sin_protocolos">Sin protocolos</string>
+    <string name="medico_panel_sin_constantes">Sin constantes recibidas</string>
+    <string name="medico_panel_en_rango">En rango</string>
+    <string name="medico_panel_alta">↑ Alta</string>
+    <string name="medico_panel_baja">↓ Baja</string>
+    <string name="medico_panel_sin_referencia">Sin referencia</string>
+    <string name="medico_corto_fc">FC</string>
+    <string name="medico_corto_pas">PA sist.</string>
+    <string name="medico_corto_spo2">SpO₂</string>
+    <string name="medico_corto_fr">FR</string>
+    <string name="medico_corto_unidad_fr">rpm</string>
     <string name="medico_sin_tripulacion">No hay tripulación.</string>
     <string name="medico_sin_alertas">Sin alertas activas</string>
     <plurals name="medico_alertas_activas">
