@@ -124,7 +124,7 @@ private fun PanelAstronautaContenido(
     var periodo by rememberSaveable { mutableStateOf(Periodo.SEMANA) }
     PantallaBase(
         titulo = stringResource(R.string.astronauta_inicio_titulo),
-        onAtras = onAtras,
+
         onCerrarSesion = onCerrarSesion,
     ) { padding ->
         Column(

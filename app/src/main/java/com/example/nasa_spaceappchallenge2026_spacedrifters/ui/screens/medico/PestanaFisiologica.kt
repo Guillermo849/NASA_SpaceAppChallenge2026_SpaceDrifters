@@ -1,4 +1,4 @@
-package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico
+ package com.example.nasa_spaceappchallenge2026_spacedrifters.ui.screens.medico
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
